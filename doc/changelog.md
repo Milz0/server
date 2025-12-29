@@ -1,3 +1,9 @@
+# v0.14.6 -> v0.14.7
+
+## Enhancements
+
+- Added optional File Offload support for serving file downloads via an external worker with automatic fallback to local delivery.
+
 # v0.14.5 -> v0.14.6
 
 ## Bugfixes
