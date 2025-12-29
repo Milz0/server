@@ -107,6 +107,11 @@ class DConfig {
   const NOTIFICATIONS_PROXY_SERVER = "notificationsProxyServer";
   const NOTIFICATIONS_PROXY_PORT   = "notificationsProxyPort";
   const NOTIFICATIONS_PROXY_TYPE   = "notificationsProxyType";
+
+  // Section: File Offload
+  const FILE_OFFLOAD_BASE   = "fileOffloadBase";
+  const FILE_OFFLOAD_SECRET = "fileOffloadSecret";
+  const FILE_OFFLOAD_EXPIRY = "fileOffloadExpiry";
   
   static function getConstants() {
     try {
@@ -240,6 +245,12 @@ class DConfig {
         return DConfigType::STRING_INPUT;
       case DConfig::NOTIFICATIONS_PROXY_TYPE:
         return DConfigType::SELECT;
+      case DConfig::FILE_OFFLOAD_BASE:
+        return DConfigType::STRING_INPUT;
+      case DConfig::FILE_OFFLOAD_SECRET:
+        return DConfigType::STRING_INPUT;
+      case DConfig::FILE_OFFLOAD_EXPIRY:
+        return DConfigType::NUMBER_INPUT;
       case DConfig::DISABLE_TRIMMING:
         return DConfigType::TICKBOX;
       case DConfig::PRIORITY_0_START:
@@ -374,6 +385,12 @@ class DConfig {
         return "Server url of the proxy to use for notifications.";
       case DConfig::NOTIFICATIONS_PROXY_TYPE:
         return "Proxy type to use for notifications.";
+      case DConfig::FILE_OFFLOAD_BASE:
+        return "Base URL used to serve signed file downloads (example: https://xxxx.workers.dev).";
+      case DConfig::FILE_OFFLOAD_SECRET:
+        return "Shared secret used to sign offloaded download requests (HMAC). Keep this private.";
+      case DConfig::FILE_OFFLOAD_EXPIRY:
+        return "Signed URL expiry time in seconds (recommended: 60-300).";
       case DConfig::DISABLE_TRIMMING:
         return "Disable trimming of chunks and redo whole chunks.";
       case DConfig::PRIORITY_0_START:
