@@ -115,25 +115,25 @@ if ($method === 'HEAD') {
 //offload file download here if configured:
 //if worker redirect fails, fall back to local streaming below.
 try {
-  $cfgPath = '/etc/hashtopolis/r2.php';
-  if (!file_exists($cfgPath)) {
-    throw new \RuntimeException("Config not found");
-  }
-  $cfg = require $cfgPath;
+  $workerBase = (string)SConfig::getInstance()->getVal(DConfig::R2_WORKER_BASE);
+  $dlSecret   = (string)SConfig::getInstance()->getVal(DConfig::R2_DL_SECRET);
+  $expiry     = (int)SConfig::getInstance()->getVal(DConfig::R2_EXPIRY);
 
-  if (!isset($cfg['worker_base']) || $cfg['worker_base'] === '' || !isset($cfg['dl_secret']) || $cfg['dl_secret'] === '') {
+  if ($workerBase === '' || $dlSecret === '') {
     throw new \RuntimeException("Config incomplete");
   }
 
-  $expiry = isset($cfg['expiry']) ? (int)$cfg['expiry'] : 300;
+  if ($expiry <= 0) {
+    $expiry = 300;
+  }
   if ($expiry < 30) { $expiry = 30; }
   if ($expiry > 3600) { $expiry = 3600; }
 
   $expTs = time() + $expiry;
   $key = $line->getFilename();
-  $sig = hash_hmac('sha256', $key . "\n" . $expTs, (string)$cfg['dl_secret']);
+  $sig = hash_hmac('sha256', $key . "\n" . $expTs, $dlSecret);
 
-  $base = rtrim((string)$cfg['worker_base'], '/');
+  $base = rtrim($workerBase, '/');
   $redir = $base . "/f/" . rawurlencode($key) . "?exp=" . $expTs . "&sig=" . $sig;
 
   header('Location: ' . $redir, true, 302);
