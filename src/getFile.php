@@ -115,25 +115,25 @@ if ($method === 'HEAD') {
 //offload file download here if configured:
 //if worker redirect fails, fall back to local streaming below.
 try {
-  $workerBase = (string)SConfig::getInstance()->getVal(DConfig::R2_WORKER_BASE);
-  $dlSecret   = (string)SConfig::getInstance()->getVal(DConfig::R2_DL_SECRET);
-  $expiry     = (int)SConfig::getInstance()->getVal(DConfig::R2_EXPIRY);
+  $fileOffloadBase = (string)SConfig::getInstance()->getVal(DConfig::R2_WORKER_BASE);
+  $fileOffloadSecret   = (string)SConfig::getInstance()->getVal(DConfig::R2_DL_SECRET);
+  $fileOffloadExpiry     = (int)SConfig::getInstance()->getVal(DConfig::R2_EXPIRY);
 
-  if ($workerBase === '' || $dlSecret === '') {
+  if ($fileOffloadBase === '' || $fileOffloadSecret === '') {
     throw new \RuntimeException("Config incomplete");
   }
 
-  if ($expiry <= 0) {
-    $expiry = 300;
+  if ($fileOffloadExpiry <= 0) {
+    $fileOffloadExpiry = 300;
   }
-  if ($expiry < 30) { $expiry = 30; }
-  if ($expiry > 3600) { $expiry = 3600; }
+  if ($fileOffloadExpiry < 30) { $fileOffloadExpiry = 30; }
+  if ($fileOffloadExpiry > 3600) { $fileOffloadExpiry = 3600; }
 
-  $expTs = time() + $expiry;
+  $expTs = time() + $fileOffloadExpiry;
   $key = $line->getFilename();
-  $sig = hash_hmac('sha256', $key . "\n" . $expTs, $dlSecret);
+  $sig = hash_hmac('sha256', $key . "\n" . $expTs, $fileOffloadSecret);
 
-  $base = rtrim($workerBase, '/');
+  $base = rtrim($fileOffloadBase, '/');
   $redir = $base . "/f/" . rawurlencode($key) . "?exp=" . $expTs . "&sig=" . $sig;
 
   header('Location: ' . $redir, true, 302);
