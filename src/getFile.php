@@ -100,13 +100,56 @@ else {
 header("Content-Description: " . $line->getFilename());
 header("Content-Disposition: attachment; filename=\"" . $line->getFilename() . "\"");
 
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: Thu, 19 Nov 1981 08:52:00 GMT');
+
+$method = isset($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : 'GET';
+
+if ($method === 'HEAD') {
+  header("Content-Length: " . $size);
+  header("HTTP/1.1 200 OK");
+  exit;
+}
+
+//offload file download here if configured:
+//if worker redirect fails, fall back to local streaming below.
+try {
+  $cfgPath = '/etc/hashtopolis/r2.php';
+  if (!file_exists($cfgPath)) {
+    throw new \RuntimeException("Config not found");
+  }
+  $cfg = require $cfgPath;
+
+  if (!isset($cfg['worker_base']) || $cfg['worker_base'] === '' || !isset($cfg['dl_secret']) || $cfg['dl_secret'] === '') {
+    throw new \RuntimeException("Config incomplete");
+  }
+
+  $expiry = isset($cfg['expiry']) ? (int)$cfg['expiry'] : 300;
+  if ($expiry < 30) { $expiry = 30; }
+  if ($expiry > 3600) { $expiry = 3600; }
+
+  $expTs = time() + $expiry;
+  $key = $line->getFilename();
+  $sig = hash_hmac('sha256', $key . "\n" . $expTs, (string)$cfg['dl_secret']);
+
+  $base = rtrim((string)$cfg['worker_base'], '/');
+  $redir = $base . "/f/" . rawurlencode($key) . "?exp=" . $expTs . "&sig=" . $sig;
+
+  header('Location: ' . $redir, true, 302);
+  exit;
+}
+catch (\Throwable $e) {
+  // ignore and continue with local streaming
+}
+
 if (isset($_SERVER['HTTP_RANGE'])) {
-  
+
   $c_start = $start;
   $c_end = $end;
-  
+
   list(, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
-  
+
   if (strpos($range, ',') !== false) {
     header('HTTP/1.1 416 Requested Range Not Satisfiable');
     header("Content-Range: bytes $start-$end/$size");
@@ -145,13 +188,12 @@ header("Content-Length: " . $length);
 
 $buffer = 1024 * 100;
 while (!feof($fp) && ($p = ftell($fp)) <= $end) {
-  
+
   if ($p + $buffer > $end) {
     $buffer = $end - $p + 1;
   }
   echo fread($fp, $buffer);
   flush();
 }
-
 
 fclose($fp);
