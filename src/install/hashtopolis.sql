@@ -170,7 +170,10 @@ INSERT INTO `Config` (`configId`, `configSectionId`, `item`, `value`) VALUES
   (74, 4, 'agentUtilThreshold1', '90'),
   (75, 4, 'agentUtilThreshold2', '75'),
   (76, 3, 'uApiSendTaskIsComplete', '0'),
-  (77, 1, 'hcErrorIgnore', 'DeviceGetFanSpeed');
+  (77, 1, 'hcErrorIgnore', 'DeviceGetFanSpeed'),
+  (78, 8, 'fileOffloadBaseUrl', ''),
+  (79, 8, 'fileOffloadSecret', ''),
+  (80, 8, 'fileOffloadExpiry', '300');
 
 CREATE TABLE `ConfigSection` (
   `configSectionId` INT(11)      NOT NULL,
@@ -184,7 +187,8 @@ INSERT INTO `ConfigSection` (`configSectionId`, `sectionName`) VALUES
   (4, 'UI'),
   (5, 'Server'),
   (6, 'Multicast'),
-  (7, 'Notifications');
+  (7, 'Notifications'),
+  (8, 'File Offload');
 
 CREATE TABLE `CrackerBinary` (
   `crackerBinaryId`     INT(11)      NOT NULL,
@@ -1308,11 +1312,11 @@ ALTER TABLE `Chunk`
 
 ALTER TABLE `Config`
   MODIFY `configId` INT(11) NOT NULL AUTO_INCREMENT,
-  AUTO_INCREMENT = 72;
+  AUTO_INCREMENT = 81;
 
 ALTER TABLE `ConfigSection`
   MODIFY `configSectionId` INT(11) NOT NULL AUTO_INCREMENT,
-  AUTO_INCREMENT = 8;
+  AUTO_INCREMENT = 9;
 
 ALTER TABLE `CrackerBinary`
   MODIFY `crackerBinaryId` INT(11) NOT NULL AUTO_INCREMENT,
