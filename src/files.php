@@ -15,6 +15,14 @@ if (!Login::getInstance()->isLoggedin()) {
 
 AccessControl::getInstance()->checkPermission(DViewControl::FILES_VIEW_PERM);
 
+$downloadSource = ObjectStorageUtils::getDefaultSource();
+if (!in_array($downloadSource, ["local", "remote"])) {
+  $downloadSource = "local";
+}
+
+UI::add('downloadSource', $downloadSource);
+UI::add('objectStorageEnabled', ObjectStorageUtils::isEnabled());
+
 Template::loadInstance("files/index");
 Menu::get()->setActive("files");
 
