@@ -73,6 +73,23 @@ if (!in_array($line->getAccessGroupId(), $accessGroupIds)) {
 
 $filename = Factory::getStoredValueFactory()->get(DDirectories::FILES)->getVal() . "/" . $line->getFilename();
 
+$effective = ObjectStorageUtils::getDefaultSource();
+
+if ($effective === "remote" && ObjectStorageUtils::isEnabled()) {
+  try {
+    $url = ObjectStorageUtils::presignGetFileUrl($line->getFilename());
+    header("Location: " . $url, true, 302);
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    header("Pragma: no-cache");
+    die();
+  } catch (Exception $e) {
+    DServerLog::log(
+      DServerLog::WARNING,
+      "Object storage presign failed for file '" . $line->getFilename() . "': " . $e->getMessage()
+    );
+  }
+}
+
 //file not found
 if (!file_exists($filename)) {
   die("ERR3 - file not present");
