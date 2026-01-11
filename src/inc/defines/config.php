@@ -11,15 +11,21 @@ class DConfigType {
 class DConfigAction {
   const UPDATE_CONFIG      = "updateConfig";
   const UPDATE_CONFIG_PERM = DAccessControl::SERVER_CONFIG_ACCESS;
-  
+
   const REBUILD_CACHE      = "rebuildCache";
   const REBUILD_CACHE_PERM = DAccessControl::SERVER_CONFIG_ACCESS;
-  
+
   const RESCAN_FILES      = "rescanFiles";
   const RESCAN_FILES_PERM = DAccessControl::SERVER_CONFIG_ACCESS;
-  
+
   const CLEAR_ALL      = "clearAll";
   const CLEAR_ALL_PERM = DAccessControl::SERVER_CONFIG_ACCESS;
+
+  const TEST_OBJECT_STORAGE      = "testObjectStorage";
+  const TEST_OBJECT_STORAGE_PERM = DAccessControl::SERVER_CONFIG_ACCESS;
+
+  const RESET_OBJECT_STORAGE      = "resetObjectStorage";
+  const RESET_OBJECT_STORAGE_PERM = DAccessControl::SERVER_CONFIG_ACCESS;
 }
 
 class DProxyTypes {
@@ -54,12 +60,12 @@ class DConfig {
   const HASHCAT_BRAIN_PASS     = "hashcatBrainPass";
   const HASHLIST_IMPORT_CHECK  = "hashlistImportCheck";
   const HC_ERROR_IGNORE        = "hcErrorIgnore";
-  
+
   // Section: Yubikey
   const YUBIKEY_ID  = "yubikey_id";
   const YUBIKEY_KEY = "yubikey_key";
   const YUBIKEY_URL = "yubikey_url";
-  
+
   // Section: Finetuning
   const HASHES_PAGE_SIZE           = "pagingSize";
   const NUMBER_LOGENTRIES          = "numLogEntries";
@@ -68,7 +74,7 @@ class DConfig {
   const HASH_MAX_LENGTH            = "hashMaxLength";
   const MAX_HASHLIST_SIZE          = "maxHashlistSize";
   const UAPI_SEND_TASK_IS_COMPLETE = "uApiSendTaskIsComplete";
-  
+
   // Section: UI
   const TIME_FORMAT            = "timefmt";
   const DONATE_OFF             = "donateOff";
@@ -83,7 +89,7 @@ class DConfig {
   const AGENT_TEMP_THRESHOLD_2 = "agentTempThreshold2";
   const AGENT_UTIL_THRESHOLD_1 = "agentUtilThreshold1";
   const AGENT_UTIL_THRESHOLD_2 = "agentUtilThreshold2";
-  
+
   // Section: Server
   const BASE_URL          = "baseUrl";
   const BASE_HOST         = "baseHost";
@@ -94,21 +100,35 @@ class DConfig {
   const S_NAME            = "jeSuisHashtopussy";
   const SERVER_LOG_LEVEL  = "serverLogLevel";
   const ALLOW_DEREGISTER  = "allowDeregister";
-  
+
   // Section: Multicast
   const MULTICAST_ENABLE    = "multicastEnable";
   const MULTICAST_DEVICE    = "multicastDevice";
   const MULTICAST_TR_ENABLE = "multicastTransferRateEnable";
   const MULTICAST_TR        = "multicastTranserRate";
-  
+
   // Section: Notifications
   const NOTIFICATIONS_PROXY_ENABLE = "notificationsProxyEnable";
   const TELEGRAM_BOT_TOKEN         = "telegramBotToken";
   const NOTIFICATIONS_PROXY_SERVER = "notificationsProxyServer";
   const NOTIFICATIONS_PROXY_PORT   = "notificationsProxyPort";
   const NOTIFICATIONS_PROXY_TYPE   = "notificationsProxyType";
-  
-  static function getConstants() {
+
+  // Section: Object Storage (S3 compatible)
+  const OBJECT_STORAGE_ENABLE        = "objectStorageEnable";
+  const OBJECT_STORAGE_ENDPOINT      = "objectStorageEndpoint";
+  const OBJECT_STORAGE_REGION        = "objectStorageRegion";
+  const OBJECT_STORAGE_BUCKET        = "objectStorageBucket";
+  const OBJECT_STORAGE_ACCESS_KEY    = "objectStorageAccessKey";
+  const OBJECT_STORAGE_SECRET_KEY    = "objectStorageSecretKey";
+  const OBJECT_STORAGE_PREFIX        = "objectStoragePrefix";
+  const OBJECT_STORAGE_PATH_STYLE    = "objectStoragePathStyle";
+  const OBJECT_STORAGE_VERIFY_SSL    = "objectStorageVerifySSL";
+  const OBJECT_STORAGE_PRESIGN_TTL   = "objectStoragePresignTTL";
+  const OBJECT_STORAGE_DEFAULT_SRC   = "objectStorageDefaultSource";
+
+  static function getConstants()
+  {
     try {
       $oClass = new ReflectionClass(__CLASS__);
     }
@@ -117,7 +137,7 @@ class DConfig {
     }
     return $oClass->getConstants();
   }
-  
+
   /**
    * Gives the selection for the configuration values which are selections.
    * @param string $config
@@ -143,10 +163,17 @@ class DConfig {
             DServerLog::FATAL => "FATAL"
           ]
         );
+
+      case DConfig::OBJECT_STORAGE_DEFAULT_SRC:
+        return new DataSet([
+            "local" => "Local server",
+            "remote" => "Remote bucket (pre-signed)",
+          ]
+        );
     }
     return new DataSet(["Not found!"]);
   }
-  
+
   /**
    * Gives the format which a config input should have. Default is string if it's not a known config.
    * @param $config string
@@ -272,10 +299,32 @@ class DConfig {
         return DConfigType::TICKBOX;
       case DConfig::HC_ERROR_IGNORE:
         return DConfigType::STRING_INPUT;
+      case DConfig::OBJECT_STORAGE_ENABLE:
+        return DConfigType::TICKBOX;
+      case DConfig::OBJECT_STORAGE_ENDPOINT:
+        return DConfigType::STRING_INPUT;
+      case DConfig::OBJECT_STORAGE_REGION:
+        return DConfigType::STRING_INPUT;
+      case DConfig::OBJECT_STORAGE_BUCKET:
+        return DConfigType::STRING_INPUT;
+      case DConfig::OBJECT_STORAGE_ACCESS_KEY:
+        return DConfigType::STRING_INPUT;
+      case DConfig::OBJECT_STORAGE_SECRET_KEY:
+        return DConfigType::STRING_INPUT;
+      case DConfig::OBJECT_STORAGE_PREFIX:
+        return DConfigType::STRING_INPUT;
+      case DConfig::OBJECT_STORAGE_PATH_STYLE:
+        return DConfigType::TICKBOX;
+      case DConfig::OBJECT_STORAGE_VERIFY_SSL:
+        return DConfigType::TICKBOX;
+      case DConfig::OBJECT_STORAGE_PRESIGN_TTL:
+        return DConfigType::NUMBER_INPUT;
+      case DConfig::OBJECT_STORAGE_DEFAULT_SRC:
+        return DConfigType::SELECT;
     }
     return DConfigType::STRING_INPUT;
   }
-  
+
   /**
    * @param $config string
    * @return string
@@ -406,6 +455,77 @@ class DConfig {
         return "Also send 'isComplete' for each task on the User API when listing all tasks (might affect performance)";
       case DConfig::HC_ERROR_IGNORE:
         return "Ignore error messages from crackers which contain given strings (multiple values separated by comma)";
+      case DConfig::OBJECT_STORAGE_ENABLE:
+        return "<b>Enable Object Storage</b><br>"
+          . "When enabled, Hashtopolis will mirror uploads/renames/deletes from "
+          . "<code>/usr/local/share/hashtopolis/files</code> to your S3-compatible bucket and can serve downloads using <b>pre-signed URLs</b>.<br>"
+          . "<small>Tip: Existing files are not uploaded automatically; only new changes are mirrored.</small>";
+      case DConfig::OBJECT_STORAGE_ENDPOINT:
+        return "<b>Endpoint URL</b><br>"
+          . "The base S3 API endpoint used for requests and pre-signed downloads.<br>"
+          . "<ul>"
+          . "<li>AWS: <code>https://s3.eu-west-1.amazonaws.com</code> (or <code>https://s3.amazonaws.com</code> for <code>us-east-1</code>)</li>"
+          . "<li>Cloudflare R2: <code>https://&lt;accountid&gt;.r2.cloudflarestorage.com</code></li>"
+          . "<li>Backblaze B2 S3: <code>https://s3.&lt;region&gt;.backblazeb2.com</code></li>"
+          . "</ul>"
+          . "<small>Do not include the bucket name in the endpoint unless your provider explicitly requires it.</small>";
+      case DConfig::OBJECT_STORAGE_REGION:
+        return "<b>Region (SigV4)</b><br>"
+          . "Region value used for AWS Signature Version 4 request signing.<br>"
+          . "<ul>"
+          . "<li>AWS S3: must match the bucket region (e.g. <code>eu-west-1</code>)</li>"
+          . "<li>Cloudflare R2: use <code>auto</code></li>"
+          . "<li>Many S3-compatible services: often <code>us-east-1</code> or a provider-specific region code</li>"
+          . "</ul>"
+          . "<small>If signatures fail with <code>403 SignatureDoesNotMatch</code>, verify this value first.</small>";
+      case DConfig::OBJECT_STORAGE_BUCKET:
+        return "<b>Bucket Name</b><br>"
+          . "The bucket that will store mirrored Hashtopolis files from "
+          . "<code>/usr/local/share/hashtopolis/files</code>.<br>"
+          . "<small>The bucket must already exist and the access key must have permission to read/write objects in it.</small>";
+      case DConfig::OBJECT_STORAGE_ACCESS_KEY:
+        return "<b>Access Key ID</b><br>"
+          . "The access key (sometimes called <i>Key ID</i>) used to authenticate to the S3-compatible API.<br>"
+          . "<small>Best practice: create a key restricted to this single bucket.</small>";
+      case DConfig::OBJECT_STORAGE_SECRET_KEY:
+        return "<b>Secret Access Key</b><br>"
+          . "The secret key paired with the Access Key ID. This is used to sign API requests and generate pre-signed URLs.<br>"
+          . "<small>Keep this private and rotate it if you suspect exposure.</small>";
+      case DConfig::OBJECT_STORAGE_PREFIX:
+        return "<b>Object Key Prefix (optional)</b><br>"
+          . "An optional prefix (virtual folder) added in front of every stored object key.<br>"
+          . "<ul>"
+          . "<li>Example prefix: <code>hashtopolis/files</code></li>"
+          . "<li>Resulting object path: <code>hashtopolis/files/&lt;filename&gt;</code></li>"
+          . "</ul>"
+          . "<small>Leave empty to store objects at the bucket root.</small>";
+      case DConfig::OBJECT_STORAGE_PATH_STYLE:
+        return "<b>Path-style Addressing</b><br>"
+          . "Controls how URLs are built and signed:<br>"
+          . "<ul>"
+          . "<li><b>Enabled</b>: <code>https://endpoint/bucket/key</code></li>"
+          . "<li><b>Disabled</b>: <code>https://bucket.endpoint/key</code> (virtual-host style)</li>"
+          . "</ul>"
+          . "<small>Cloudflare R2 typically requires path-style. AWS usually works best with virtual-host style.</small>";
+      case DConfig::OBJECT_STORAGE_VERIFY_SSL:
+        return "<b>Verify TLS Certificates</b><br>"
+          . "When enabled, Hashtopolis verifies the TLS certificate presented by the endpoint (recommended).<br>"
+          . "<small>Disable only for private/self-hosted endpoints (e.g. MinIO with a self-signed certificate).</small>";
+      case DConfig::OBJECT_STORAGE_PRESIGN_TTL:
+        return "<b>Pre-signed URL TTL (seconds)</b><br>"
+          . "How long a generated pre-signed download URL remains valid.<br>"
+          . "<ul>"
+          . "<li>Recommended: <code>≤60</code> seconds</li>"
+          . "</ul>"
+          . "<small>Agents usually fetch immediately; shorter TTL reduces exposure if a URL leaks.</small>";
+      case DConfig::OBJECT_STORAGE_DEFAULT_SRC:
+        return "<b>Default Download Source</b><br>"
+          . "Controls how agents and server-side downloads fetch files:<br>"
+          . "<ul>"
+          . "<li><b>Local</b>: always from the Hashtopolis server filesystem</li>"
+          . "<li><b>Remote</b>: prefer pre-signed object storage downloads</li>"
+          . "</ul>"
+          . "<small>Choose <b>Remote</b> only if your bucket contains the mirrored files.</small>";
     }
     return $config;
   }
