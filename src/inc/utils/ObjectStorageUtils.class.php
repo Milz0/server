@@ -9,7 +9,7 @@ class ObjectStorageUtils {
 
   public static function getDefaultSource() {
     $src = trim(strval(SConfig::getInstance()->getVal(DConfig::OBJECT_STORAGE_DEFAULT_SRC)));
-    
+
     if ($src === "remote") {
       return "remote";
     }
@@ -130,15 +130,23 @@ class ObjectStorageUtils {
     return $cfg['prefix'] . $filename;
   }
 
+  /**
+   * @param string $localPath
+   * @param string $filename
+   * @throws HTException
+   */
   public static function uploadFile($localPath, $filename) {
     if (!self::isEnabled()) {
       return;
     }
+    if (!is_file($localPath) || !is_readable($localPath)) {
+      throw new HTException("Local file not readable for upload: " . $localPath);
+    }
     $cfg = self::getCfg();
     $key = $cfg['prefix'] . $filename;
-    self::requestSignedWithCfg($cfg, 'PUT', $key, [], [
+    self::requestSignedPutFileWithCfg($cfg, $key, [
       'Content-Type' => 'application/octet-stream',
-    ], file_get_contents($localPath));
+    ], $localPath);
   }
 
   public static function deleteFile($filename) {
@@ -298,6 +306,131 @@ class ObjectStorageUtils {
     if ($code < 200 || $code >= 300) {
       throw new HTException("Object storage request failed (HTTP " . $code . ")" . ((strlen($respBody) > 0) ? ": " . $respBody : ""));
     }
+    return [$code, $respBody];
+  }
+
+  /**
+   * @param array  $cfg
+   * @param string $objectKey
+   * @param array  $headers
+   * @param string $localPath
+   * @return array
+   * @throws HTException
+   */
+  private static function requestSignedPutFileWithCfg($cfg, $objectKey, $headers, $localPath) {
+    $url = self::buildEndpoint($cfg, $objectKey);
+    $parts = parse_url($url);
+    if ($parts === false || !isset($parts['scheme']) || !isset($parts['host'])) {
+      throw new HTException("Invalid object storage endpoint URL!");
+    }
+
+    $fileSize = filesize($localPath);
+    if ($fileSize === false) {
+      throw new HTException("Failed to determine file size for upload: " . $localPath);
+    }
+
+    $payloadHash = hash_file('sha256', $localPath);
+    if ($payloadHash === false) {
+      throw new HTException("Failed to hash file for upload: " . $localPath);
+    }
+
+    $amzDate = gmdate('Ymd\THis\Z');
+    $dateStamp = gmdate('Ymd');
+
+    $headersLower = [];
+    foreach ($headers as $k => $v) {
+      $headersLower[strtolower($k)] = trim($v);
+    }
+
+    $headersLower['host'] = strtolower($parts['host']);
+    $headersLower['x-amz-content-sha256'] = $payloadHash;
+    $headersLower['x-amz-date'] = $amzDate;
+
+    ksort($headersLower);
+    $signedHeaders = implode(";", array_keys($headersLower));
+
+    $canonicalHeaders = "";
+    foreach ($headersLower as $k => $v) {
+      $canonicalHeaders .= $k . ":" . preg_replace('/\s+/', ' ', $v) . "\n";
+    }
+
+    $canonicalUri = self::canonicalUriFromUrl($parts);
+
+    $canonicalQuery = "";
+    if (isset($parts['query'])) {
+      parse_str($parts['query'], $qArr);
+      ksort($qArr);
+      $canonicalQuery = self::canonicalQuery($qArr);
+    }
+
+    $canonicalRequest =
+      "PUT\n" .
+      $canonicalUri . "\n" .
+      $canonicalQuery . "\n" .
+      $canonicalHeaders . "\n" .
+      $signedHeaders . "\n" .
+      $payloadHash;
+
+    $credentialScope = $dateStamp . "/" . $cfg['region'] . "/" . self::SERVICE . "/aws4_request";
+    $stringToSign =
+      "AWS4-HMAC-SHA256\n" .
+      $amzDate . "\n" .
+      $credentialScope . "\n" .
+      hash('sha256', $canonicalRequest);
+
+    $signingKey = self::getSigningKey($cfg['secretKey'], $dateStamp, $cfg['region'], self::SERVICE);
+    $signature = hash_hmac('sha256', $stringToSign, $signingKey);
+
+    $authorization =
+      "AWS4-HMAC-SHA256 Credential=" . $cfg['accessKey'] . "/" . $credentialScope .
+      ", SignedHeaders=" . $signedHeaders .
+      ", Signature=" . $signature;
+
+    $headersLower['authorization'] = $authorization;
+
+    $curlHeaders = [];
+    foreach ($headersLower as $k => $v) {
+      $curlHeaders[] = $k . ": " . $v;
+    }
+    $curlHeaders[] = "Expect:";
+
+    $fp = @fopen($localPath, "rb");
+    if ($fp === false) {
+      throw new HTException("Failed to open file for upload: " . $localPath);
+    }
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $curlHeaders);
+    curl_setopt($ch, CURLOPT_HEADER, false);
+
+    curl_setopt($ch, CURLOPT_UPLOAD, true);
+    curl_setopt($ch, CURLOPT_INFILE, $fp);
+    curl_setopt($ch, CURLOPT_INFILESIZE, $fileSize);
+
+    if (!isset($cfg['verifySSL']) || !$cfg['verifySSL']) {
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    }
+
+    $respBody = curl_exec($ch);
+    if ($respBody === false) {
+      $err = curl_error($ch);
+      curl_close($ch);
+      fclose($fp);
+      throw new HTException("Object storage request failed: " . $err);
+    }
+
+    $code = intval(curl_getinfo($ch, CURLINFO_HTTP_CODE));
+    curl_close($ch);
+    fclose($fp);
+
+    if ($code < 200 || $code >= 300) {
+      throw new HTException("Object storage request failed (HTTP " . $code . ")" . ((strlen($respBody) > 0) ? ": " . $respBody : ""));
+    }
+
     return [$code, $respBody];
   }
 
