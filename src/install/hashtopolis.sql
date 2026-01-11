@@ -170,7 +170,18 @@ INSERT INTO `Config` (`configId`, `configSectionId`, `item`, `value`) VALUES
   (74, 4, 'agentUtilThreshold1', '90'),
   (75, 4, 'agentUtilThreshold2', '75'),
   (76, 3, 'uApiSendTaskIsComplete', '0'),
-  (77, 1, 'hcErrorIgnore', 'DeviceGetFanSpeed');
+  (77, 1, 'hcErrorIgnore', 'DeviceGetFanSpeed'),
+  (78, 8, 'objectStorageEnable', '0'),
+  (80, 8, 'objectStorageEndpoint', ''),
+  (81, 8, 'objectStorageRegion', ''),
+  (82, 8, 'objectStorageBucket', ''),
+  (83, 8, 'objectStorageAccessKey', ''),
+  (84, 8, 'objectStorageSecretKey', ''),
+  (85, 8, 'objectStoragePrefix', ''),
+  (86, 8, 'objectStoragePathStyle', '0'),
+  (87, 8, 'objectStorageVerifySSL', '1'),
+  (88, 8, 'objectStoragePresignTTL', '60'),
+  (89, 8, 'objectStorageDefaultSource', 'local');
 
 CREATE TABLE `ConfigSection` (
   `configSectionId` INT(11)      NOT NULL,
@@ -184,7 +195,8 @@ INSERT INTO `ConfigSection` (`configSectionId`, `sectionName`) VALUES
   (4, 'UI'),
   (5, 'Server'),
   (6, 'Multicast'),
-  (7, 'Notifications');
+  (7, 'Notifications'),
+  (8, 'Object Storage');
 
 CREATE TABLE `CrackerBinary` (
   `crackerBinaryId`     INT(11)      NOT NULL,
