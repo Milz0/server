@@ -93,7 +93,10 @@ class FileUtils {
     else if (sizeof($pretasks) > 0) {
       throw new HTException("This file is currently used in a preconfigured task!");
     }
-    
+    if (ObjectStorageUtils::isEnabled()) {
+      ObjectStorageUtils::deleteFile($file->getFilename());
+    }
+
     FileDownloadUtils::removeFile($file->getId());
     $fileDelete = new FileDelete(null, $file->getFilename(), time());
     Factory::getFileDeleteFactory()->save($fileDelete);
@@ -129,6 +132,12 @@ class FileUtils {
           $resp = Util::insertFile($tmpfile, $realname, $view, $accessGroup->getId());
           if ($resp) {
             $fileCount++;
+            try {
+              ObjectStorageUtils::uploadFile($tmpfile, $realname);
+            }
+            catch (Exception $e) {
+              DServerLog::log(DServerLog::WARNING, "Object storage upload failed for file '" . $realname . "': " . $e->getMessage());
+            }
           }
           else {
             throw new HTException("Failed to insert file $realname into DB!");
@@ -140,6 +149,16 @@ class FileUtils {
         break;
       case "upload":
         // from http upload
+        if (!isset($file["upfile"])) {
+          throw new HTException("No file selected for upload!");
+        }
+        $uploaded = $file["upfile"];
+        if (!isset($uploaded["name"])) {
+          throw new HTException("No file selected for upload!");
+        }
+        if (is_array($uploaded["name"]) && count($uploaded["name"]) == 0) {
+          throw new HTException("No file selected for upload!");
+        }
         $uploaded = $file["upfile"];
         $numFiles = count($file["upfile"]["name"]);
         for ($i = 0; $i < $numFiles; $i++) {
@@ -162,6 +181,12 @@ class FileUtils {
             $resp = Util::insertFile($tmpfile, $realname, $view, $accessGroup->getId());
             if ($resp) {
               $fileCount++;
+              try {
+                ObjectStorageUtils::uploadFile($tmpfile, $realname);
+              }
+              catch (Exception $e) {
+                DServerLog::log(DServerLog::WARNING, "Object storage upload failed for file '" . $realname . "': " . $e->getMessage());
+              }
             }
             else {
               throw new HTException("Failed to insert file $realname into DB!");
@@ -193,6 +218,12 @@ class FileUtils {
             $resp = Util::insertFile($tmpfile, $realname, $view, $accessGroup->getId());
             if ($resp) {
               $fileCount++;
+              try {
+                ObjectStorageUtils::uploadFile($tmpfile, $realname);
+              }
+              catch (Exception $e) {
+                DServerLog::log(DServerLog::WARNING, "Object storage upload failed for file '" . $realname . "': " . $e->getMessage());
+              }
             }
             else {
               throw new HTException("Failed to insert file $realname into DB!");
@@ -221,6 +252,12 @@ class FileUtils {
           $resp = Util::insertFile($tmpfile, $realname, $view, $accessGroup->getId());
           if ($resp) {
             $fileCount++;
+            try {
+              ObjectStorageUtils::uploadFile($tmpfile, $realname);
+            }
+            catch (Exception $e) {
+              DServerLog::log(DServerLog::WARNING, "Object storage upload failed for file '" . $realname . "': " . $e->getMessage());
+            }
           }
           else {
             throw new HTException("Failed to insert file $realname into DB!");
@@ -306,6 +343,12 @@ class FileUtils {
     if (!$success) {
       Factory::getAgentFactory()->getDB()->rollback();
       throw new HTException("Failed to rename file!");
+    }
+    try {
+      ObjectStorageUtils::renameFile($file->getFilename(), $newName);
+    }
+    catch (Exception $e) {
+      DServerLog::log(DServerLog::WARNING, "Object storage rename failed for file '" . $file->getFilename() . "' -> '" . $newName . "': " . $e->getMessage());
     }
     
     // check if there are old deletion requests with the same name
