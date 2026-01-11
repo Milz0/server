@@ -46,6 +46,12 @@
                       <td>[[file.getId()]]</td>
                       <td>
                           <a name="[[file.getId()]]" href="getFile.php?file=[[file.getId()]]" target="_blank">[[file.getFilename()]]</a>
+                          {{IF [[objectStorageEnabled]] == 1 && [[downloadSource]] == "remote"}}
+                            <span class="badge badge-info ml-1">REMOTE</span>
+                          {{ELSE}}
+                            <span class="badge badge-secondary ml-1">LOCAL</span>
+                          {{ENDIF}}
+
                           {{IF [[file.getIsSecret()]] == '1'}}
                               <span class="fas fa-lock" aria-hidden="true"></span>
                           {{ENDIF}}
