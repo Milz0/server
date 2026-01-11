@@ -12,6 +12,7 @@
     <button onclick="window.location='config.php?view=5'" type="button" class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 5}} active{{ENDIF}}">Server</button>
     <button onclick="window.location='config.php?view=6'" type="button" class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 6}} active{{ENDIF}}">Multicast</button>
     <button onclick="window.location='config.php?view=7'" type="button" class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 7}} active{{ENDIF}}">Notifications</button>
+    <button onclick="window.location='config.php?view=8'" type="button" class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 8}} active{{ENDIF}}">Object Storage</button>
   </div>
 </div>
 
@@ -23,53 +24,235 @@
   </div>
 {{ENDIF}}
 
-<form action="" method="POST">
-	<input type='hidden' name='action' value='[[$DConfigAction::UPDATE_CONFIG]]'>
-	<input type="hidden" name="csrf" value="[[csrf]]">
-	<div class="card">
+<form action="" method="POST" id="configForm">
+  <input type='hidden' name='action' value='[[$DConfigAction::UPDATE_CONFIG]]'>
+  <input type="hidden" name="csrf" value="[[csrf]]">
+
+  {{IF [[configSectionId]] == 8}}
+    <input type="hidden" id="objectStorageTestPassed" name="objectStorageTestPassed" value="0">
+    <div id="objectStorageTestResult" class="mb-3" style="display:none;"></div>
+
+    <div class="card mb-3">
+      <div class="card-header" style="padding: .5rem 1rem;">
+        <button class="btn btn-link p-0" type="button"
+                data-toggle="collapse" data-target="#objstoreHelp"
+                aria-expanded="false" aria-controls="objstoreHelp">
+          Object Storage setup help (click to expand)
+        </button>
+      </div>
+
+      <div id="objstoreHelp" class="collapse">
+        <div class="card-body">
+
+          <div class="alert alert-info mb-3">
+            <b>How to use this page</b><br>
+            1) Enter values, 2) click <b>Test connection (write)</b>, 3) if it passes, click <b>Save Changes</b>.<br>
+            If the test fails, correct the fields and test again.
+          </div>
+
+      <h5 class="mb-2">Field guidance</h5>
+      <ul class="mb-3">
+        <li><b>Endpoint</b>: Base S3 API endpoint (do not include the bucket name unless your provider explicitly requires it).</li>
+        <li><b>Bucket</b>: Bucket/container name. The bucket must already exist.</li>
+        <li><b>Region</b>: Provider region identifier used for request signing (SigV4). Some providers do not require this, but most do.</li>
+        <li><b>Access Key ID</b>: Identifier for the credentials used to access the object storage API.
+          <br>
+          <small>
+            This key should belong to a dedicated user or service account with permissions limited to this bucket.
+          </small>
+        </li>
+       <li><b>Secret Access Key</b>: Secret key paired with the Access Key ID. Used to sign API requests and generate pre-signed URLs.
+         <br>
+         <small>
+           The key must have <b>read and write</b> permissions for the bucket. For security, scope it to the minimum required permissions and rotate it if exposed.
+         </small>
+       </li>
+       <li><b>Path-style</b>: If enabled, requests use <code>/bucket/object</code>. If disabled, requests use <code>bucket.endpoint/object</code> (virtual-host style).</li>
+       <li><b>Verify SSL</b>: Keep enabled unless you are using a private or self-signed TLS certificate and understand the security implications.</li>
+       <li><b>Prefix</b>: Optional folder/prefix inside the bucket (for example <code>hashtopolis/</code>).</li>
+       <li><b>Presign TTL</b>: Lifetime of generated pre-signed URLs in seconds. <code>60</code> seconds is more than sufficient in most cases.</li>
+       <li><b>Default Source</b>: Controls whether files are served from the local filesystem or via object storage (<code>local</code> / <code>remote</code>).</li>
+     </ul>
+          <h5 class="mb-2">Provider endpoint examples</h5>
+          <div class="table-responsive">
+            <table class="table table-sm table-bordered mb-0">
+              <thead>
+                <tr>
+                  <th style="width: 18%;">Provider</th>
+                  <th>Endpoint</th>
+                  <th style="width: 14%;">Region</th>
+                  <th style="width: 12%;">Path-style</th>
+                  <th style="width: 26%;">Docs</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>AWS S3</td>
+                  <td>
+                    <code>https://s3.&lt;region&gt;.amazonaws.com</code>
+                    <br><small class="text-muted">(or <code>https://s3.amazonaws.com</code> for us-east-1)</small>
+                  </td>
+                  <td><code>eu-west-1</code></td>
+                  <td>Typically <b>OFF</b></td>
+                  <td>
+                    <a href="https://docs.aws.amazon.com/general/latest/gr/s3.html" target="_blank" rel="noopener noreferrer">
+                      AWS S3 endpoints &amp; regions
+                    </a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Cloudflare R2</td>
+                  <td><code>https://&lt;accountid&gt;.r2.cloudflarestorage.com</code></td>
+                  <td><code>auto</code></td>
+                  <td>Usually <b>ON</b></td>
+                  <td>
+                    <a href="https://developers.cloudflare.com/r2/api/s3/api/" target="_blank" rel="noopener noreferrer">
+                      Cloudflare R2 S3 API compatibility
+                    </a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Backblaze B2 (S3)</td>
+                  <td><code>https://s3.&lt;region&gt;.backblazeb2.com</code></td>
+                  <td><code>us-west-004</code></td>
+                  <td>Often <b>ON</b></td>
+                  <td>
+                    <a href="https://www.backblaze.com/apidocs/introduction-to-the-s3-compatible-api" target="_blank" rel="noopener noreferrer">
+                      Backblaze S3 compatible API
+                    </a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>DigitalOcean Spaces</td>
+                  <td><code>https://&lt;region&gt;.digitaloceanspaces.com</code></td>
+                  <td><code>fra1</code></td>
+                  <td>Typically <b>OFF</b></td>
+                  <td>
+                    <a href="https://docs.digitalocean.com/reference/api/spaces/" target="_blank" rel="noopener noreferrer">
+                      DigitalOcean Spaces API reference
+                    </a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Scaleway Object Storage</td>
+                  <td><code>https://s3.&lt;region&gt;.scw.cloud</code></td>
+                  <td><code>fr-par</code></td>
+                  <td>Commonly <b>ON</b></td>
+                  <td>
+                    <a href="https://www.scaleway.com/en/docs/object-storage/" target="_blank" rel="noopener noreferrer">
+                      Scaleway S3 API
+                    </a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Wasabi</td>
+                  <td><code>https://s3.&lt;region&gt;.wasabisys.com</code></td>
+                  <td><code>eu-central-1</code></td>
+                  <td>Typically <b>OFF</b></td>
+                  <td>
+                    <a href="https://docs.wasabi.com/apidocs/wasabi-api" target="_blank" rel="noopener noreferrer">
+                      Wasabi S3 API usage
+                    </a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>MinIO (self-hosted)</td>
+                  <td><code>https://minio.example.com:9000</code></td>
+                  <td>optional</td>
+                  <td>Depends</td>
+                  <td>
+                    <a href="https://min.io/docs/minio/linux/index.html" target="_blank" rel="noopener noreferrer">
+                      MinIO documentation
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-3">
+            <small class="text-muted">
+              Providers change documentation and endpoints over time. If something does not work, verify endpoint/region/path-style in the provider’s current S3 compatibility docs.
+            </small>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  {{ENDIF}}
+
+  <div class="card">
     <div class="table-responsive">
       <table class="table table-bordered">
-			  <tr>
-				  <th>Item</th>
-				  <th>Value</th>
-			  </tr>
-			  {{FOREACH conf;[[configuration]]}}
-				  <tr>
-					  <td>[[DConfig::getConfigDescription([[conf.getVal('item')]])]]</td>
-					  <td>
-						  {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "string"}}
-							  <input type="text" class='form-control' name="config_[[conf.getVal('item')]]" value="[[Util::escapeSpecial([[conf.getVal('value')]])]]" title="Config Value">
-						  {{ENDIF}}
-						  {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "number"}}
-							  <input type="number" class='form-control' name="config_[[conf.getVal('item')]]" value="[[Util::escapeSpecial([[conf.getVal('value')]])]]" title="Config Value">
-						  {{ENDIF}}
-						  {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "email"}}
-							  <input type="email" class='form-control' name="config_[[conf.getVal('item')]]" value="[[Util::escapeSpecial([[conf.getVal('value')]])]]" title="Config Value">
-						  {{ENDIF}}
-						  {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "checkbox"}}
-							  <input type="hidden" name="config_[[conf.getVal('item')]]" value="0">
-							  <input title="Config Value" type="checkbox" name="config_[[conf.getVal('item')]]" value="1" {{IF [[conf.getVal('value')]] == 1}}checked{{ENDIF}}>
-						  {{ENDIF}}
+        <tr>
+          <th>Item</th>
+          <th>Value</th>
+        </tr>
+        {{FOREACH conf;[[configuration]]}}
+          <tr>
+            <td>[[DConfig::getConfigDescription([[conf.getVal('item')]])]]</td>
+            <td>
+              {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "string"}}
+                <input type="text" class='form-control' name="config_[[conf.getVal('item')]]" value="[[Util::escapeSpecial([[conf.getVal('value')]])]]" title="Config Value">
+              {{ENDIF}}
+              {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "number"}}
+                <input type="number" class='form-control' name="config_[[conf.getVal('item')]]" value="[[Util::escapeSpecial([[conf.getVal('value')]])]]" title="Config Value">
+              {{ENDIF}}
+              {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "email"}}
+                <input type="email" class='form-control' name="config_[[conf.getVal('item')]]" value="[[Util::escapeSpecial([[conf.getVal('value')]])]]" title="Config Value">
+              {{ENDIF}}
+              {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "checkbox"}}
+                <input type="hidden" name="config_[[conf.getVal('item')]]" value="0">
+                <input title="Config Value" type="checkbox" name="config_[[conf.getVal('item')]]" value="1" {{IF [[conf.getVal('value')]] == 1}}checked{{ENDIF}}>
+              {{ENDIF}}
               {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "select"}}
                 <select name="config_[[conf.getVal('item')]]" class="form-control" title="config_[[conf.getVal('item')]]">
                   {{FOREACH key;[[DConfig::getSelection([[conf.getVal('item')]])->getKeys()]]}}
                     <option value="[[key]]"{{IF [[conf.getVal('value')]] == [[key]]}} selected{{ENDIF}}>[[DConfig::getSelection([[conf.getVal('item')]])->getVal([[key]])]]</option>
                   {{ENDFOREACH}}
                 </select>
-						  {{ENDIF}}
-					  </td>
-				  </tr>
-			  {{ENDFOREACH}}
-			  <tr>
-				  <td colspan="2">
-					  <input type="submit" class='btn btn-success' value="Save Changes">
-				  </td>
-			  </tr>
-		  </table>
+              {{ENDIF}}
+            </td>
+          </tr>
+        {{ENDFOREACH}}
+        <tr>
+          <td colspan="2">
+            {{IF [[configSectionId]] == 8}}
+              <button type="button" class="btn btn-secondary mr-2" id="btnObjectStorageTest">
+                Test connection
+              </button>
+
+              <button type="submit" class="btn btn-success mr-2" id="btnSaveConfig">
+                Save Changes
+              </button>
+
+              <button type="button" class="btn btn-danger" id="btnResetObjectStorage">
+                Delete profile
+              </button>
+            {{ELSE}}
+              <input type="submit" class='btn btn-success' value="Save Changes">
+            {{ENDIF}}
+          </td>
+        </tr>
+      </table>
     </div>
-	</div>
+  </div>
 </form>
 
+{{IF [[configSectionId]] == 8}}
+  <form id="resetObjectStorageForm" method="POST" action="config.php?view=8">
+    <input type="hidden" name="csrf" value="[[csrf]]">
+    <input type="hidden" name="action" value="[[$DConfigAction::RESET_OBJECT_STORAGE]]">
+  </form>
+
+  <script src="static/objectstorage.js"></script>
+{{ENDIF}}
 <h3>Database tools:</h3>
 <div class="card">
   <div class="table-responsive">
