@@ -1,40 +1,61 @@
 {%TEMPLATE->struct/head%}
 {%TEMPLATE->struct/menu%}
-<h2>All Permission Groups ([[sizeof([[groups]])]])</h2>
+
+<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-3">
+  <h2 class="mb-0">All Permission Groups ([[sizeof([[groups]])]])</h2>
+  <a href="access.php?new=true" class="btn btn-success">
+    Create New Permission Group
+  </a>
+</div>
+
 {%TEMPLATE->struct/messages%}
+
 <div class="card">
   <div class="table-responsive">
-    <table class="table table-bordered">
-      <tr>
-        <th colspan="5" class="text-center">
-          <a href="access.php?new=true"><button class="btn btn-success">Create New Permission Group</button></a>
-        </th>
-      </tr>
-		  <tr>
-			  <th>ID</th>
-			  <th>Name</th>
-			  <th># of Users</th>
-			  <th>Action</th>
-		  </tr>
-		  {{FOREACH group;[[groups]]}}
-			  <tr>
-				  <td>[[group.getId()]]</td>
-				  <td>[[htmlentities([[group.getGroupName()]], ENT_QUOTES, "UTF-8")]]</td>
-				  <td>[[users.getVal([[group.getId()]])]]</td>
-          <td>
-            <form class="float-right mx-1" action="access.php" method="POST" onSubmit="if (!confirm('Really delete access group [[htmlentities([[group.getGroupName()]], ENT_QUOTES, 'UTF-8')]]?')) return false;">
-              <input type="hidden" name="action" value="[[$DAccessControlAction::DELETE_GROUP]]">
-              <input type="hidden" name="csrf" value="[[csrf]]">
-              <input type="hidden" name="groupId" value="[[group.getId()]]">
-              <button type="submit" class='btn btn-danger' {{IF [[users.getVal([[group.getId()]])]] > 0}} disabled{{ENDIF}}><i class="fas fa-trash" aria-hidden="true"></i></button>
-            </form>
-            <div class="float-right mx-1">
-              <a class='btn btn-primary' href="access.php?id=[[group.getId()]]" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit" aria-hidden="true"></i></a>
-            </div>
-          </td>
-			  </tr>
-		  {{ENDFOREACH}}
-	  </table>
+    <table class="table table-bordered table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th style="width: 90px;">ID</th>
+          <th>Name</th>
+          <th style="width: 140px;"># of Users</th>
+          <th style="width: 160px;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{FOREACH group;[[groups]]}}
+          <tr>
+            <td>[[group.getId()]]</td>
+            <td>[[htmlentities([[group.getGroupName()]], ENT_QUOTES, "UTF-8")]]</td>
+            <td>[[users.getVal([[group.getId()]])]]</td>
+            <td>
+              <div class="d-flex gap-2 justify-content-end">
+                <a class="btn btn-primary btn-sm"
+                   href="access.php?id=[[group.getId()]]"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="top"
+                   title="Edit">
+                  <i class="fas fa-edit" aria-hidden="true"></i>
+                </a>
+
+                <form action="access.php"
+                      method="POST"
+                      onsubmit="if (!confirm('Really delete access group [[htmlentities([[group.getGroupName()]], ENT_QUOTES, 'UTF-8')]]?')) return false;">
+                  <input type="hidden" name="action" value="[[$DAccessControlAction::DELETE_GROUP]]">
+                  <input type="hidden" name="csrf" value="[[csrf]]">
+                  <input type="hidden" name="groupId" value="[[group.getId()]]">
+                  <button type="submit"
+                          class="btn btn-danger btn-sm"
+                          {{IF [[users.getVal([[group.getId()]])]] > 0}}disabled{{ENDIF}}
+                          title="Delete">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {{ENDFOREACH}}
+      </tbody>
+    </table>
   </div>
 </div>
 {%TEMPLATE->struct/foot%}
