@@ -127,6 +127,14 @@ class DConfig {
   const OBJECT_STORAGE_PRESIGN_TTL   = "objectStoragePresignTTL";
   const OBJECT_STORAGE_DEFAULT_SRC   = "objectStorageDefaultSource";
 
+  // Section: Vast.ai
+  const VAST_ENABLE           = "vastEnable";
+  const VAST_BEARER_TOKEN     = "vastBearerToken";
+  const VAST_DEFAULT_IMAGE    = "vastDefaultImage";
+  const VAST_DEFAULT_DISK_GB  = "vastDefaultDiskGb";
+  const VAST_AGENT_BASEURL    = "vastAgentBaseUrl";
+
+
   static function getConstants()
   {
     try {
@@ -321,6 +329,14 @@ class DConfig {
         return DConfigType::NUMBER_INPUT;
       case DConfig::OBJECT_STORAGE_DEFAULT_SRC:
         return DConfigType::SELECT;
+      case DConfig::VAST_ENABLE:
+        return DConfigType::TICKBOX;
+      case DConfig::VAST_BEARER_TOKEN:
+        return DConfigType::STRING_INPUT;
+      case DConfig::VAST_DEFAULT_IMAGE:
+        return DConfigType::STRING_INPUT;
+      case DConfig::VAST_DEFAULT_DISK_GB:
+        return DConfigType::NUMBER_INPUT;
     }
     return DConfigType::STRING_INPUT;
   }
@@ -526,6 +542,16 @@ class DConfig {
           . "<li><b>Remote</b>: prefer pre-signed object storage downloads</li>"
           . "</ul>"
           . "<small>Choose <b>Remote</b> only if your bucket contains the mirrored files.</small>";
+      case DConfig::VAST_ENABLE:
+        return "Enable Vast.ai integration for searching, renting, and managing GPU instances.";
+      case DConfig::VAST_BEARER_TOKEN:
+        return "Vast.ai API bearer token used to authenticate requests.";
+      case DConfig::VAST_DEFAULT_IMAGE:
+        return "Default Docker image used when renting Vast.ai instances.";
+      case DConfig::VAST_DEFAULT_DISK_GB:
+        return "Disk size in GB allocated to newly rented Vast.ai instances.";
+      case DConfig::VAST_AGENT_BASEURL:
+        return "Base URL used by Vast.ai rented instances to connect back to the Hashtopolis server.";
     }
     return $config;
   }
