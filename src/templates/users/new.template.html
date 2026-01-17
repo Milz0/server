@@ -1,43 +1,56 @@
 {%TEMPLATE->struct/head%}
 {%TEMPLATE->struct/menu%}
+
 <h2>New user</h2>
+
 {%TEMPLATE->struct/messages%}
-<form action='users.php' method='post'>
-	<input type='hidden' name='action' value='[[$DUserAction::CREATE_USER]]'>
-	<input type="hidden" name="csrf" value="[[csrf]]">
-	<div class="card">
+
+<form action="users.php" method="post" autocomplete="off">
+  <input type="hidden" name="action" value="[[$DUserAction::CREATE_USER]]">
+  <input type="hidden" name="csrf" value="[[csrf]]">
+
+  <div class="card">
     <div class="table-responsive">
-      <table class="table table-bordered">
-			  <tr>
-				  <th>Username</th>
-				  <td>
-					  <input type='text' class='form-control' name='username' title="Username">
-				  </td>
-			  </tr>
-			  <tr>
-				  <th>Email address</th>
-				  <td>
-					  <input type='email' class='form-control' name='email' title="Email">
-				  </td>
-			  </tr>
-			  <tr>
-				  <th>User group</th>
-				  <td>
-					  <select name='group' class='form-control' title="Group">
-						  <option value=''>---</option>
-						  {{FOREACH group;[[groups]]}}
-							  <option value='[[group.getId()]]'>[[group.getGroupName()]]</option>
-						  {{ENDFOREACH}}
-					  </select>
-				  </td>
-			  </tr>
-			  <tr>
-				  <td colspan='2'>
-					  <input type='submit' class='btn btn-success' value='Create'>
-				  </td>
-			  </tr>
-		  </table>
+      <table class="table table-bordered align-middle mb-0">
+        <tbody>
+          <tr>
+            <th style="width: 220px;">Username</th>
+            <td>
+              <input type="text" class="form-control" name="username" title="Username" required>
+            </td>
+          </tr>
+
+          <tr>
+            <th>Email address</th>
+            <td>
+              <input type="email" class="form-control" name="email" title="Email">
+            </td>
+          </tr>
+
+          <tr>
+            <th>User group</th>
+            <td>
+              <select name="group" class="form-control" title="Group" required>
+                <option value="">---</option>
+                {{FOREACH group;[[groups]]}}
+                  <option value="[[group.getId()]]">[[group.getGroupName()]]</option>
+                {{ENDFOREACH}}
+              </select>
+              <small class="form-text text-muted">
+                Select the permission group (right group) for this user.
+              </small>
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="2" class="text-center">
+              <button type="submit" class="btn btn-success">Create</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-	</div>
+  </div>
 </form>
+
 {%TEMPLATE->struct/foot%}
