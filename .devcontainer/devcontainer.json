@@ -50,9 +50,12 @@
     }
   },
   "remoteEnv": {
-    "NODE_OPTIONS": "--use-openssl-ca"
+    "NODE_OPTIONS": "--use-openssl-ca",
+    "PATH": "${containerEnv:PATH}:/var/www/html/.venv/bin"
   },
-  "remoteUser": "vscode",
+  "remoteUser": "root",
+  "containerUser": "vscode",
   "overrideCommand": false,
-  "postStartCommand": "composer install --working-dir=/var/www/html/"
+  "postCreateCommand": "bash -lc 'set -e; apt-get update -y; apt-get install -y --no-install-recommends python3-venv python3-pip ca-certificates curl wget; python3 -m venv /var/www/html/.venv; /var/www/html/.venv/bin/python -m pip install --upgrade pip; /var/www/html/.venv/bin/pip install --upgrade vastai; chown -R vscode:vscode /var/www/html/.venv'",
+  "postStartCommand": "bash -lc 'composer install --working-dir=/var/www/html/'"
 }

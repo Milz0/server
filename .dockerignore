@@ -19,3 +19,7 @@ src/import/*
 .gitignore
 .dockerignore
 src/inc/conf.php
+.venv
+.venv/
+**/.venv
+**/.venv/

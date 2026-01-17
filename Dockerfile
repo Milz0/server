@@ -121,6 +121,10 @@ RUN apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update && \
+    apt-get install -y python3-venv python3-pip && \
+    python3 -m venv /opt/vast && \
+    /opt/vast/bin/pip install vastai
 
 # Adding VSCode user and fixing permissions
 RUN groupadd vscode && useradd -rm -d /var/www -s /bin/bash -g vscode -G www-data -u 1001 vscode \
