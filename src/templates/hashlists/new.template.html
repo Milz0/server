@@ -2,169 +2,219 @@
 {%TEMPLATE->struct/menu%}
 <h2>New hashlist</h2>
 {%TEMPLATE->struct/messages%}
+
 <script type='text/javascript'>
-	function formatChange(valu) { 
-		var txtObjects = document.getElementsByClassName('textopt');
-    txtObjects.forEach(function(txtObject){
+  function formatChange(valu) {
+    var txtObjects = document.getElementsByClassName('textopt');
+    Array.prototype.forEach.call(txtObjects, function (txtObject) {
       if (valu === '0') {
         txtObject.style.display = '';
-      }
-      else {
+      } else {
         txtObject.style.display = 'none';
       }
     });
-	}
+  }
 
   var hashtypes = [[allHashtypes]];
-	var activated = false;
+  var activated = false;
 
-	function hashtypeChange(){
-    var id = $( "#hashtype" ).val();
-    if(hashtypes[id] === 1){
-        $("#salted").prop("checked", true);
+  function hashtypeChange() {
+    var id = $("#hashtype").val();
+    if (hashtypes[id] === 1) {
+      $("#salted").prop("checked", true);
+    } else {
+      $("#salted").prop("checked", false);
     }
-    else{
-        $("#salted").prop("checked", false);
+    if (parseInt(id) === 2500 || parseInt(id) === 16800 || parseInt(id) === 16801) {
+      $("#hashlistFormat option[value='1']").prop('selected', true);
+      activated = true;
+    } else if (activated) {
+      $("#hashlistFormat option[value='1']").prop('selected', false);
     }
-    if(parseInt(id) === 2500 || parseInt(id) === 16800 || parseInt(id) === 16801){
-			$("#hashlistFormat option[value='1']").prop('selected', true);
-			activated = true;
-		}else if(activated){
-			$("#hashlistFormat option[value='1']").prop('selected', false);
-		}
   }
 
   // Initialize select2
-  $(document).ready(function() {
+  $(document).ready(function () {
     $('#hashtype').select2({
       width: '100%'
     });
-  }) // Set focus to the select2 search field when opening the select2 element
-  .on('select2:open', () => {
-    setTimeout(() => document.querySelector('.select2-container--open .select2-search__field').focus(), 100);
+  }).on('select2:open', () => {
+    setTimeout(() => {
+      var el = document.querySelector('.select2-container--open .select2-search__field');
+      if (el) el.focus();
+    }, 100);
   });
 </script>
-<form class='form-inline' action="hashlists.php" method="POST" enctype="multipart/form-data">
-	<input type='hidden' name='action' value='[[$DHashlistAction::CREATE_HASHLIST]]'>
-	<input type="hidden" name="csrf" value="[[csrf]]">
-  <div class="table-responsive">
-    <table class="table table-bordered">
-			<tr>
-				<th>Property</th>
-				<th>Value</th>
-			</tr>
-			<tr>
-				<td>Name:</td>
-				<td>
-					<input type="text" class='form-control' name="name" size="35" title="Name">
-				</td>
-			</tr>
-			<tr>
-				<td>Hashtype:</td>
-				<td>
-					<select name="hashtype" class='form-control' id="hashtype" onchange="hashtypeChange()" title="Hashtype">
-						<option value=''>&nbsp;</option>
-						{{FOREACH type;[[hashtypes]]}}
-							<option value="[[type.getId()]]"> [[type.getId()]] - [[htmlentities([[type.getDescription()]], ENT_QUOTES, "UTF-8")]]</option>
-						{{ENDFOREACH}}
-					</select>
-				</td>
-			</tr>
-      {{IF [[config.getVal([[$DConfig::HASHCAT_BRAIN_ENABLE]])]]}}
-        <tr>
-				  <td>This hashlist should use hashcat brain:</td>
-				  <td>
-					  <span class="textopt">
-						  <input type="checkbox" name="useBrain" id="useBrain" value="1" title="Use Hashcat Brain">
-					  </span>
-				  </td>
-			  </tr>
-        <tr>
-				    <td>In case hashcat brain is used, which features:</td>
-				    <td>
-					    <select name="brain-features" class='form-control' id="brain-features" title="Brain Features">
-							  <option value="1">Send hashed passwords</option>
-							  <option value="2" selected>Send attack positions</option>
-							  <option value="3">Send hashed passwords and attack positions</option>
-					    </select>
-				    </td>
-			    </tr>
-      {{ENDIF}}
-			<tr>
-				<td>Hashlist format:</td>
-				<td>
-					<select class='form-control' id='hashlistFormat' name="format" onChange="formatChange(this.value);" title="Hashlist Format">
-						<option value="0">Text file</option>
-						<option value="1">HCCAPX file / PMKID hash</option>
-						<option value="2">Binary file (single hash)</option>
-					</select>
-					<span class="textopt">
-						<br>
-						<input type="checkbox" name="salted" id="salted" value="1" title="Is Salted"> Salted hashes, separator
-						<input type="text" class='form-control' name="separator" value="[[config.getVal('fieldseparator')]]" size="1" title="Separator">
-					</span>
-					<span class="textopt">
-						<br>
-						<input type="checkbox" name="hexsalted" value="1" title="Salt in HEX"> Salt is in hex (only when salted hashes)
-					</span>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					Hash source<br>
-					<i>(make sure it's sorted!)</i>
-				</td>
-				<td>
-					<input type="radio" name="source" onChange="sourceChange(this.value);" value="paste" title="Pasting"> Paste<br>
-          <input type="radio" name="source" onChange="sourceChange(this.value);" value="upload" checked title="Upload"> Upload<br>
-          <input type="radio" name="source" onChange="sourceChange(this.value);" value="import" title="Import"> Import<br>
-          <input type="radio" name="source" onChange="sourceChange(this.value);" value="url" title="Download"> URL download
-				</td>
-			</tr>
-			<tr>
-				<td>Access group where the task belongs to:</td>
-				<td>
-					<select name="accessGroupId" class="form-control" title="accessGroupId">
-						{{FOREACH accessGroup;[[accessGroups]]}}
-							<option value="[[accessGroup.getId()]]">[[accessGroup.getGroupName()]]</option>
-						{{ENDFOREACH}}
-					</select>
-				</td>
-			</tr>
-			<tr id="pasteLine" style="display: none;">
-				<td>Input field:</td>
-				<td>
-					<textarea class='form-control' name="hashfield" cols="60" rows="10" title="Hashes"></textarea>
-				</td>
-			</tr>
-			<tr id="uploadLine">
-				<td>File to upload:</td>
-				<td>
-					<input type="file" class='form-control' name="hashfile">
-				</td>
-			</tr>
-			<tr id="importLine" style="display: none;">
-				<td>File to import:</td>
-				<td>
-					<select class='form-control' name="importfile" title="Import File">
-						{{FOREACH impfile;[[impfiles]]}}
-							<option value="[[impfile.getVal('file')]]">[[impfile.getVal('file')]]</option>
-						{{ENDFOREACH}}
-					</select>
-				</td>
-			</tr>
-			<tr id="downloadLine" style="display: none;">
-				<td>File URL:</td>
-				<td>
-					<input type="text" class='form-control' name="url" size="35" title="Download URL">
-				</td>
-			</tr>
-			<tr>
-				<td colspan="3">
-					<input type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' value="Create hashlist">
-				</td>
-			</tr>
-		</table>
+
+<form action="hashlists.php" method="POST" enctype="multipart/form-data">
+  <input type='hidden' name='action' value='[[$DHashlistAction::CREATE_HASHLIST]]'>
+  <input type="hidden" name="csrf" value="[[csrf]]">
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm align-middle mb-0">
+        <thead>
+          <tr>
+            <th style="width: 260px;">Property</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>Name:</td>
+            <td>
+              <input type="text" class="form-control" name="name" title="Name">
+            </td>
+          </tr>
+
+          <tr>
+            <td>Hashtype:</td>
+            <td>
+              <select name="hashtype" class="form-control" id="hashtype" onchange="hashtypeChange()" title="Hashtype">
+                <option value=''>&nbsp;</option>
+                {{FOREACH type;[[hashtypes]]}}
+                  <option value="[[type.getId()]]">[[type.getId()]] - [[htmlentities([[type.getDescription()]], ENT_QUOTES, "UTF-8")]]</option>
+                {{ENDFOREACH}}
+              </select>
+            </td>
+          </tr>
+
+          {{IF [[config.getVal([[$DConfig::HASHCAT_BRAIN_ENABLE]])]]}}
+            <tr>
+              <td>This hashlist should use hashcat brain:</td>
+              <td>
+                <span class="textopt">
+                  <div class="form-check m-0">
+                    <input class="form-check-input" type="checkbox" name="useBrain" id="useBrain" value="1" title="Use Hashcat Brain">
+                    <label class="form-check-label" for="useBrain">Enable brain</label>
+                  </div>
+                </span>
+              </td>
+            </tr>
+
+            <tr>
+              <td>In case hashcat brain is used, which features:</td>
+              <td>
+                <select name="brain-features" class="form-control" id="brain-features" title="Brain Features">
+                  <option value="1">Send hashed passwords</option>
+                  <option value="2" selected>Send attack positions</option>
+                  <option value="3">Send hashed passwords and attack positions</option>
+                </select>
+              </td>
+            </tr>
+          {{ENDIF}}
+
+          <tr>
+            <td>Hashlist format:</td>
+            <td>
+              <select class="form-control" id="hashlistFormat" name="format" onChange="formatChange(this.value);" title="Hashlist Format">
+                <option value="0">Text file</option>
+                <option value="1">HCCAPX file / PMKID hash</option>
+                <option value="2">Binary file (single hash)</option>
+              </select>
+
+              <div class="textopt mt-2">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <div class="form-check m-0">
+                    <input class="form-check-input" type="checkbox" name="salted" id="salted" value="1" title="Is Salted">
+                    <label class="form-check-label" for="salted">Salted hashes, separator</label>
+                  </div>
+                  <input type="text" class="form-control" name="separator" value="[[config.getVal('fieldseparator')]]" style="width: 80px;" title="Separator">
+                </div>
+
+                <div class="form-check mt-2 mb-0">
+                  <input class="form-check-input" type="checkbox" name="hexsalted" id="hexsalted" value="1" title="Salt in HEX">
+                  <label class="form-check-label" for="hexsalted">Salt is in hex (only when salted hashes)</label>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              Hash source<br>
+              <span class="text-muted"><i>(make sure it's sorted!)</i></span>
+            </td>
+            <td>
+              <div class="d-flex flex-column gap-1">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" id="src_paste" name="source" value="paste" onChange="sourceChange(this.value);" title="Pasting">
+                  <label class="form-check-label" for="src_paste">Paste</label>
+                </div>
+
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" id="src_upload" name="source" value="upload" onChange="sourceChange(this.value);" checked title="Upload">
+                  <label class="form-check-label" for="src_upload">Upload</label>
+                </div>
+
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" id="src_import" name="source" value="import" onChange="sourceChange(this.value);" title="Import">
+                  <label class="form-check-label" for="src_import">Import</label>
+                </div>
+
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" id="src_url" name="source" value="url" onChange="sourceChange(this.value);" title="Download">
+                  <label class="form-check-label" for="src_url">URL download</label>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Access group where the task belongs to:</td>
+            <td>
+              <select name="accessGroupId" class="form-control" title="accessGroupId">
+                {{FOREACH accessGroup;[[accessGroups]]}}
+                  <option value="[[accessGroup.getId()]]">[[accessGroup.getGroupName()]]</option>
+                {{ENDFOREACH}}
+              </select>
+            </td>
+          </tr>
+
+          <tr id="pasteLine" style="display: none;">
+            <td>Input field:</td>
+            <td>
+              <textarea class="form-control" name="hashfield" rows="10" title="Hashes"></textarea>
+            </td>
+          </tr>
+
+          <tr id="uploadLine">
+            <td>File to upload:</td>
+            <td>
+              <input type="file" class="form-control" name="hashfile" title="Hash file">
+            </td>
+          </tr>
+
+          <tr id="importLine" style="display: none;">
+            <td>File to import:</td>
+            <td>
+              <select class="form-control" name="importfile" title="Import File">
+                {{FOREACH impfile;[[impfiles]]}}
+                  <option value="[[impfile.getVal('file')]]">[[impfile.getVal('file')]]</option>
+                {{ENDFOREACH}}
+              </select>
+            </td>
+          </tr>
+
+          <tr id="downloadLine" style="display: none;">
+            <td>File URL:</td>
+            <td>
+              <input type="text" class="form-control" name="url" title="Download URL">
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="2">
+              <button type="submit" class="btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}">
+                Create hashlist
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </form>
+
 {%TEMPLATE->struct/foot%}

@@ -1,57 +1,99 @@
 {%TEMPLATE->struct/head%}
 {%TEMPLATE->struct/menu%}
+
 <h2>Edit File</h2>
+
 {%TEMPLATE->struct/messages%}
+
 <form action="files.php?view=[[view]]" method="post">
   <input type="hidden" name="action" value="[[$DFileAction::EDIT_FILE]]">
   <input type="hidden" name="fileId" value="[[file.getId()]]">
   <input type="hidden" name="csrf" value="[[csrf]]">
-  <div class="panel panel-default">
-    <table class="table table-bordered table-nonfluid">
-      <tr>
-        <td colspan="2">
-          <div class="alert alert-warning">
-            WARNING: It's not recommended to rename a file during running a task where this file is used. This can cause problems with the agents using the file.<br>
-            Keep in mind that when you rename a file the agents will download the file again as they don't know that it is just a renamed file.
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <th>ID</th>
-        <td>[[file.getId()]]</td>
-      </tr>
-      <tr>
-        <th>Name</th>
-        <td>
-          <input type="text" name="filename" value="[[file.getFilename()]]" class="form-control" title="File Name">
-        </td>
-      </tr>
-      <tr>
-        <th>File Type</th>
-        <td>
-          <select class="form-control" name="filetype" title="File Type">
-            <option value="[[$DFileType::WORDLIST]]" {{IF [[file.getFileType()]] == [[$DFileType::WORDLIST]]}} selected{{ENDIF}}>Wordlist</option>
-            <option value="[[$DFileType::RULE]]" {{IF [[file.getFileType()]] == [[$DFileType::RULE]]}} selected{{ENDIF}}>Rules</option>
-            <option value="[[$DFileType::OTHER]]" {{IF [[file.getFileType()]] == [[$DFileType::OTHER]]}} selected{{ENDIF}}>Other</option>
-          </select>
-        </td>
-      </tr>
-      <tr>
-        <th>Associated Access Group (only members of this group can access the file)</th>
-        <td>
-          <select class="form-control" name="accessGroupId" title="Access Group">
-            {{FOREACH accessGroup;[[accessGroups]]}}
-              <option value="[[accessGroup.getId()]]"{{IF [[file.getAccessGroupId()]] == [[accessGroup.getId()]]}} selected{{ENDIF}}>[[accessGroup.getGroupName()]]</option>
-            {{ENDFOREACH}}
-          </select>
-        </td>
-      </tr>
-      <tr>
-        <td colspan="2">
-          <button type="submit" class="btn btn-success">Save</button>
-        </td>
-      </tr>
-    </table>
+
+  <div class="card">
+    <div class="card-body">
+
+      <div class="alert alert-warning">
+        <strong>Warning:</strong><br>
+        It is not recommended to rename a file while a task using this file is running.
+        Doing so may cause issues with agents currently using the file.<br><br>
+        Renaming a file will force agents to download it again, as they cannot detect
+        that it is the same file under a new name.
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">File ID</label>
+        <div class="form-control-plaintext">
+          [[file.getId()]]
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="filename" class="form-label">File Name</label>
+        <input
+          type="text"
+          id="filename"
+          name="filename"
+          value="[[file.getFilename()]]"
+          class="form-control"
+          title="File Name"
+          required
+        >
+      </div>
+
+      <div class="mb-3">
+        <label for="filetype" class="form-label">File Type</label>
+        <select
+          id="filetype"
+          class="form-select"
+          name="filetype"
+          title="File Type"
+        >
+          <option value="[[$DFileType::WORDLIST]]"
+            {{IF [[file.getFileType()]] == [[$DFileType::WORDLIST]]}}selected{{ENDIF}}>
+            Wordlist
+          </option>
+          <option value="[[$DFileType::RULE]]"
+            {{IF [[file.getFileType()]] == [[$DFileType::RULE]]}}selected{{ENDIF}}>
+            Rules
+          </option>
+          <option value="[[$DFileType::OTHER]]"
+            {{IF [[file.getFileType()]] == [[$DFileType::OTHER]]}}selected{{ENDIF}}>
+            Other
+          </option>
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <label for="accessGroupId" class="form-label">
+          Associated Access Group
+          <small class="text-muted d-block">
+            Only members of this group can access the file.
+          </small>
+        </label>
+        <select
+          id="accessGroupId"
+          class="form-select"
+          name="accessGroupId"
+          title="Access Group"
+        >
+          {{FOREACH accessGroup;[[accessGroups]]}}
+            <option value="[[accessGroup.getId()]]"
+              {{IF [[file.getAccessGroupId()]] == [[accessGroup.getId()]]}}selected{{ENDIF}}>
+              [[accessGroup.getGroupName()]]
+            </option>
+          {{ENDFOREACH}}
+        </select>
+      </div>
+
+      <div class="text-center">
+        <button type="submit" class="btn btn-success">
+          Save changes
+        </button>
+      </div>
+
+    </div>
   </div>
 </form>
+
 {%TEMPLATE->struct/foot%}
