@@ -1,103 +1,151 @@
 <h3>Import pre-cracked hashes:</h3>
+
 <form action="hashlists.php{{IF [[list.getVal('hashlist').getId()]] != ""}}?id=[[list.getVal('hashlist').getId()]]{{ENDIF}}" method="POST" enctype="multipart/form-data">
-	<input type='hidden' name='action' value='[[$DHashlistAction::PROCESS_ZAP]]'>
-	<input type="hidden" name="hashlist" value="[[list.getVal('hashlist').getId()]]">
-	<input type="hidden" name="csrf" value="[[csrf]]">
-	<div class="card">
+  <input type="hidden" name="action" value="[[$DHashlistAction::PROCESS_ZAP]]">
+  <input type="hidden" name="hashlist" value="[[list.getVal('hashlist').getId()]]">
+  <input type="hidden" name="csrf" value="[[csrf]]">
+
+  <div class="card">
     <div class="table-responsive">
-      <table class="table table-bordered">
-			  <tr>
-				  <th>Property</th>
-				  <th>Value</th>
-			  </tr>
-			  <tr>
-				  <td>Name:</td>
-				  <td>[[list.getVal('hashlist').getHashlistName()]]</td>
-			  </tr>
-			  <tr>
-				  <td>Hashtype:</td>
-				  <td>[[list.getVal('hashtype').getDescription()]]</td>
-			  </tr>
-			  <tr>
-				  <td>Salted:</td>
-				  <td>
-					  {{IF [[list.getVal('hashlist').getIsSalted()]] == 1}}
-						  Yes
-					  {{ELSE}}
-						  No
-					  {{ENDIF}}
-				  </td>
-			  </tr>
-			  <tr>
-				  <td>Hashlist format:</td>
-				  <td>
-					  [[Util::getStaticArray([[list.getVal('hashlist').getFormat()]], 'formats')]]<br>
-					  Field separator: <input type="text" class='form-control' name="separator" value="[[config.getVal('fieldseparator')]]" size="1" title="Separator">
-					  (Accepted format is
-					  {{IF [[list.getVal('hashlist').getFormat()]] == 0}}
-						  hash[:salt]:plaintext
-					  {{ENDIF}}
-					  {{IF [[list.getVal('hashlist').getFormat()]] == 1}}
-						  essid:plaintext
-					  {{ENDIF}}
-					  {{IF [[list.getVal('hashlist').getFormat()]] == 2}}
-						  just plaintext
-					  {{ENDIF}}
-					  )
-			      </td>
-			  </tr>
-			  <tr>
-				  <td>Hash source</td>
-				  <td>
-					  <input type="radio" name="source" onChange="sourceChange(this.value);" value="paste" title="Pasting"> Paste<br>
-					  <input type="radio" name="source" onChange="sourceChange(this.value);" value="upload" checked title="Upload"> Upload<br>
-					  <input type="radio" name="source" onChange="sourceChange(this.value);" value="import" title="Import"> Import<br>
-					  <input type="radio" name="source" onChange="sourceChange(this.value);" value="url" title="Download"> URL download
-				  </td>
-        </tr>
-        <tr id="pasteLine" style="display: none;">
-          <td>Input field:</td>
-          <td>
-            <textarea name="hashfield" class='form-control' cols="60" rows="10" placeholder='Paste founds here...'></textarea>
-          </td>
-        </tr>
-        <tr id="uploadLine">
-          <td>File to upload:</td>
-          <td>
-            <input type="file" class='form-control' name="hashfile">
-          </td>
-        </tr>
-        <tr id="importLine" style="display: none;">
-          <td>File to import:</td>
-          <td>
-            <select class='form-control' name="importfile" title="Import File">
-              {{FOREACH impfile;[[impfiles]]}}
-                <option value="[[impfile.getVal('file')]]">[[impfile.getVal('file')]]</option>
-              {{ENDFOREACH}}
-              {{IF [[sizeof([[impfiles]])]] == 0}}
-							  <option value="-1">'import' directory is empty</option>
+      <table class="table table-bordered table-sm align-middle mb-0">
+        <thead>
+          <tr>
+            <th style="width: 260px;">Property</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>Name:</td>
+            <td>[[list.getVal('hashlist').getHashlistName()]]</td>
+          </tr>
+
+          <tr>
+            <td>Hashtype:</td>
+            <td>[[list.getVal('hashtype').getDescription()]]</td>
+          </tr>
+
+          <tr>
+            <td>Salted:</td>
+            <td>
+              {{IF [[list.getVal('hashlist').getIsSalted()]] == 1}}
+                Yes
+              {{ELSE}}
+                No
               {{ENDIF}}
-            </select>
-          </td>
-        </tr>
-			  <tr id="downloadLine" style="display: none;">
-				  <td>File URL:</td>
-				  <td>
-					  <input type="text" class='form-control' name="url" size="35" title="Download URL">
-				  </td>
-			  </tr>
-        <tr>
-        	<td>Conflict resolution:</td>
-        	<td>
-        		<input type="checkbox" name="overwrite" value="1" title="Overwrite"> Overwrite already cracked hashes
-        	</td>
-        </tr>
-        <tr>
-        	<td colspan="3">
-        		<input type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' value="Pre-crack hashes">
-        	</td>
-        </tr>
-		  </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Hashlist format:</td>
+            <td>
+              <div class="mb-2">
+                [[Util::getStaticArray([[list.getVal('hashlist').getFormat()]], 'formats')]]
+              </div>
+
+              <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                <span>Field separator:</span>
+                <input type="text" class="form-control" name="separator" value="[[config.getVal('fieldseparator')]]" style="width: 100px;" title="Separator">
+              </div>
+
+              <div class="text-muted">
+                (Accepted format is
+                {{IF [[list.getVal('hashlist').getFormat()]] == 0}}
+                  hash[:salt]:plaintext
+                {{ENDIF}}
+                {{IF [[list.getVal('hashlist').getFormat()]] == 1}}
+                  essid:plaintext
+                {{ENDIF}}
+                {{IF [[list.getVal('hashlist').getFormat()]] == 2}}
+                  just plaintext
+                {{ENDIF}}
+                )
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Hash source</td>
+            <td>
+              <div class="d-flex flex-column gap-1">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" id="src_paste" name="source" value="paste" onChange="sourceChange(this.value);" title="Pasting">
+                  <label class="form-check-label" for="src_paste">Paste</label>
+                </div>
+
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" id="src_upload" name="source" value="upload" onChange="sourceChange(this.value);" checked title="Upload">
+                  <label class="form-check-label" for="src_upload">Upload</label>
+                </div>
+
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" id="src_import" name="source" value="import" onChange="sourceChange(this.value);" title="Import">
+                  <label class="form-check-label" for="src_import">Import</label>
+                </div>
+
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" id="src_url" name="source" value="url" onChange="sourceChange(this.value);" title="Download">
+                  <label class="form-check-label" for="src_url">URL download</label>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <tr id="pasteLine" style="display: none;">
+            <td>Input field:</td>
+            <td>
+              <textarea name="hashfield" class="form-control" rows="10" placeholder="Paste founds here..."></textarea>
+            </td>
+          </tr>
+
+          <tr id="uploadLine">
+            <td>File to upload:</td>
+            <td>
+              <input type="file" class="form-control" name="hashfile" title="Hashfile">
+            </td>
+          </tr>
+
+          <tr id="importLine" style="display: none;">
+            <td>File to import:</td>
+            <td>
+              <select class="form-control" name="importfile" title="Import File">
+                {{FOREACH impfile;[[impfiles]]}}
+                  <option value="[[impfile.getVal('file')]]">[[impfile.getVal('file')]]</option>
+                {{ENDFOREACH}}
+                {{IF [[sizeof([[impfiles]])]] == 0}}
+                  <option value="-1">'import' directory is empty</option>
+                {{ENDIF}}
+              </select>
+            </td>
+          </tr>
+
+          <tr id="downloadLine" style="display: none;">
+            <td>File URL:</td>
+            <td>
+              <input type="text" class="form-control" name="url" title="Download URL">
+            </td>
+          </tr>
+
+          <tr>
+            <td>Conflict resolution:</td>
+            <td>
+              <div class="form-check m-0">
+                <input class="form-check-input" type="checkbox" id="overwrite" name="overwrite" value="1" title="Overwrite">
+                <label class="form-check-label" for="overwrite">Overwrite already cracked hashes</label>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="2">
+              <button type="submit" class="btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}">
+                Pre-crack hashes
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-	</div>
+  </div>
 </form>

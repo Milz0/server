@@ -1,33 +1,56 @@
 <h3>Hashlists included in this superhashlist:</h3>
+
 <div class="card">
   <div class="table-responsive">
-    <table class="table table-bordered">
-		  <tr>
-			  <th>ID</th>
-			  <th>Name</th>
-			  <th>Cracked</th>
-		  </tr>
-		  {{FOREACH sublist;[[sublists]]}}
-			  <tr>
-				  <td>
-					  <a href="hashlists.php?id=[[sublist.getVal('hashlist')->getId()]]">[[sublist.getVal('hashlist')->getId()]]</a>
-				  </td>
-				  <td>
-					  <a href="hashlists.php?id=[[sublist.getVal('hashlist')->getId()]]">[[sublist.getVal('hashlist')->getHashlistName()]]</a>
-					  {{IF [[sublist.getVal('hashlist')->getIsSecret()]] == 1}}
-              <span class="fas fa-lock" aria-hidden="true"></span>
-					  {{ENDIF}}
-					  [[Util::tickdone([[sublist.getVal('hashlist')->getCracked()]], [[sublist.getVal('hashlist')->getHashCount()]])]]
-				  </td>
-				  <td class="num">
-					  [[Util::showperc([[sublist.getVal('hashlist')->getCracked()]], [[sublist.getVal('hashlist')->getHashCount()]])]]%<br>
-					  (<a href="hashes.php?hashlist=[[sublist.getVal('hashlist')->getId()]]&filter=cracked">[[sublist.getVal('hashlist')->getCracked()]]</a>
-					  / <a href="hashes.php?hashlist=[[sublist.getVal('hashlist')->getId()]]">[[sublist.getVal('hashlist')->getHashCount()]]</a>)
-				  </td>
-			  </tr>
-		  {{ENDFOREACH}}
-	  </table>
+    <table class="table table-bordered table-sm align-middle mb-0">
+      <thead>
+        <tr>
+          <th style="width: 90px;">ID</th>
+          <th>Name</th>
+          <th class="text-end" style="width: 170px;">Cracked</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {{FOREACH sublist;[[sublists]]}}
+          <tr>
+            <td>
+              <a href="hashlists.php?id=[[sublist.getVal('hashlist')->getId()]]">
+                [[sublist.getVal('hashlist')->getId()]]
+              </a>
+            </td>
+
+            <td>
+              <a href="hashlists.php?id=[[sublist.getVal('hashlist')->getId()]]">
+                [[sublist.getVal('hashlist')->getHashlistName()]]
+              </a>
+
+              {{IF [[sublist.getVal('hashlist')->getIsSecret()]] == 1}}
+                <span class="fas fa-lock ms-1" aria-hidden="true"></span>
+              {{ENDIF}}
+
+              [[Util::tickdone([[sublist.getVal('hashlist')->getCracked()]], [[sublist.getVal('hashlist')->getHashCount()]])]]
+            </td>
+
+            <td class="text-end">
+              <div class="fw-semibold">
+                [[Util::showperc([[sublist.getVal('hashlist')->getCracked()]], [[sublist.getVal('hashlist')->getHashCount()]])]]%
+              </div>
+              <div class="small">
+                (
+                <a href="hashes.php?hashlist=[[sublist.getVal('hashlist')->getId()]]&filter=cracked">
+                  [[sublist.getVal('hashlist')->getCracked()]]
+                </a>
+                /
+                <a href="hashes.php?hashlist=[[sublist.getVal('hashlist')->getId()]]">
+                  [[sublist.getVal('hashlist')->getHashCount()]]
+                </a>
+                )
+              </div>
+            </td>
+          </tr>
+        {{ENDFOREACH}}
+      </tbody>
+    </table>
   </div>
 </div>
-
-	
