@@ -1,42 +1,77 @@
 {%TEMPLATE->struct/head%}
 {%TEMPLATE->struct/menu%}
+
 <h2>Log Entries</h2>
+
 {%TEMPLATE->struct/messages%}
+
 <div class="card">
   <div class="table-responsive">
-    <table class="table table-bordered">
-		  <tr>
-			  <td colspan="5">
-          <form class='form-inline' action="log.php" method="post">
-            <input type="hidden" name="show" value="true">
-            <select name="level" class="form-control" title="Loglevel">
-              <option value="0"{{IF [[level]] == 0}} selected{{ENDIF}}>ALL</option>
-              <option value="information"{{IF [[level]] == 'information'}} selected{{ENDIF}}>information</option>
-              <option value="warning"{{IF [[level]] == 'warning'}} selected{{ENDIF}}>warning</option>
-              <option value="error"{{IF [[level]] == 'error'}} selected{{ENDIF}}>error</option>
-              <option value="fatal error"{{IF [[level]] == 'fatal error'}} selected{{ENDIF}}>fatal error</option>
-            </select>&nbsp;&nbsp;
-            <input type='submit' class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' value='Show'>
-          </form>
-			  </td>
-		  </tr>
-		  <tr>
-			  <th>Entry ID</th>
-			  <th>Time</th>
-			  <th>Level</th>
-			  <th>Issuer</th>
-			  <th>Message</th>
-		  </tr>
-		  {{FOREACH entry;[[entries]]}}
-			  <tr style="background-color: #{{IF [[entry.getLevel()]] == 'information'}}397b39{{ENDIF}}{{IF [[entry.getLevel()]] == 'warning'}}b16a06{{ENDIF}}{{IF [[entry.getLevel()]] == 'error'}}8b0010{{ENDIF}}{{IF [[entry.getLevel()]] == 'fatal error'}}750404{{ENDIF}}">
-				  <td>[[entry.getId()]]</td>
-				  <td>[[date("d.m.Y - H:i:s", [[entry.getTime()]])]]</td>
-				  <td>[[entry.getLevel()]]</td>
-				  <td>[[entry.getIssuer()]]-ID[[entry.getIssuerId()]]</td>
-          <td>[[entry.getMessage()]]</td>
-			  </tr>
-		  {{ENDFOREACH}}
-	  </table>
+    <table class="table table-bordered table-sm align-middle mb-0">
+      <thead>
+        <tr>
+          <td colspan="5">
+            <form action="log.php" method="post" class="d-flex align-items-center flex-wrap gap-2">
+              <input type="hidden" name="show" value="true">
+
+              <label class="form-label mb-0 me-1" for="logLevel">Level</label>
+
+              <select id="logLevel" name="level" class="form-select form-select-sm w-auto" title="Loglevel">
+                <option value="0"{{IF [[level]] == 0}} selected{{ENDIF}}>ALL</option>
+                <option value="information"{{IF [[level]] == 'information'}} selected{{ENDIF}}>information</option>
+                <option value="warning"{{IF [[level]] == 'warning'}} selected{{ENDIF}}>warning</option>
+                <option value="error"{{IF [[level]] == 'error'}} selected{{ENDIF}}>error</option>
+                <option value="fatal error"{{IF [[level]] == 'fatal error'}} selected{{ENDIF}}>fatal error</option>
+              </select>
+
+              <button type="submit" class="btn btn-sm {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}">
+                Show
+              </button>
+            </form>
+          </td>
+        </tr>
+
+        <tr>
+          <th style="width: 95px;">Entry ID</th>
+          <th style="width: 170px;">Time</th>
+          <th style="width: 120px;">Level</th>
+          <th style="width: 160px;">Issuer</th>
+          <th>Message</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {{FOREACH entry;[[entries]]}}
+          <tr class="log-row log-[[entry.getLevel()]]">
+            <td>[[entry.getId()]]</td>
+            <td>[[date("d.m.Y - H:i:s", [[entry.getTime()]])]]</td>
+            <td>
+              <span class="badge log-badge log-badge-[[entry.getLevel()]]">
+                [[entry.getLevel()]]
+              </span>
+            </td>
+            <td><code>[[entry.getIssuer()]]-ID[[entry.getIssuerId()]]</code></td>
+            <td style="white-space: normal;">[[entry.getMessage()]]</td>
+          </tr>
+        {{ENDFOREACH}}
+      </tbody>
+    </table>
   </div>
 </div>
+
+<style>
+  /* Subtle row tints (works in light and dark themes) */
+  .log-row.log-information { background-color: rgba(57, 123, 57, 0.12); }
+  .log-row.log-warning { background-color: rgba(177, 106, 6, 0.14); }
+  .log-row.log-error { background-color: rgba(191, 77, 74, 0.12); }
+  .log-row.log-fatal\ error { background-color: rgba(117, 4, 4, 0.14); }
+
+  /* Bootstrap 5 badge styling (avoid deprecated badge-* classes) */
+  .log-badge { font-weight: 500; }
+  .log-badge-information { background-color: #397b39; color: #fff; }
+  .log-badge-warning { background-color: #b16a06; color: #fff; }
+  .log-badge-error { background-color: #bf4d4a; color: #fff; }
+  .log-badge-fatal\ error { background-color: #750404; color: #fff; }
+</style>
+
 {%TEMPLATE->struct/foot%}
