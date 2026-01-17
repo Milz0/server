@@ -1,26 +1,34 @@
 {%TEMPLATE->struct/head%}
 {%TEMPLATE->struct/menu%}
-<h2>New Api Access Group</h2>
+
+<h2>New API Access Group</h2>
+
 {%TEMPLATE->struct/messages%}
-<form action='api.php?new=true' method='post'>
-	<input type='hidden' name='action' value='[[$DApiAction::CREATE_GROUP]]'>
-	<input type="hidden" name="csrf" value="[[csrf]]">
-	<div class="card">
+
+<form action="api.php?new=true" method="post">
+  <input type="hidden" name="action" value="[[$DApiAction::CREATE_GROUP]]">
+  <input type="hidden" name="csrf" value="[[csrf]]">
+
+  <div class="card">
     <div class="table-responsive">
-      <table class="table table-bordered">
-			  <tr>
-				  <th>Group Name</th>
-				  <td>
-					  <input type='text' class='form-control' name='groupName' title="Group Name">
-				  </td>
-			  </tr>
-			  <tr>
-				  <td colspan='2'>
-					  <input type='submit' class='btn btn-success' value='Create'>
-				  </td>
-			  </tr>
-		  </table>
+      <table class="table table-bordered align-middle">
+        <tbody>
+          <tr>
+            <th style="width: 220px;">Group Name</th>
+            <td>
+              <input type="text" class="form-control" name="groupName" title="Group Name" autocomplete="off">
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="2" class="text-center">
+              <button type="submit" class="btn btn-success">Create</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-	</div>
+  </div>
 </form>
+
 {%TEMPLATE->struct/foot%}
