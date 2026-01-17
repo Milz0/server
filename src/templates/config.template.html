@@ -1,22 +1,31 @@
 {%TEMPLATE->struct/head%}
 {%TEMPLATE->struct/menu%}
+
 <h2>Server configuration</h2>
 {%TEMPLATE->struct/messages%}
 
-<div class="btn-toolbar">
-  <div class="btn-group" role="group">
-    <button onclick="window.location='config.php?view=1'" type="button" class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 1}} active{{ENDIF}}">Cracking/Tasks</button>
-    <button onclick="window.location='config.php?view=2'" type="button" class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 2}} active{{ENDIF}}">Yubikey</button>
-    <button onclick="window.location='config.php?view=3'" type="button" class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 3}} active{{ENDIF}}">Finetuning</button>
-    <button onclick="window.location='config.php?view=4'" type="button" class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 4}} active{{ENDIF}}">UI</button>
-    <button onclick="window.location='config.php?view=5'" type="button" class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 5}} active{{ENDIF}}">Server</button>
-    <button onclick="window.location='config.php?view=6'" type="button" class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 6}} active{{ENDIF}}">Multicast</button>
-    <button onclick="window.location='config.php?view=7'" type="button" class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 7}} active{{ENDIF}}">Notifications</button>
-    <button onclick="window.location='config.php?view=8'" type="button" class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 8}} active{{ENDIF}}">Object Storage</button>
+<div class="btn-toolbar mb-3" role="toolbar" aria-label="Config sections">
+  <div class="btn-group flex-wrap" role="group" aria-label="Config section buttons">
+    <button onclick="window.location='config.php?view=1'" type="button"
+      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 1}} active{{ENDIF}}">Cracking/Tasks</button>
+    <button onclick="window.location='config.php?view=2'" type="button"
+      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 2}} active{{ENDIF}}">Yubikey</button>
+    <button onclick="window.location='config.php?view=3'" type="button"
+      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 3}} active{{ENDIF}}">Finetuning</button>
+    <button onclick="window.location='config.php?view=4'" type="button"
+      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 4}} active{{ENDIF}}">UI</button>
+    <button onclick="window.location='config.php?view=5'" type="button"
+      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 5}} active{{ENDIF}}">Server</button>
+    <button onclick="window.location='config.php?view=6'" type="button"
+      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 6}} active{{ENDIF}}">Multicast</button>
+    <button onclick="window.location='config.php?view=7'" type="button"
+      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 7}} active{{ENDIF}}">Notifications</button>
+    <button onclick="window.location='config.php?view=8'" type="button"
+      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 8}} active{{ENDIF}}">Object Storage</button>
+    <button onclick="window.location='config.php?view=9'" type="button"
+      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 9}} active{{ENDIF}}">Vast.ai</button>
   </div>
 </div>
-
-<br>
 
 {{IF [[configSectionId]] == 6}}
   <div class="alert {{IF [[toggledarkmode]] > 0}}alert-dark{{ELSE}}alert-neutral{{ENDIF}}">
@@ -25,7 +34,7 @@
 {{ENDIF}}
 
 <form action="" method="POST" id="configForm">
-  <input type='hidden' name='action' value='[[$DConfigAction::UPDATE_CONFIG]]'>
+  <input type="hidden" name="action" value="[[$DConfigAction::UPDATE_CONFIG]]">
   <input type="hidden" name="csrf" value="[[csrf]]">
 
   {{IF [[configSectionId]] == 8}}
@@ -35,7 +44,7 @@
     <div class="card mb-3">
       <div class="card-header" style="padding: .5rem 1rem;">
         <button class="btn btn-link p-0" type="button"
-                data-toggle="collapse" data-target="#objstoreHelp"
+                data-bs-toggle="collapse" data-bs-target="#objstoreHelp"
                 aria-expanded="false" aria-controls="objstoreHelp">
           Object Storage setup help (click to expand)
         </button>
@@ -50,29 +59,30 @@
             If the test fails, correct the fields and test again.
           </div>
 
-      <h5 class="mb-2">Field guidance</h5>
-      <ul class="mb-3">
-        <li><b>Endpoint</b>: Base S3 API endpoint (do not include the bucket name unless your provider explicitly requires it).</li>
-        <li><b>Bucket</b>: Bucket/container name. The bucket must already exist.</li>
-        <li><b>Region</b>: Provider region identifier used for request signing (SigV4). Some providers do not require this, but most do.</li>
-        <li><b>Access Key ID</b>: Identifier for the credentials used to access the object storage API.
-          <br>
-          <small>
-            This key should belong to a dedicated user or service account with permissions limited to this bucket.
-          </small>
-        </li>
-       <li><b>Secret Access Key</b>: Secret key paired with the Access Key ID. Used to sign API requests and generate pre-signed URLs.
-         <br>
-         <small>
-           The key must have <b>read and write</b> permissions for the bucket. For security, scope it to the minimum required permissions and rotate it if exposed.
-         </small>
-       </li>
-       <li><b>Path-style</b>: If enabled, requests use <code>/bucket/object</code>. If disabled, requests use <code>bucket.endpoint/object</code> (virtual-host style).</li>
-       <li><b>Verify SSL</b>: Keep enabled unless you are using a private or self-signed TLS certificate and understand the security implications.</li>
-       <li><b>Prefix</b>: Optional folder/prefix inside the bucket (for example <code>hashtopolis/</code>).</li>
-       <li><b>Presign TTL</b>: Lifetime of generated pre-signed URLs in seconds. <code>60</code> seconds is more than sufficient in most cases.</li>
-       <li><b>Default Source</b>: Controls whether files are served from the local filesystem or via object storage (<code>local</code> / <code>remote</code>).</li>
-     </ul>
+          <h5 class="mb-2">Field guidance</h5>
+          <ul class="mb-3">
+            <li><b>Endpoint</b>: Base S3 API endpoint (do not include the bucket name unless your provider explicitly requires it).</li>
+            <li><b>Bucket</b>: Bucket/container name. The bucket must already exist.</li>
+            <li><b>Region</b>: Provider region identifier used for request signing (SigV4). Some providers do not require this, but most do.</li>
+            <li><b>Access Key ID</b>: Identifier for the credentials used to access the object storage API.
+              <br>
+              <small>
+                This key should belong to a dedicated user or service account with permissions limited to this bucket.
+              </small>
+            </li>
+            <li><b>Secret Access Key</b>: Secret key paired with the Access Key ID. Used to sign API requests and generate pre-signed URLs.
+              <br>
+              <small>
+                The key must have <b>read and write</b> permissions for the bucket. For security, scope it to the minimum required permissions and rotate it if exposed.
+              </small>
+            </li>
+            <li><b>Path-style</b>: If enabled, requests use <code>/bucket/object</code>. If disabled, requests use <code>bucket.endpoint/object</code> (virtual-host style).</li>
+            <li><b>Verify SSL</b>: Keep enabled unless you are using a private or self-signed TLS certificate and understand the security implications.</li>
+            <li><b>Prefix</b>: Optional folder/prefix inside the bucket (for example <code>hashtopolis/</code>).</li>
+            <li><b>Presign TTL</b>: Lifetime of generated pre-signed URLs in seconds. <code>60</code> seconds is more than sufficient in most cases.</li>
+            <li><b>Default Source</b>: Controls whether files are served from the local filesystem or via object storage (<code>local</code> / <code>remote</code>).</li>
+          </ul>
+
           <h5 class="mb-2">Provider endpoint examples</h5>
           <div class="table-responsive">
             <table class="table table-sm table-bordered mb-0">
@@ -189,57 +199,62 @@
 
   <div class="card">
     <div class="table-responsive">
-      <table class="table table-bordered">
-        <tr>
-          <th>Item</th>
-          <th>Value</th>
-        </tr>
-        {{FOREACH conf;[[configuration]]}}
+      <table class="table table-bordered align-middle mb-0">
+        <thead>
           <tr>
-            <td>[[DConfig::getConfigDescription([[conf.getVal('item')]])]]</td>
-            <td>
-              {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "string"}}
-                <input type="text" class='form-control' name="config_[[conf.getVal('item')]]" value="[[Util::escapeSpecial([[conf.getVal('value')]])]]" title="Config Value">
-              {{ENDIF}}
-              {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "number"}}
-                <input type="number" class='form-control' name="config_[[conf.getVal('item')]]" value="[[Util::escapeSpecial([[conf.getVal('value')]])]]" title="Config Value">
-              {{ENDIF}}
-              {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "email"}}
-                <input type="email" class='form-control' name="config_[[conf.getVal('item')]]" value="[[Util::escapeSpecial([[conf.getVal('value')]])]]" title="Config Value">
-              {{ENDIF}}
-              {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "checkbox"}}
-                <input type="hidden" name="config_[[conf.getVal('item')]]" value="0">
-                <input title="Config Value" type="checkbox" name="config_[[conf.getVal('item')]]" value="1" {{IF [[conf.getVal('value')]] == 1}}checked{{ENDIF}}>
-              {{ENDIF}}
-              {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "select"}}
-                <select name="config_[[conf.getVal('item')]]" class="form-control" title="config_[[conf.getVal('item')]]">
-                  {{FOREACH key;[[DConfig::getSelection([[conf.getVal('item')]])->getKeys()]]}}
-                    <option value="[[key]]"{{IF [[conf.getVal('value')]] == [[key]]}} selected{{ENDIF}}>[[DConfig::getSelection([[conf.getVal('item')]])->getVal([[key]])]]</option>
-                  {{ENDFOREACH}}
-                </select>
+            <th style="width:40%;">Item</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{FOREACH conf;[[configuration]]}}
+            <tr>
+              <td>[[DConfig::getConfigDescription([[conf.getVal('item')]])]]</td>
+              <td>
+                {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "string"}}
+                  <input type="text" class="form-control" name="config_[[conf.getVal('item')]]" value="[[Util::escapeSpecial([[conf.getVal('value')]])]]" title="Config Value">
+                {{ENDIF}}
+                {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "number"}}
+                  <input type="number" class="form-control" name="config_[[conf.getVal('item')]]" value="[[Util::escapeSpecial([[conf.getVal('value')]])]]" title="Config Value">
+                {{ENDIF}}
+                {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "email"}}
+                  <input type="email" class="form-control" name="config_[[conf.getVal('item')]]" value="[[Util::escapeSpecial([[conf.getVal('value')]])]]" title="Config Value">
+                {{ENDIF}}
+                {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "checkbox"}}
+                  <input type="hidden" name="config_[[conf.getVal('item')]]" value="0">
+                  <input title="Config Value" type="checkbox" name="config_[[conf.getVal('item')]]" value="1" {{IF [[conf.getVal('value')]] == 1}}checked{{ENDIF}}>
+                {{ENDIF}}
+                {{IF [[DConfig::getConfigType([[conf.getVal('item')]])]] == "select"}}
+                  <select name="config_[[conf.getVal('item')]]" class="form-select" title="config_[[conf.getVal('item')]]">
+                    {{FOREACH key;[[DConfig::getSelection([[conf.getVal('item')]])->getKeys()]]}}
+                      <option value="[[key]]"{{IF [[conf.getVal('value')]] == [[key]]}} selected{{ENDIF}}>[[DConfig::getSelection([[conf.getVal('item')]])->getVal([[key]])]]</option>
+                    {{ENDFOREACH}}
+                  </select>
+                {{ENDIF}}
+              </td>
+            </tr>
+          {{ENDFOREACH}}
+
+          <tr>
+            <td colspan="2">
+              {{IF [[configSectionId]] == 8}}
+                <button type="button" class="btn btn-secondary me-2" id="btnObjectStorageTest">
+                  Test connection
+                </button>
+
+                <button type="submit" class="btn btn-success me-2" id="btnSaveConfig">
+                  Save Changes
+                </button>
+
+                <button type="button" class="btn btn-danger" id="btnResetObjectStorage">
+                  Delete profile
+                </button>
+              {{ELSE}}
+                <input type="submit" class="btn btn-success" value="Save Changes">
               {{ENDIF}}
             </td>
           </tr>
-        {{ENDFOREACH}}
-        <tr>
-          <td colspan="2">
-            {{IF [[configSectionId]] == 8}}
-              <button type="button" class="btn btn-secondary mr-2" id="btnObjectStorageTest">
-                Test connection
-              </button>
-
-              <button type="submit" class="btn btn-success mr-2" id="btnSaveConfig">
-                Save Changes
-              </button>
-
-              <button type="button" class="btn btn-danger" id="btnResetObjectStorage">
-                Delete profile
-              </button>
-            {{ELSE}}
-              <input type="submit" class='btn btn-success' value="Save Changes">
-            {{ENDIF}}
-          </td>
-        </tr>
+        </tbody>
       </table>
     </div>
   </div>
@@ -253,41 +268,45 @@
 
   <script src="static/objectstorage.js"></script>
 {{ENDIF}}
+
 <h3>Database tools:</h3>
 <div class="card">
   <div class="table-responsive">
-    <table class="table table-bordered">
-		  <tr>
-			  <td>
-				  <form action='config.php' method='post'>
-					  <input type='hidden' name='action' value='[[$DConfigAction::REBUILD_CACHE]]'>
-					  <input type="hidden" name="csrf" value="[[csrf]]">
-					  <input type='submit' class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' value='Rebuild chunk cache'>
-				  </form>
-			  </td>
-			  <td>Counts cracked hashes in all chunks and all hashlists using slow but precise COUNT() function.</td>
-		  </tr>
-		  <tr>
-			  <td>
-				  <form action='config.php' method='post'>
-					  <input type='hidden' name='action' value='[[$DConfigAction::RESCAN_FILES]]'>
-					  <input type="hidden" name="csrf" value="[[csrf]]">
-					  <input type='submit' class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' value='Rescan global files'>
-				  </form>
-			  </td>
-			  <td>Scans all global files for size mismatch or inexistence.</td>
-		  </tr>
-		  <tr>
-			  <td>
-				  <form action='config.php' method='post' onSubmit='if(prompt("Do you really want to delete everything? Enter OK to confirm.") !== "OK")return false'>
-					  <input type='hidden' name='action' value='[[$DConfigAction::CLEAR_ALL]]'>
-					  <input type="hidden" name="csrf" value="[[csrf]]">
-					  <input type='submit' class='btn btn-danger' value='Clear all'>
-				  </form>
-			  </td>
-			  <td>Erases all hashlists, tasks (not pre-configured) and chunks of those tasks.</td>
-		  </tr>
-	  </table>
+    <table class="table table-bordered align-middle mb-0">
+      <tbody>
+        <tr>
+          <td style="width: 1%; white-space: nowrap;">
+            <form action="config.php" method="post">
+              <input type="hidden" name="action" value="[[$DConfigAction::REBUILD_CACHE]]">
+              <input type="hidden" name="csrf" value="[[csrf]]">
+              <input type="submit" class="btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}" value="Rebuild chunk cache">
+            </form>
+          </td>
+          <td>Counts cracked hashes in all chunks and all hashlists using slow but precise COUNT() function.</td>
+        </tr>
+        <tr>
+          <td style="width: 1%; white-space: nowrap;">
+            <form action="config.php" method="post">
+              <input type="hidden" name="action" value="[[$DConfigAction::RESCAN_FILES]]">
+              <input type="hidden" name="csrf" value="[[csrf]]">
+              <input type="submit" class="btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}" value="Rescan global files">
+            </form>
+          </td>
+          <td>Scans all global files for size mismatch or inexistence.</td>
+        </tr>
+        <tr>
+          <td style="width: 1%; white-space: nowrap;">
+            <form action="config.php" method="post" onsubmit='if(prompt("Do you really want to delete everything? Enter OK to confirm.") !== "OK")return false'>
+              <input type="hidden" name="action" value="[[$DConfigAction::CLEAR_ALL]]">
+              <input type="hidden" name="csrf" value="[[csrf]]">
+              <input type="submit" class="btn btn-danger" value="Clear all">
+            </form>
+          </td>
+          <td>Erases all hashlists, tasks (not pre-configured) and chunks of those tasks.</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
+
 {%TEMPLATE->struct/foot%}

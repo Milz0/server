@@ -2,6 +2,7 @@
 {%TEMPLATE->struct/menu%}
 <h2>Agent Binaries</h2>
 {%TEMPLATE->struct/messages%}
+
 {{IF [[newBinary]]}}
   <form action="binaries.php" method="post">
     <input type="hidden" name="action" value="[[$DAgentBinaryAction::NEW_BINARY]]">
@@ -44,6 +45,7 @@
     </div>
   </form>
 {{ENDIF}}
+
 {{IF [[editBinary]]}}
   <form action="binaries.php" method="post">
     <input type="hidden" name="action" value="[[$DAgentBinaryAction::EDIT_BINARY]]">
@@ -96,17 +98,17 @@
           <a href="binaries.php?new=true" class="btn btn-success">Add New Binary</a>
         </td>
       </tr>
-		  <tr>
-			  <th>ID</th>
-			  <th>Type</th>
-			  <th>OS</th>
-			  <th>Filename</th>
-			  <th>Current Version</th>
-			  <th>Update Track</th>
+      <tr>
+        <th>ID</th>
+        <th>Type</th>
+        <th>OS</th>
+        <th>Filename</th>
+        <th>Current Version</th>
+        <th>Update Track</th>
         <th>&nbsp;</th>
-		  </tr>
-		  {{FOREACH binary;[[binaries]]}}
-			  <tr>
+      </tr>
+      {{FOREACH binary;[[binaries]]}}
+        <tr>
           <td>[[binary.getId()]]</td>
           <td>[[binary.getType()]]</td>
           <td>[[binary.getOperatingSystems()]]</td>
@@ -115,30 +117,42 @@
           <td><code>[[binary.getUpdateTrack()]]</code></td>
           <td>
             <form class="float-right" action="binaries.php" method="POST" onSubmit="if (!confirm('Really delete binary [[binary.getId()]]?')) return false;">
-              <input type='hidden' name='action' value='[[$DAgentBinaryAction::DELETE_BINARY]]'>
+              <input type="hidden" name="action" value="[[$DAgentBinaryAction::DELETE_BINARY]]">
               <input type="hidden" name="id" value="[[binary.getId()]]">
               <input type="hidden" name="csrf" value="[[csrf]]">
-              <button type="submit" class='btn btn-danger mx-1' data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+              <button type="submit" class="btn btn-danger mx-1" data-toggle="tooltip" data-placement="top" title="Delete">
+                <i class="fas fa-trash" aria-hidden="true"></i>
+              </button>
             </form>
+
             {{IF [[binary.getUpdateAvailable()]]}}
               <form class="float-right" action="binaries.php" method="POST" onSubmit="if (!confirm('Are you sure you want to update to version [[binary.getUpdateAvailable()]]?')) return false;">
-                <input type='hidden' name='action' value='[[$DAgentBinaryAction::UPGRADE_BINARY]]'>
+                <input type="hidden" name="action" value="[[$DAgentBinaryAction::UPGRADE_BINARY]]">
                 <input type="hidden" name="binaryId" value="[[binary.getId()]]">
                 <input type="hidden" name="csrf" value="[[csrf]]">
-                <button type="submit" class='btn btn-success mx-1' data-toggle="tooltip" data-placement="top" title="Upgrade to [[binary.getUpdateAvailable()]]"><i class="fas fa-cloud-download-alt" aria-hidden="true"></i></button>
+                <button type="submit" class="btn btn-success mx-1" data-toggle="tooltip" data-placement="top" title="Upgrade to [[binary.getUpdateAvailable()]]">
+                  <i class="fas fa-cloud-download-alt" aria-hidden="true"></i>
+                </button>
               </form>
             {{ENDIF}}
+
             <form class="float-right" action="binaries.php" method="POST">
-              <input type='hidden' name='action' value='[[$DAgentBinaryAction::CHECK_UPDATE]]'>
+              <input type="hidden" name="action" value="[[$DAgentBinaryAction::CHECK_UPDATE]]">
               <input type="hidden" name="binaryId" value="[[binary.getId()]]">
               <input type="hidden" name="csrf" value="[[csrf]]">
-              <button type="submit" class='btn btn-warning mx-1' data-toggle="tooltip" data-placement="top" title="Check for Update"><i class="fas fa-sync" aria-hidden="true"></i></button>
+              <button type="submit" class="btn btn-warning mx-1" data-toggle="tooltip" data-placement="top" title="Check for Update">
+                <i class="fas fa-sync" aria-hidden="true"></i>
+              </button>
             </form>
-            <a href="binaries.php?edit=[[binary.getId()]]" class="btn btn-primary float-right mx-1" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit" aria-hidden="true"></i></a>
+
+            <a href="binaries.php?edit=[[binary.getId()]]" class="btn btn-primary float-right mx-1" data-toggle="tooltip" data-placement="top" title="Edit">
+              <i class="fas fa-edit" aria-hidden="true"></i>
+            </a>
           </td>
-			  </tr>
-		  {{ENDFOREACH}}
-	  </table>
+        </tr>
+      {{ENDFOREACH}}
+    </table>
   </div>
 </div>
+
 {%TEMPLATE->struct/foot%}
