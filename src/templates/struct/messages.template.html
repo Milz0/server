@@ -1,5 +1,10 @@
 {{FOREACH message;[[messages]]}}
-  <div class="alert alert-[[message.getVal('type')]]">
+  <div class="alert alert-[[message.getVal('type')]] alert-dismissible fade show mb-3" role="alert">
     [[message.getVal('message')]]
+    <button type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Close">
+    </button>
   </div>
 {{ENDFOREACH}}
