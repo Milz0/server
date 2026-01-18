@@ -7,28 +7,28 @@
 <div class="btn-toolbar mb-3" role="toolbar" aria-label="Config sections">
   <div class="btn-group flex-wrap" role="group" aria-label="Config section buttons">
     <button onclick="window.location='config.php?view=1'" type="button"
-      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 1}} active{{ENDIF}}">Cracking/Tasks</button>
+      class="btn btn-outline-secondary{{IF [[configSectionId]] == 1}} active{{ENDIF}}">Cracking/Tasks</button>
     <button onclick="window.location='config.php?view=2'" type="button"
-      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 2}} active{{ENDIF}}">Yubikey</button>
+      class="btn btn-outline-secondary{{IF [[configSectionId]] == 2}} active{{ENDIF}}">Yubikey</button>
     <button onclick="window.location='config.php?view=3'" type="button"
-      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 3}} active{{ENDIF}}">Finetuning</button>
+      class="btn btn-outline-secondary{{IF [[configSectionId]] == 3}} active{{ENDIF}}">Finetuning</button>
     <button onclick="window.location='config.php?view=4'" type="button"
-      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 4}} active{{ENDIF}}">UI</button>
+      class="btn btn-outline-secondary{{IF [[configSectionId]] == 4}} active{{ENDIF}}">UI</button>
     <button onclick="window.location='config.php?view=5'" type="button"
-      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 5}} active{{ENDIF}}">Server</button>
+      class="btn btn-outline-secondary{{IF [[configSectionId]] == 5}} active{{ENDIF}}">Server</button>
     <button onclick="window.location='config.php?view=6'" type="button"
-      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 6}} active{{ENDIF}}">Multicast</button>
+      class="btn btn-outline-secondary{{IF [[configSectionId]] == 6}} active{{ENDIF}}">Multicast</button>
     <button onclick="window.location='config.php?view=7'" type="button"
-      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 7}} active{{ENDIF}}">Notifications</button>
+      class="btn btn-outline-secondary{{IF [[configSectionId]] == 7}} active{{ENDIF}}">Notifications</button>
     <button onclick="window.location='config.php?view=8'" type="button"
-      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 8}} active{{ENDIF}}">Object Storage</button>
+      class="btn btn-outline-secondary{{IF [[configSectionId]] == 8}} active{{ENDIF}}">Object Storage</button>
     <button onclick="window.location='config.php?view=9'" type="button"
-      class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[configSectionId]] == 9}} active{{ENDIF}}">Vast.ai</button>
+      class="btn btn-outline-secondary{{IF [[configSectionId]] == 9}} active{{ENDIF}}">Vast.ai</button>
   </div>
 </div>
 
 {{IF [[configSectionId]] == 6}}
-  <div class="alert {{IF [[toggledarkmode]] > 0}}alert-dark{{ELSE}}alert-neutral{{ENDIF}}">
+  <div class="alert alert-secondary">
     Service runner status: [[RunnerUtils::getStatus(false)]]
   </div>
 {{ENDIF}}
@@ -238,7 +238,7 @@
           <tr>
             <td colspan="2">
               {{IF [[configSectionId]] == 8}}
-                <button type="button" class="btn btn-secondary me-2" id="btnObjectStorageTest">
+                <button type="button" class="btn btn-outline-secondary me-2" id="btnObjectStorageTest">
                   Test connection
                 </button>
 
@@ -279,7 +279,7 @@
             <form action="config.php" method="post">
               <input type="hidden" name="action" value="[[$DConfigAction::REBUILD_CACHE]]">
               <input type="hidden" name="csrf" value="[[csrf]]">
-              <input type="submit" class="btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}" value="Rebuild chunk cache">
+              <input type="submit" class="btn btn-outline-secondary" value="Rebuild chunk cache">
             </form>
           </td>
           <td>Counts cracked hashes in all chunks and all hashlists using slow but precise COUNT() function.</td>
@@ -289,7 +289,7 @@
             <form action="config.php" method="post">
               <input type="hidden" name="action" value="[[$DConfigAction::RESCAN_FILES]]">
               <input type="hidden" name="csrf" value="[[csrf]]">
-              <input type="submit" class="btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}" value="Rescan global files">
+              <input type="submit" class="btn btn-outline-secondary" value="Rescan global files">
             </form>
           </td>
           <td>Scans all global files for size mismatch or inexistence.</td>

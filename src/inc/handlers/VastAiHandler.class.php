@@ -319,7 +319,7 @@ mkdir -p /opt/hashtopolis
 cd /opt/hashtopolis
 
 curl -fsSL "{$agentBaseUrl}/agents.php?download=1" -o hashtopolis.zip
-python3 hashtopolis.zip --url "{$agentBaseUrl}/api/server.php" --voucher "{$voucher}" -d
+python3 hashtopolis.zip --url "{$agentBaseUrl}/api/server.php" --voucher "{$voucher}"
 BASH;
   }
 

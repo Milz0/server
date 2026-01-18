@@ -17,16 +17,17 @@
 
 <div class="row g-3">
   <div class="{{IF [[accessControl.hasPermission([[$DAccessControl::ADD_FILE_ACCESS]])]]}}col-12 col-lg-8{{ELSE}}col-12{{ENDIF}}">
+
     <div class="btn-toolbar" role="toolbar" aria-label="File type tabs">
       <div class="btn-group" role="group" aria-label="File type">
         <button type="button"
-          class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[view]] == "rule"}} active{{ENDIF}}"
+          class="btn btn-outline-secondary{{IF [[view]] == "rule"}} active{{ENDIF}}"
           onclick="window.location='files.php?view=rule'">Rules</button>
         <button type="button"
-          class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[view]] == "dict"}} active{{ENDIF}}"
+          class="btn btn-outline-secondary{{IF [[view]] == "dict"}} active{{ENDIF}}"
           onclick="window.location='files.php?view=dict'">Wordlists</button>
         <button type="button"
-          class="btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[view]] == "other"}} active{{ENDIF}}"
+          class="btn btn-outline-secondary{{IF [[view]] == "other"}} active{{ENDIF}}"
           onclick="window.location='files.php?view=other'">Other</button>
       </div>
     </div>
@@ -122,7 +123,7 @@
                         <input type="hidden" name="action" value="[[$DFileAction::COUNT_FILE_LINES]]">
                         <input type="hidden" name="csrf" value="[[csrf]]">
                         <input type="hidden" name="file" value="[[file.getId()]]">
-                        <button type="submit" class="btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}"
+                        <button type="submit" class="btn btn-outline-secondary"
                           data-toggle="tooltip" data-placement="top" title="Recount the lines in this file">✓?</button>
                       </form>
                     </div>
@@ -164,15 +165,14 @@
               <tr>
                 <th>
                   Upload files
-                  <button type="button" class="btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}} ms-2"
-                    onclick="addLine('upfiles');">Add file</button>
+                  <button type="button" class="btn btn-outline-secondary ms-2" onclick="addLine('upfiles');">Add file</button>
                 </th>
               </tr>
 
               <tr>
                 <td>
                   Associated Access Group<br>
-                  <select name="accessGroupId" class="form-control" title="Access Group">
+                  <select name="accessGroupId" class="form-select" title="Access Group">
                     {{FOREACH accessGroup;[[allAccessGroups]]}}
                       <option value="[[accessGroup.getId()]]">[[accessGroup.getGroupName()]]</option>
                     {{ENDFOREACH}}
@@ -182,7 +182,7 @@
 
               <tr>
                 <td>
-                  <input type="submit" class="btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}" value="Upload files">
+                  <input type="submit" class="btn btn-primary" value="Upload files">
                 </td>
               </tr>
             </table>
@@ -205,7 +205,7 @@
               <tr>
                 <td>
                   Associated Access Group<br>
-                  <select name="accessGroupId" class="form-control" title="Access Group">
+                  <select name="accessGroupId" class="form-select" title="Access Group">
                     {{FOREACH accessGroup;[[allAccessGroups]]}}
                       <option value="[[accessGroup.getId()]]">[[accessGroup.getGroupName()]]</option>
                     {{ENDFOREACH}}
@@ -233,7 +233,7 @@
               {{ELSE}}
                 <tr>
                   <td class="d-flex flex-wrap align-items-center gap-2">
-                    <input type="submit" class="btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}" value="Import files">
+                    <input type="submit" class="btn btn-primary" value="Import files">
                     <div class="form-check m-0">
                       <input class="form-check-input" type="checkbox" id="selectAllImport" onChange="checkAll('impfiles',this.checked);" title="Select All">
                       <label class="form-check-label" for="selectAllImport">Select All</label>
@@ -261,7 +261,7 @@
               <tr>
                 <td colspan="2">
                   Associated Access Group<br>
-                  <select name="accessGroupId" class="form-control" title="Access Group">
+                  <select name="accessGroupId" class="form-select" title="Access Group">
                     {{FOREACH accessGroup;[[allAccessGroups]]}}
                       <option value="[[accessGroup.getId()]]">[[accessGroup.getGroupName()]]</option>
                     {{ENDFOREACH}}
@@ -278,7 +278,7 @@
 
               <tr>
                 <td colspan="2">
-                  <input type="submit" class="btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}" value="Download file">
+                  <input type="submit" class="btn btn-primary" value="Download file">
                 </td>
               </tr>
             </table>

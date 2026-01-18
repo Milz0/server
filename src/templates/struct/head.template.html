@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="en" {{IF [[toggledarkmode]] > 0}}data-bs-theme="dark"{{ELSE}}data-bs-theme="light"{{ENDIF}}>
+<html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -12,39 +13,54 @@
   <title>[[$APP_NAME]] [[version]] [ [[host]] ]{{IF strlen([[pageTitle]]) > 0}} - [[pageTitle]]{{ENDIF}}</title>
 
   <!-- Bootstrap 5 -->
-  <link id="bootstrapCSS" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
-
-  <!-- Project CSS (keep your own) -->
-  <link rel="stylesheet" href="static/navbar.css">
-  {{IF [[toggledarkmode]] > 0}}
-    <link rel="stylesheet" href="static/bootstrap.dark.custom.css">
-  {{ENDIF}}
+  <link id="bootstrapCSS" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/yeti/bootstrap.min.css">
 
   <!-- DataTables (Bootstrap 5 + Responsive) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-bs5/2.3.4/dataTables.bootstrap5.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-responsive-bs5/3.0.7/responsive.bootstrap5.min.css">
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-bs5/2.3.4/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-responsive-bs5/3.0.7/responsive.bootstrap5.min.css">
 
   <!-- Select2 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
   <!-- Select2 Bootstrap 5 theme (use your existing local file OR swap to CDN)
        If you already have good local files, keep them. If you want "no static", use jsdelivr: -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme{{IF [[toggledarkmode]] > 0}}.min{{ENDIF}}.css">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme{{IF [[toggledarkmode]] > 0}}.min{{ENDIF}}.css">
 
   <style>
     /* X-Small devices (portrait phones, less than 576px) */
-    .select2-selection__rendered { max-width: 49vw; }
+    .select2-selection__rendered {
+      max-width: 49vw;
+    }
 
     /* Small devices (landscape phones, 576px and up) */
-    @media (min-width: 576px) { .select2-selection__rendered { max-width: 46vw; } }
+    @media (min-width: 576px) {
+      .select2-selection__rendered {
+        max-width: 46vw;
+      }
+    }
 
     /* Large devices (desktops, 992px and up) */
-    @media (min-width: 992px) { .select2-selection__rendered { max-width: 54vw; } }
+    @media (min-width: 992px) {
+      .select2-selection__rendered {
+        max-width: 54vw;
+      }
+    }
 
     /* X-Large devices (large desktops, 1200px and up) */
-    @media (min-width: 1200px) { .select2-selection__rendered { max-width: 68vw; } }
+    @media (min-width: 1200px) {
+      .select2-selection__rendered {
+        max-width: 68vw;
+      }
+    }
 
     /* XX-Large devices (larger desktops, 1400px and up) */
-    @media (min-width: 1400px) { .select2-selection__rendered { max-width: 64vw; } }
+    @media (min-width: 1400px) {
+      .select2-selection__rendered {
+        max-width: 64vw;
+      }
+    }
   </style>
 
   <!-- JS: jQuery first (DataTables + Select2 depend on it) -->
@@ -60,8 +76,10 @@
   <!-- DataTables (core + BS5 + Responsive + Responsive BS5) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables.net/2.3.4/dataTables.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-bs5/2.3.4/dataTables.bootstrap5.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-responsive/3.0.7/dataTables.responsive.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-responsive-bs5/3.0.7/responsive.bootstrap5.min.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-responsive/3.0.7/dataTables.responsive.min.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-responsive-bs5/3.0.7/responsive.bootstrap5.min.js"></script>
 
   <!-- Select2 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
@@ -70,19 +88,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@eastdesire/jscolor@2.5.2/jscolor.min.js"></script>
 
   {{IF [[autorefresh]] > 0}}
-    <meta http-equiv="refresh" content="[[autorefresh]]{{IF [[strlen([[autorefreshUrl]])]] > 0}}; URL=[[autorefreshUrl]]{{ENDIF}}">
+  <meta http-equiv="refresh"
+    content="[[autorefresh]]{{IF [[strlen([[autorefreshUrl]])]] > 0}}; URL=[[autorefreshUrl]]{{ENDIF}}">
   {{ENDIF}}
 
   <script type="text/javascript">
-    function darkMode() {
-      if (typeof Cookies.get('toggledarkmode') === "undefined") {
-        Cookies.set('toggledarkmode', '1', { expires: 365 });
-      } else {
-        Cookies.remove('toggledarkmode');
-      }
-      window.location.reload();
-    }
-
     function sourceChange(valu) {
       var pasteObject = document.getElementById("pasteLine");
       var uploadObject = document.getElementById("uploadLine");

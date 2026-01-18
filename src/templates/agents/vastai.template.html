@@ -23,6 +23,20 @@
                 </span>
               </span>
 
+              <span id="runningGpusWrap" class="d-none">
+                <span class="vast-badge is-info" id="runningGpusBadge" title="Total running GPUs">
+                  <span class="dot"></span>
+                  <span id="runningGpusText">Running: 0 GPUs</span>
+                </span>
+              </span>
+
+              <span id="runningFlopsWrap" class="d-none">
+                <span class="vast-badge is-info" id="runningFlopsBadge" title="Total running TFLOPS">
+                  <span class="dot"></span>
+                  <span id="runningFlopsText">Running: 0.00 FLOPS</span>
+                </span>
+              </span>
+
               <span id="selectedHourlyWrap" class="d-none">
                 <span class="vast-badge is-good" id="selectedHourlyBadge" title="Total selected $/hr from offers">
                   <span class="dot"></span>
@@ -57,14 +71,15 @@
 
               <tbody>
                 {{FOREACH inst;[[vastInstances]]}}
-                <tr class="instanceRow">
+                <tr class="instanceRow" data-id="[[inst.getVal('id')]]" data-ng="[[inst.getVal('num_gpus')]]"
+                  data-flops="[[inst.getVal('total_flops_raw')]]">
                   <td><code>[[inst.getVal('id')]]</code></td>
                   <td class="col-label">[[inst.getVal('label')]]</td>
                   <td>
                     <span class="vast-badge is-muted js-status-badge">[[inst.getVal('status')]]</span>
                   </td>
                   <td>[[inst.getVal('gpu_name')]]</td>
-                  <td class="text-center">[[inst.getVal('num_gpus')]]</td>
+                  <td class="text-center js-instance-gpus">[[inst.getVal('num_gpus')]]</td>
                   <td class="text-end instanceCost">[[inst.getVal('cost_per_hour')]]</td>
                   <td>
                     {{IF [[inst.getVal('public_ip')]] != ""}}
@@ -330,5 +345,6 @@
     </div>
   </div>
 </div>
+
 <script src="static/vastai.js"></script>
 {%TEMPLATE->struct/foot%}
