@@ -1,0 +1,131 @@
+<!-- Create Instance Modal -->
+<div class="modal fade" id="createInstanceModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white py-2">
+        <h6 class="modal-title mb-0">
+          <i class="fas fa-plus-circle"></i> Create Instance
+        </h6>
+        <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body p-3">
+        
+        <!-- Configuration Form -->
+        <form id="createInstanceForm">
+          <input type="hidden" id="modal-offer-id">
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group mb-2">
+                <label for="modal-label" style="font-size: 0.9em;">
+                  <strong>Instance Label:</strong> <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control form-control-sm" id="modal-label" 
+                       placeholder="e.g., agent-1" required>
+                <small class="form-text text-muted">Unique name for this instance</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group mb-2">
+                <label for="modal-disk" style="font-size: 0.9em;">
+                  <strong>Disk (GB):</strong> <span class="text-danger">*</span>
+                </label>
+                <input type="number" class="form-control form-control-sm" id="modal-disk" 
+                       value="25" min="5" max="1000" required>
+                <small class="form-text text-muted">5-1000 GB</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group mb-2">
+                <label for="modal-image" style="font-size: 0.9em;">
+                  <strong>Image:</strong>
+                </label>
+                <input type="text" class="form-control form-control-sm" id="modal-image" 
+                       value="[[vastImage]]" readonly title="[[vastImage]]">
+                <small class="form-text text-muted">Docker image</small>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <hr class="my-2">
+
+        <!-- Cost Summary Cards -->
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <div class="card border-info">
+              <div class="card-body py-2 text-center">
+                <small class="text-muted d-block">Hourly Cost</small>
+                <h5 class="mb-0 text-info">$<span id="modal-cost-hourly">0.000</span>/hr</h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-warning">
+              <div class="card-body py-2 text-center">
+                <small class="text-muted d-block">Daily Cost</small>
+                <h5 class="mb-0 text-warning">$<span id="modal-cost-daily">0.00</span>/day</h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-danger">
+              <div class="card-body py-2 text-center">
+                <small class="text-muted d-block">Monthly Cost</small>
+                <h5 class="mb-0 text-danger">$<span id="modal-cost-monthly">0.00</span>/mo</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hardware Details -->
+        <h6 class="text-success mb-2">
+          <i class="fas fa-server"></i> <strong>Hardware Specifications:</strong>
+        </h6>
+        <div class="row">
+          <div class="col-md-6">
+            <table class="table table-sm table-borderless mb-2" style="font-size: 0.85rem;">
+              <tr>
+                <td style="width: 90px;" class="text-muted"><i class="fas fa-memory fa-fw"></i> GPU:</td>
+                <td id="modal-gpu-info" class="font-weight-bold"></td>
+              </tr>
+              <tr>
+                <td class="text-muted"><i class="fas fa-map-marker-alt fa-fw"></i> Location:</td>
+                <td id="modal-location-info"></td>
+              </tr>
+              <tr>
+                <td class="text-muted"><i class="fas fa-star fa-fw"></i> Reliability:</td>
+                <td id="modal-reliability-info"></td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-md-6">
+            <table class="table table-sm table-borderless mb-2" style="font-size: 0.85rem;">
+              <tr>
+                <td style="width: 90px;" class="text-muted"><i class="fas fa-tachometer-alt fa-fw"></i> VRAM:</td>
+                <td id="modal-vram-info"></td>
+              </tr>
+              <tr>
+                <td class="text-muted"><i class="fas fa-cpu fa-fw"></i> vCPU:</td>
+                <td id="modal-cpu-info"></td>
+              </tr>
+              <tr>
+                <td class="text-muted"><i class="fas fa-hdd fa-fw"></i> RAM:</td>
+                <td id="modal-ram-info"></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer py-2 bg-light">
+        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button type="button" class="btn btn-sm btn-success" id="confirmCreateInstance">
+          <i class="fas fa-rocket"></i> Create Instance
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

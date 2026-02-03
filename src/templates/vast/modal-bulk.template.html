@@ -1,0 +1,98 @@
+<!-- Bulk Rent Modal -->
+<div class="modal fade" id="bulkRentModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white py-2">
+        <h6 class="modal-title mb-0">
+          <i class="fas fa-plus-circle"></i> Bulk Rent <span id="bulk-rent-count">0</span> Instances
+        </h6>
+        <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body p-3">
+        
+        <!-- Configuration Form -->
+        <form id="bulkRentForm">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group mb-2">
+                <label for="bulk-label-prefix" style="font-size: 0.9em;">
+                  <strong>Label Prefix:</strong> <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control form-control-sm" id="bulk-label-prefix" 
+                       placeholder="e.g., agent" required>
+                <small class="form-text text-muted">Names: prefix-1, prefix-2, prefix-3...</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group mb-2">
+                <label for="bulk-disk" style="font-size: 0.9em;">
+                  <strong>Disk (GB):</strong> <span class="text-danger">*</span>
+                </label>
+                <input type="number" class="form-control form-control-sm" id="bulk-disk" 
+                       value="25" min="5" max="1000" required>
+                <small class="form-text text-muted">5-1000 GB</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group mb-2">
+                <label for="bulk-image" style="font-size: 0.9em;">
+                  <strong>Image:</strong>
+                </label>
+                <input type="text" class="form-control form-control-sm" id="bulk-image" 
+                       value="[[vastImage]]" readonly title="[[vastImage]]">
+                <small class="form-text text-muted">Docker image</small>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <hr class="my-2">
+
+        <!-- Cost Summary Cards -->
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <div class="card border-info">
+              <div class="card-body py-2 text-center">
+                <small class="text-muted d-block">Hourly Cost</small>
+                <h5 class="mb-0 text-info">$<span id="bulk-rent-total-hourly">0.000</span>/hr</h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-warning">
+              <div class="card-body py-2 text-center">
+                <small class="text-muted d-block">Daily Cost</small>
+                <h5 class="mb-0 text-warning">$<span id="bulk-rent-total-daily">0.00</span>/day</h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-danger">
+              <div class="card-body py-2 text-center">
+                <small class="text-muted d-block">Monthly Cost</small>
+                <h5 class="mb-0 text-danger">$<span id="bulk-rent-total-monthly">0.00</span>/mo</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected Offers List -->
+        <h6 class="text-success mb-2">
+          <i class="fas fa-list"></i> <strong>Selected Offers:</strong>
+        </h6>
+        <div id="bulk-rent-offers-list" style="max-height: 250px; overflow-y: auto; font-size: 0.9em;">
+          <!-- Populated dynamically -->
+        </div>
+
+      </div>
+      <div class="modal-footer py-2 bg-light">
+        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button type="button" class="btn btn-sm btn-success" id="confirmBulkRent">
+          <i class="fas fa-rocket"></i> Create All Instances
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

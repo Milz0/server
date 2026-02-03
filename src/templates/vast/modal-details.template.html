@@ -1,0 +1,214 @@
+<!-- Instance Details Modal -->
+<div class="modal fade" id="instanceDetailsModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white py-2">
+        <h6 class="modal-title mb-0">
+          <i class="fas fa-server"></i> Instance Details
+        </h6>
+        <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body p-3">
+        
+        <!-- Cost Summary Cards -->
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <div class="card border-info">
+              <div class="card-body py-2 text-center">
+                <small class="text-muted d-block">Hourly Cost</small>
+                <h5 class="mb-0 text-info" id="detail-price-hourly">$0.000/hr</h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-warning">
+              <div class="card-body py-2 text-center">
+                <small class="text-muted d-block">Daily Cost</small>
+                <h5 class="mb-0 text-warning" id="detail-price-daily">$0.00/day</h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-danger">
+              <div class="card-body py-2 text-center">
+                <small class="text-muted d-block">Monthly Cost</small>
+                <h5 class="mb-0 text-danger" id="detail-price-monthly">$0.00/mo</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-2">
+
+        <!-- Basic Information & Hardware -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <h6 class="text-primary mb-2 border-bottom pb-1">
+              <i class="fas fa-info-circle"></i> <strong>Basic Information</strong>
+            </h6>
+            <table class="table table-sm table-borderless mb-0" style="font-size: 0.9em;">
+              <tr>
+                <td style="width: 100px;" class="text-muted"><i class="fas fa-hashtag fa-fw"></i> ID:</td>
+                <td>
+                  <span id="detail-id" class="font-weight-bold"></span>
+                  <button class="btn btn-xs btn-outline-secondary ml-1 p-0 px-1" id="copyInstanceIdBtn" title="Copy Instance ID">
+                    <i class="fas fa-copy" style="font-size: 0.7rem;"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td class="text-muted"><i class="fas fa-tag fa-fw"></i> Label:</td>
+                <td id="detail-label"></td>
+              </tr>
+              <!-- ❌ REMOVED: Status badge row -->
+              <tr>
+                <td class="text-muted"><i class="fas fa-server fa-fw"></i> Machine:</td>
+                <td>
+                  <span id="detail-machine-id" style="font-size: 0.85em;"></span>
+                  <button class="btn btn-xs btn-outline-secondary ml-1 p-0 px-1" id="copyInstanceMachineIdBtn" title="Copy Machine ID">
+                    <i class="fas fa-copy" style="font-size: 0.7rem;"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr id="detail-uptime-row">
+                <td class="text-muted"><i class="fas fa-clock fa-fw"></i> Uptime:</td>
+                <td id="detail-uptime" class="font-weight-bold text-success"></td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <h6 class="text-primary mb-2 border-bottom pb-1">
+              <i class="fas fa-microchip"></i> <strong>Hardware</strong>
+            </h6>
+            <table class="table table-sm table-borderless mb-0" style="font-size: 0.9em;">
+              <tr>
+                <td style="width: 100px;" class="text-muted"><i class="fas fa-memory fa-fw"></i> GPU:</td>
+                <td id="detail-gpu" class="font-weight-bold"></td>
+              </tr>
+              <tr>
+                <td class="text-muted"><i class="fas fa-clone fa-fw"></i> Count:</td>
+                <td id="detail-gpu-count"></td>
+              </tr>
+              <tr>
+                <td class="text-muted"><i class="fas fa-cpu fa-fw"></i> vCPU:</td>
+                <td id="detail-cpu"></td>
+              </tr>
+              <tr>
+                <td class="text-muted"><i class="fas fa-hdd fa-fw"></i> RAM:</td>
+                <td id="detail-ram"></td>
+              </tr>
+              <tr>
+                <td class="text-muted"><i class="fas fa-database fa-fw"></i> Disk:</td>
+                <td id="detail-disk"></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- Agent Stats Section -->
+        <div id="detail-agent-stats"></div>
+
+        <!-- Connection & Location -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <h6 class="text-primary mb-2 border-bottom pb-1">
+              <i class="fas fa-network-wired"></i> <strong>Connection</strong>
+            </h6>
+            <table class="table table-sm table-borderless mb-0" style="font-size: 0.9em;">
+              <tr>
+                <td style="width: 100px;" class="text-muted"><i class="fas fa-globe fa-fw"></i> Host:</td>
+                <td id="detail-ssh-host" style="font-size: 0.85em;"></td>
+              </tr>
+              <tr>
+                <td class="text-muted"><i class="fas fa-plug fa-fw"></i> Port:</td>
+                <td id="detail-ssh-port"></td>
+              </tr>
+              <tr>
+                <td class="text-muted"><i class="fas fa-terminal fa-fw"></i> SSH:</td>
+                <td>
+                  <code id="detail-ssh-command" class="d-block text-truncate" style="font-size: 0.75em; max-width: 250px; cursor: pointer;" title="Click to copy"></code>
+                  <small class="text-muted">Click to copy</small>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <h6 class="text-primary mb-2 border-bottom pb-1">
+              <i class="fas fa-map-marker-alt"></i> <strong>Location & Image</strong>
+            </h6>
+            <table class="table table-sm table-borderless mb-0" style="font-size: 0.9em;">
+              <tr>
+                <td style="width: 100px;" class="text-muted"><i class="fas fa-map-pin fa-fw"></i> Location:</td>
+                <td id="detail-location"></td>
+              </tr>
+              <tr>
+                <td class="text-muted"><i class="fas fa-dollar-sign fa-fw"></i> Hourly:</td>
+                <td id="detail-price" class="text-success font-weight-bold"></td>
+              </tr>
+              <tr>
+                <td class="text-muted"><i class="fas fa-box fa-fw"></i> Image:</td>
+                <td>
+                  <span id="detail-image" class="d-block text-truncate" style="font-size: 0.75em; max-width: 250px;" title=""></span>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- Timestamps -->
+        <div class="row">
+          <div class="col-md-12 mb-2">
+            <h6 class="text-primary mb-2 border-bottom pb-1">
+              <i class="fas fa-clock"></i> <strong>Timestamps</strong>
+            </h6>
+            <div class="row" style="font-size: 0.9em;">
+              <div class="col-md-6">
+                <span class="text-muted"><i class="fas fa-play-circle fa-fw"></i> Created:</span>
+                <div id="detail-created" class="font-weight-bold"></div>
+              </div>
+              <div class="col-md-6">
+                <span class="text-muted"><i class="fas fa-stop-circle fa-fw"></i> End Date:</span>
+                <div id="detail-end-date" class="font-weight-bold"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-2">
+
+        <!-- JSON Section with Copy Button -->
+        <div class="row">
+          <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="text-primary mb-0">
+                <i class="fas fa-code"></i> <strong>Raw JSON</strong>
+              </h6>
+              <div>
+                <button class="btn btn-sm btn-outline-secondary mr-1" id="copyJsonBtn" title="Copy JSON">
+                  <i class="fas fa-copy"></i> Copy
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" id="toggleJsonBtn" title="Toggle JSON">
+                  <i class="fas fa-eye"></i> Toggle
+                </button>
+              </div>
+            </div>
+            <div id="detail-json-container" style="display: none;">
+              <pre id="detail-json" class="mb-0" style="font-size: 0.75em; background: #f8f9fa; padding: 10px; border-radius: 4px; max-height: 200px; overflow-y: auto; border: 1px solid #dee2e6;"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer py-2 bg-light">
+        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
+          <i class="fas fa-times"></i> Close
+        </button>
+        <button type="button" class="btn btn-sm btn-danger" id="destroyFromDetailsBtn">
+          <i class="fas fa-trash-alt"></i> Destroy Instance
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

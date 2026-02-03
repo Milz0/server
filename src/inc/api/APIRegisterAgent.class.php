@@ -30,11 +30,26 @@ class APIRegisterAgent extends APIBasic {
     $token = Util::randomString(10);
     $agent = new Agent(null, $name, "", -1, "", "", 0, 1, 0, $token, PActions::REGISTER, time(), Util::getIP(), null, $cpuOnly, "");
     
-    if (SConfig::getInstance()->getVal(DConfig::VOUCHER_DELETION) == 0) {
-      Factory::getRegVoucherFactory()->delete($voucher);
-    }
     $agent = Factory::getAgentFactory()->save($agent);
+    
     if ($agent != null) {
+      $isVastVoucher = ($voucher->getVastInstanceId() !== null);
+      
+      $voucherDeletionEnabled = (SConfig::getInstance()->getVal(DConfig::VOUCHER_DELETION) == 0);
+      $shouldDeleteVoucher = $voucherDeletionEnabled && !$isVastVoucher;
+      
+      if ($isVastVoucher) {
+        Factory::getRegVoucherFactory()->set($voucher, RegVoucher::AGENT_ID, $agent->getId());
+        error_log("[APIRegister] Linked agent {$agent->getId()} ({$agent->getAgentName()}) to Vast.ai voucher for instance {$voucher->getVastInstanceId()}");
+      }
+      else if ($shouldDeleteVoucher) {
+        Factory::getRegVoucherFactory()->delete($voucher);
+        error_log("[APIRegister] Deleted regular voucher after agent registration");
+      }
+      else {
+        error_log("[APIRegister] Kept regular voucher (VOUCHER_DELETION != 0)");
+      }
+      
       $payload = new DataSet(array(DPayloadKeys::AGENT => $agent));
       NotificationHandler::checkNotifications(DNotificationType::NEW_AGENT, $payload);
       DServerLog::log(DServerLog::INFO, "Registered new agent", [$agent]);

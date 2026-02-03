@@ -181,7 +181,14 @@ INSERT INTO `Config` (`configId`, `configSectionId`, `item`, `value`) VALUES
   (86, 8, 'objectStoragePathStyle', '0'),
   (87, 8, 'objectStorageVerifySSL', '1'),
   (88, 8, 'objectStoragePresignTTL', '60'),
-  (89, 8, 'objectStorageDefaultSource', 'local');
+  (89, 8, 'objectStorageDefaultSource', 'local'),
+  (90, 9, 'vastApiKey', ''),
+  (91, 9, 'vastImage', ''),
+  (92, 9, 'vastAutoDestroyEnable', '0'),
+  (93, 9, 'vastAutoDestroyTimeout', '5'),
+  (94, 9, 'vastAutoDestroyIdleEnable', '0'),
+  (95, 9, 'vastAutoDestroyIdleTimeout', '30'),
+  (96, 9, 'vastAutoDestroyGpuThreshold', '5');
 
 CREATE TABLE `ConfigSection` (
   `configSectionId` INT(11)      NOT NULL,
@@ -196,7 +203,8 @@ INSERT INTO `ConfigSection` (`configSectionId`, `sectionName`) VALUES
   (5, 'Server'),
   (6, 'Multicast'),
   (7, 'Notifications'),
-  (8, 'Object Storage');
+  (8, 'Object Storage'),
+  (9, 'Vast.ai');
 
 CREATE TABLE `CrackerBinary` (
   `crackerBinaryId`     INT(11)      NOT NULL,
@@ -919,9 +927,11 @@ CREATE TABLE `Pretask` (
 ) ENGINE = InnoDB;
 
 CREATE TABLE `RegVoucher` (
-  `regVoucherId` INT(11)      NOT NULL,
-  `voucher`      VARCHAR(100) NOT NULL,
-  `time`         BIGINT       NOT NULL
+  `regVoucherId`   INT(11)     NOT NULL,
+  `voucher`        VARCHAR(100) NOT NULL,
+  `time`           BIGINT      NOT NULL,
+  `vastInstanceId` INT(11)     DEFAULT NULL,
+  `agentId`        INT(11)     DEFAULT NULL
 ) ENGINE = InnoDB;
 
 CREATE TABLE `RightGroup` (
@@ -1228,7 +1238,10 @@ ALTER TABLE `Pretask`
   ADD PRIMARY KEY (`pretaskId`);
 
 ALTER TABLE `RegVoucher`
-  ADD PRIMARY KEY (`regVoucherId`);
+  ADD PRIMARY KEY (`regVoucherId`),
+  ADD UNIQUE KEY `voucher_unique` (`voucher`),
+  ADD KEY `vastInstanceId` (`vastInstanceId`),
+  ADD KEY `agentId` (`agentId`);
 
 ALTER TABLE `RightGroup`
   ADD PRIMARY KEY (`rightGroupId`);

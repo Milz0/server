@@ -10,6 +10,9 @@
 			{{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_AGENT_ACCESS]])]]}}
 				<li class="nav-item dropdown[[menu.isActive('agents', 'classonly')]]"><a href="#" class="nav-link dropdown-toggle" id="dropdownAgents" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Agents <span class="caret"></span></a>
 					<div class="dropdown-menu" aria-labelledby="dropdownAgents">
+            {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_AGENT_ACCESS]])]]}}
+            <a class="dropdown-item[[menu.isActive('config_vast')]]" href="vast.php">Rent Agents</a>
+            {{ENDIF}}
 						{{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_AGENT_ACCESS]])]]}}
 							<a class="dropdown-item[[menu.isActive('agents_list')]]" href="agents.php">Show Agents</a>
 						{{ENDIF}}

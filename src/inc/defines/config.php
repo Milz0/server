@@ -35,9 +35,9 @@ class DProxyTypes {
   const SOCKS5 = 'SOCKS5';
 }
 
-// used config values
+// used config values  
 class DConfig {
-  // Section: Cracking/Tasks
+  // Section: Cracking/Tasks  
   const BENCHMARK_TIME         = "benchtime";
   const CHUNK_DURATION         = "chunktime";
   const CHUNK_TIMEOUT          = "chunktimeout";
@@ -61,12 +61,12 @@ class DConfig {
   const HASHLIST_IMPORT_CHECK  = "hashlistImportCheck";
   const HC_ERROR_IGNORE        = "hcErrorIgnore";
 
-  // Section: Yubikey
+  // Section: Yubikey  
   const YUBIKEY_ID  = "yubikey_id";
   const YUBIKEY_KEY = "yubikey_key";
   const YUBIKEY_URL = "yubikey_url";
 
-  // Section: Finetuning
+  // Section: Finetuning  
   const HASHES_PAGE_SIZE           = "pagingSize";
   const NUMBER_LOGENTRIES          = "numLogEntries";
   const BATCH_SIZE                 = "batchSize";
@@ -75,7 +75,7 @@ class DConfig {
   const MAX_HASHLIST_SIZE          = "maxHashlistSize";
   const UAPI_SEND_TASK_IS_COMPLETE = "uApiSendTaskIsComplete";
 
-  // Section: UI
+  // Section: UI  
   const TIME_FORMAT            = "timefmt";
   const DONATE_OFF             = "donateOff";
   const HIDE_IMPORT_MASKS      = "hideImportMasks";
@@ -90,7 +90,7 @@ class DConfig {
   const AGENT_UTIL_THRESHOLD_1 = "agentUtilThreshold1";
   const AGENT_UTIL_THRESHOLD_2 = "agentUtilThreshold2";
 
-  // Section: Server
+  // Section: Server  
   const BASE_URL          = "baseUrl";
   const BASE_HOST         = "baseHost";
   const EMAIL_SENDER      = "emailSender";
@@ -101,20 +101,20 @@ class DConfig {
   const SERVER_LOG_LEVEL  = "serverLogLevel";
   const ALLOW_DEREGISTER  = "allowDeregister";
 
-  // Section: Multicast
+  // Section: Multicast  
   const MULTICAST_ENABLE    = "multicastEnable";
   const MULTICAST_DEVICE    = "multicastDevice";
   const MULTICAST_TR_ENABLE = "multicastTransferRateEnable";
   const MULTICAST_TR        = "multicastTranserRate";
 
-  // Section: Notifications
+  // Section: Notifications  
   const NOTIFICATIONS_PROXY_ENABLE = "notificationsProxyEnable";
   const TELEGRAM_BOT_TOKEN         = "telegramBotToken";
   const NOTIFICATIONS_PROXY_SERVER = "notificationsProxyServer";
   const NOTIFICATIONS_PROXY_PORT   = "notificationsProxyPort";
   const NOTIFICATIONS_PROXY_TYPE   = "notificationsProxyType";
 
-  // Section: Object Storage (S3 compatible)
+  // Section: Object Storage (S3 compatible)  
   const OBJECT_STORAGE_ENABLE        = "objectStorageEnable";
   const OBJECT_STORAGE_ENDPOINT      = "objectStorageEndpoint";
   const OBJECT_STORAGE_REGION        = "objectStorageRegion";
@@ -127,21 +127,31 @@ class DConfig {
   const OBJECT_STORAGE_PRESIGN_TTL   = "objectStoragePresignTTL";
   const OBJECT_STORAGE_DEFAULT_SRC   = "objectStorageDefaultSource";
 
+  // Section: Vast.ai  
+  const VAST_API_KEY                    = 'vastApiKey';
+  const VAST_IMAGE                      = 'vastImage';
+  const VAST_AUTO_DESTROY_ENABLE        = 'vastAutoDestroyEnable';
+  const VAST_AUTO_DESTROY_TIMEOUT       = 'vastAutoDestroyTimeout';
+  const VAST_AUTO_DESTROY_IDLE_ENABLE   = 'vastAutoDestroyIdleEnable';
+  const VAST_AUTO_DESTROY_IDLE_TIMEOUT  = 'vastAutoDestroyIdleTimeout';
+  const VAST_AUTO_DESTROY_GPU_THRESHOLD = 'vastAutoDestroyGpuThreshold';
+
+
   static function getConstants()
   {
     try {
       $oClass = new ReflectionClass(__CLASS__);
-    }
+    } 
     catch (ReflectionException $e) {
       die("Exception: " . $e->getMessage());
     }
     return $oClass->getConstants();
   }
 
-  /**
-   * Gives the selection for the configuration values which are selections.
-   * @param string $config
-   * @return DataSet
+  /**  
+   * Gives the selection for the configuration values which are selections.  
+   * @param string $config  
+   * @return DataSet  
    */
   public static function getSelection($config) {
     switch ($config) {
@@ -174,10 +184,10 @@ class DConfig {
     return new DataSet(["Not found!"]);
   }
 
-  /**
-   * Gives the format which a config input should have. Default is string if it's not a known config.
-   * @param $config string
-   * @return string
+  /**  
+   * Gives the format which a config input should have. Default is string if it's not a known config.  
+   * @param $config string  
+   * @return string  
    */
   public static function getConfigType($config) {
     switch ($config) {
@@ -321,13 +331,27 @@ class DConfig {
         return DConfigType::NUMBER_INPUT;
       case DConfig::OBJECT_STORAGE_DEFAULT_SRC:
         return DConfigType::SELECT;
+      case DConfig::VAST_API_KEY:
+        return DConfigType::STRING_INPUT;
+      case DConfig::VAST_IMAGE:
+        return DConfigType::STRING_INPUT;
+      case DConfig::VAST_AUTO_DESTROY_ENABLE:
+        return DConfigType::TICKBOX;
+      case DConfig::VAST_AUTO_DESTROY_TIMEOUT:
+        return DConfigType::NUMBER_INPUT;
+      case DConfig::VAST_AUTO_DESTROY_IDLE_ENABLE:
+        return DConfigType::TICKBOX;
+      case DConfig::VAST_AUTO_DESTROY_IDLE_TIMEOUT:
+        return DConfigType::NUMBER_INPUT;
+      case DConfig::VAST_AUTO_DESTROY_GPU_THRESHOLD:
+        return DConfigType::NUMBER_INPUT;
     }
     return DConfigType::STRING_INPUT;
   }
 
-  /**
-   * @param $config string
-   * @return string
+  /**  
+   * @param $config string  
+   * @return string  
    */
   public static function getConfigDescription($config) {
     switch ($config) {
@@ -526,6 +550,20 @@ class DConfig {
           . "<li><b>Remote</b>: prefer pre-signed object storage downloads</li>"
           . "</ul>"
           . "<small>Choose <b>Remote</b> only if your bucket contains the mirrored files.</small>";
+      case DConfig::VAST_API_KEY:
+        return "<b>Vast.ai API Key</b><br>API key for Vast.ai cloud GPU rental integration. Get yours at <a href='https://cloud.vast.ai/account/' target='_blank'>https://cloud.vast.ai/account/</a>";
+      case DConfig::VAST_IMAGE:
+        return "<b>Docker Container Image</b><br>Default Docker container image to deploy on rented Vast.ai instances (e.g., your Hashtopolis agent image from GitHub Container Registry).";
+      case DConfig::VAST_AUTO_DESTROY_ENABLE:
+        return "<b>Auto-Destroy Stuck Instances</b><br>Automatically destroy Vast.ai instances that remain in non-running states (starting, loading, exited, etc.) for longer than the configured timeout. This prevents runaway costs from failed or stuck instances.";
+      case DConfig::VAST_AUTO_DESTROY_TIMEOUT:
+        return "<b>Stuck Instance Timeout (minutes)</b><br>Time in minutes before auto-destroying stuck instances. Recommended: <b>5-10 minutes</b>. Only applies to instances that are NOT in 'running' state.";
+      case DConfig::VAST_AUTO_DESTROY_IDLE_ENABLE:
+        return "<b>Auto-Destroy Idle Instances</b><br>Automatically destroy running Vast.ai instances with low or zero GPU utilization and inactive agents. Prevents paying for unused resources. Uses hybrid detection: GPU utilization from Vast.ai + agent activity from Hashtopolis.";
+      case DConfig::VAST_AUTO_DESTROY_IDLE_TIMEOUT:
+        return "<b>Idle Timeout (minutes)</b><br>Time in minutes of low GPU activity AND agent inactivity before auto-destroying. Recommended: <b>30-60 minutes</b>. Only destroys instances that meet BOTH criteria (low GPU + inactive agent) to prevent false positives.";
+      case DConfig::VAST_AUTO_DESTROY_GPU_THRESHOLD:
+        return "<b>GPU Utilization Threshold (%)</b><br>GPU usage percentage below which an instance is considered idle. Recommended: <b>5-10%</b>. Works together with agent activity check - instance must have low GPU AND inactive agent to be destroyed.";
     }
     return $config;
   }

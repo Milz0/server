@@ -1,0 +1,306 @@
+/* vast-notifications.css - Toast Notification System */
+
+#vast-toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    pointer-events: none;
+    max-width: 400px;
+    width: 100%;
+}
+
+.vast-toast {
+    position: relative;
+    margin-bottom: 15px;
+    padding: 16px 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+    pointer-events: all;
+    cursor: pointer;
+    overflow: hidden;
+    animation: slideInRight 0.3s ease-out;
+    transition: all 0.3s ease;
+    border-left: 4px solid #6c757d;
+}
+
+.vast-toast:hover {
+    transform: translateX(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.vast-toast.removing {
+    animation: slideOutRight 0.3s ease-out forwards;
+    opacity: 0;
+}
+
+.vast-toast.success {
+    border-left-color: #28a745;
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+}
+
+.vast-toast.error {
+    border-left-color: #dc3545;
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+}
+
+.vast-toast.warning {
+    border-left-color: #ffc107;
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+}
+
+.vast-toast.info {
+    border-left-color: #17a2b8;
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+}
+
+.vast-toast-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.vast-toast-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #212529;
+    flex: 1;
+}
+
+.vast-toast-icon {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.vast-toast.success .vast-toast-icon {
+    color: #28a745;
+}
+
+.vast-toast.error .vast-toast-icon {
+    color: #dc3545;
+}
+
+.vast-toast.warning .vast-toast-icon {
+    color: #ffc107;
+}
+
+.vast-toast.info .vast-toast-icon {
+    color: #17a2b8;
+}
+
+.vast-toast-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    line-height: 1;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 10px;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.vast-toast-close:hover {
+    opacity: 1;
+    color: #000;
+}
+
+.vast-toast-body {
+    font-size: 13px;
+    color: #495057;
+    line-height: 1.5;
+}
+
+.vast-toast-message {
+    margin-bottom: 4px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.vast-toast-details {
+    font-size: 11px;
+    color: #6c757d;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: 'Courier New', monospace;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.vast-toast-action {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: none;
+    outline: none;
+}
+
+.vast-toast-action:hover {
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.vast-toast-action:active {
+    transform: translateY(0);
+}
+
+.vast-toast.success .vast-toast-action {
+    background-color: #28a745;
+    color: #ffffff !important;
+    border: 2px solid #1e7e34;
+}
+
+.vast-toast.success .vast-toast-action:hover {
+    background-color: #218838;
+    color: #ffffff !important;
+    border-color: #1c7430;
+}
+
+.vast-toast.info .vast-toast-action {
+    background-color: #17a2b8;
+    color: #ffffff !important;
+    border: 2px solid #117a8b;
+}
+
+.vast-toast.info .vast-toast-action:hover {
+    background-color: #138496;
+    color: #ffffff !important;
+    border-color: #10707f;
+}
+
+.vast-toast.warning .vast-toast-action {
+    background-color: #856404;
+    color: #ffffff !important;
+    border: 2px solid #533f03;
+}
+
+.vast-toast.warning .vast-toast-action:hover {
+    background-color: #6c5003;
+    color: #ffffff !important;
+    border-color: #3d2f02;
+}
+
+.vast-toast.error .vast-toast-action {
+    background-color: #dc3545;
+    color: #ffffff !important;
+    border: 2px solid #bd2130;
+}
+
+.vast-toast.error .vast-toast-action:hover {
+    background-color: #c82333;
+    color: #ffffff !important;
+    border-color: #a71d2a;
+}
+
+.vast-toast-action i {
+    margin-right: 6px;
+}
+
+.vast-toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background-color: rgba(0, 0, 0, 0.2);
+    transition: width linear;
+    border-radius: 0 0 0 8px;
+}
+
+.vast-toast.success .vast-toast-progress {
+    background-color: #28a745;
+}
+
+.vast-toast.error .vast-toast-progress {
+    background-color: #dc3545;
+}
+
+.vast-toast.warning .vast-toast-progress {
+    background-color: #ffc107;
+}
+
+.vast-toast.info .vast-toast-progress {
+    background-color: #17a2b8;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.vast-toast.shake {
+    animation: shake 0.5s;
+}
+
+@media (max-width: 768px) {
+    #vast-toast-container {
+        left: 10px;
+        right: 10px;
+        top: 10px;
+        max-width: none;
+    }
+    
+    .vast-toast {
+        margin-bottom: 10px;
+    }
+}
+
+#vast-notification-container {
+    pointer-events: none;
+}
+
+#vast-notification-container .alert {
+    pointer-events: all;
+}
+
+#notification-badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.progress-bar {
+    transition: width 0.3s ease;
+}
