@@ -90,7 +90,7 @@ ENTRYPOINT [ "docker-entrypoint.sh" ]
 
 # DEVELOPMENT Image
 # ----BEGIN----
-FROM hashtopolis-server-base as hashtopolis-server-dev
+FROM hashtopolis-server-base AS hashtopolis-server-dev
 
 # Setting up development requirements, install xdebug
 RUN yes | pecl install xdebug && docker-php-ext-enable xdebug \
@@ -137,7 +137,7 @@ USER vscode
 
 # PRODUCTION Image
 # ----BEGIN----
-FROM hashtopolis-server-base as hashtopolis-server-prod
+FROM hashtopolis-server-base AS hashtopolis-server-prod
 
 COPY --chown=www-data:www-data ./src/ $HASHTOPOLIS_DOCUMENT_ROOT
 
