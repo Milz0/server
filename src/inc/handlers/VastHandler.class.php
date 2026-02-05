@@ -36,21 +36,20 @@ class VastHandler implements Handler
       $regVoucher = DBA\Factory::getRegVoucherFactory()->filter([DBA\Factory::FILTER => $qF], true);
       
       if (!$regVoucher) {
-        return null; // No voucher = no agent registered yet
+        return null;
       }
       
       $agentId = $regVoucher->getAgentId();
       if (!$agentId) {
-        return null; // Voucher exists but agent not registered
+        return null;
       }
       
       // Get agent
       $agent = DBA\Factory::getAgentFactory()->get($agentId);
       if (!$agent) {
-        return null; // Agent deleted
+        return null;
       }
       
-      // Get GPU utilization from last 120 seconds (2 minutes)
       $qF1 = new DBA\QueryFilter(DBA\AgentStat::AGENT_ID, $agentId, "=");
       $qF2 = new DBA\QueryFilter(DBA\AgentStat::STAT_TYPE, DAgentStatsType::GPU_UTIL, "=");
       $qF3 = new DBA\QueryFilter(DBA\AgentStat::TIME, time() - 120, ">");
@@ -62,10 +61,9 @@ class VastHandler implements Handler
       ], true);
       
       if (!$gpuUtilStat) {
-        return null; // No recent GPU stats
+        return null;
       }
       
-      // Parse GPU utilization (format: "85,90,88" for multi-GPU)
       $utilRawValue = $gpuUtilStat->getValue();
       $utilValues = explode(",", $utilRawValue);
       $utilValues = array_map('floatval', $utilValues);
@@ -363,7 +361,6 @@ class VastHandler implements Handler
                   'details' => $idleDetails
                 ];
 
-                // Log the auto-destruction with details
                 $logMessage = "Auto-destroyed Vast.ai instance #{$instanceId}: {$destroyReason}";
                 if (!empty($idleDetails)) {
                   $logMessage .= " | Details: " . json_encode($idleDetails);
