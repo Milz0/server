@@ -1,19 +1,25 @@
 		</div>
-		<div class='container'>
+		<div class="container mt-5">
 			<hr>
-			<footer class="footer">
-				<b>
-					[[$APP_NAME]]: [[version]]{{IF [[build]]}}+[[build]]{{ENDIF}} [[gitcommit]] - <a href='about.php'>About</a> - <a href='help.php'>Help</a>
-					{{IF strlen([[config.getVal([[$DConfig::CONTACT_EMAIL]])]]) > 0}}
-						- <a href="mailto:[[config.getVal([[$DConfig::CONTACT_EMAIL]])]]">Contact Admin</a>
-					{{ENDIF}}
-				</b>
-				<p>
-					&copy;2016-[[date("Y")]] s3in!c - <a href='https://github.com/hashtopolis/server' target='_blank' rel="noopener">[[$APP_NAME]]</a>
-				</p>
+			<footer class="footer py-4">
+				<div class="row">
+					<div class="col-12">
+						<p class="mb-2">
+							<strong>[[$APP_NAME]]: [[version]]{{IF [[build]]}}+[[build]]{{ENDIF}} [[gitcommit]]</strong>
+							- <a href="about.php">About</a>
+							- <a href="help.php">Help</a>
+							{{IF strlen([[config.getVal([[$DConfig::CONTACT_EMAIL]])]]) > 0}}
+								- <a href="mailto:[[config.getVal([[$DConfig::CONTACT_EMAIL]])]]">Contact Admin</a>
+							{{ENDIF}}
+						</p>
+						<p class="text-muted small mb-0">
+							&copy;2016-[[date("Y")]] s3in!c - <a href="https://github.com/hashtopolis/server" target="_blank" rel="noopener">[[$APP_NAME]]</a>
+						</p>
+					</div>
+				</div>
 			</footer>
 			<script src="static/hashtopolis.js"></script>
-		  <script src="static/all.js"></script>
+			<script src="static/all.js"></script>
 		</div>
 	</body>
 </html>

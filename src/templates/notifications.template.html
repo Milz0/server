@@ -2,6 +2,7 @@
 {%TEMPLATE->struct/menu%}
 <h2>Notifications</h2>
 {%TEMPLATE->struct/messages%}
+
 <script type="text/javascript">
   var actionSettings = [[actionSettings]];
 
@@ -16,113 +17,157 @@
     }
   }
 </script>
-<div class="card">
+
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="mb-0">Create Notification</h5>
+  </div>
   <div class="table-responsive">
-    <table class="table table-bordered table-sm">
-      <tr>
-        <th colspan="7">
-          Create Notification
-        </th>
-      </tr>
-      <tr>
-        <td colspan="7">
-          <form action="notifications.php" method="post" class="form-inline">
-            <input type="hidden" name="action" value="[[$DNotificationAction::CREATE_NOTIFICATION]]">
-            <input type="hidden" name="csrf" value="[[csrf]]">
-            Trigger Action:&nbsp;
-            <select id="actionType" name="actionType" class="form-control" onchange="updateLists()" title="Trigger Action">
-              {{FOREACH action;[[allowedActions]]}}
-                <option value="[[action]]">[[action]]</option>
-              {{ENDFOREACH}}
-            </select>&nbsp;
-
-            {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_TASK_ACCESS]])]]}}
-              <select id="Task" name="tasks" class="form-control" title="Task">
-                <option value="ALL">ALL</option>
-                {{FOREACH task;[[allTasks]]}}
-                  <option value="[[task.getId()]]">[[task.getTaskName()]] ([[task.getId()]])</option>
-                {{ENDFOREACH}}
-              </select>&nbsp;
-            {{ENDIF}}
-            {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_AGENT_ACCESS]])]]}}
-              <select id="Agent" name="agents" class="form-control" title="Agent">
-                <option value="ALL">ALL</option>
-                {{FOREACH agent;[[allAgents]]}}
-                  <option value="[[agent.getId()]]">[[agent.getAgentName()]] ([[agent.getId()]])</option>
-                {{ENDFOREACH}}
-              </select>&nbsp;
-            {{ENDIF}}
-            {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_HASHLIST_ACCESS]])]]}}
-              <select id="Hashlist" name="hashlists" class="form-control" title="Hashlist">
-                <option value="ALL">ALL</option>
-                {{FOREACH hashlist;[[allHashlists]]}}
-                  <option value="[[hashlist.getId()]]">[[hashlist.getHashlistName()]] ([[hashlist.getId()]])</option>
-                {{ENDFOREACH}}
-              </select>&nbsp;
-            {{ENDIF}}
-            {{IF [[accessControl.hasPermission([[$DAccessControl::USER_CONFIG_ACCESS]])]]}}
-              <select id="User" name="users" class="form-control" title="User">
-                <option value="ALL">ALL</option>
-                {{FOREACH user;[[allUsers]]}}
-                  <option value="[[user.getId()]]">[[user.getUsername()]] ([[user.getId()]])</option>
-                {{ENDFOREACH}}
-              </select>&nbsp;
-            {{ENDIF}}
-
-            Executed Notification:&nbsp;
-            <select name="notification" class="form-control" title="Notification">
-              {{FOREACH notification;[[allNotifications]]}}
-                <option value="[[notification]]">[[notification]]</option>
-              {{ENDFOREACH}}
-            </select>&nbsp;
-
-            Receiver:&nbsp;
-            <input type="text" name="receiver" class="form-control" title="Receiver">&nbsp;
-
-            <button type="submit" class="btn btn-success">Create</button>
-          </form>
-        </td>
-      </tr>
-		  <tr>
-        <th>ID</th>
-        <th>Active</th>
-        <th>Trigger Action</th>
-        <th>Applied To</th>
-        <th>Called Notification</th>
-        <th>Receiver</th>
-        <th>&nbsp;</th>
-      </tr>
-      {{FOREACH notification;[[notifications]]}}
+    <table class="table table-bordered table-sm mb-0">
+      <tbody>
         <tr>
-          <td>[[notification.getId()]]</td>
-          <td>
-            <form id="active[[notification.getId()]]" action="notifications.php" method="post">
-              <input type='hidden' name='action' value='[[$DNotificationAction::SET_ACTIVE]]'>
-              <input type="hidden" name="notification" value="[[notification.getId()]]">
+          <td colspan="7">
+            <form action="notifications.php" method="post" class="row g-3 align-items-end">
+              <input type="hidden" name="action" value="[[$DNotificationAction::CREATE_NOTIFICATION]]">
               <input type="hidden" name="csrf" value="[[csrf]]">
-              <input title="Active" type="checkbox" {{IF [[notification.getIsActive()]] == 1}} checked{{ENDIF}} onChange="document.getElementById('active[[notification.getId()]]').submit();">
-            </form>
-          </td>
-          <td>[[notification.getAction()]]</td>
-          <td>[[allApplies.getVal([[notification.getId()]])]]</td>
-          <td>[[notification.getNotification()]]</td>
-          <td><code>[[htmlentities([[notification.getReceiver()]], ENT_QUOTES, "UTF-8")]]</code></td>
-          <td>
-            <form class="float-right" action="notifications.php" method="POST" onSubmit="if (!confirm('Really delete notification [[notification.getId()]]?')) return false;">
-              <input type='hidden' name='action' value='[[$DNotificationAction::DELETE_NOTIFICATION]]'>
-              <input type="hidden" name="notification" value="[[notification.getId()]]">
-              <input type="hidden" name="csrf" value="[[csrf]]">
-              <button type="submit" class='btn btn-danger' data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+              
+              <div class="col-auto">
+                <label for="actionType" class="form-label mb-0">Trigger Action:</label>
+              </div>
+              <div class="col-auto">
+                <select id="actionType" name="actionType" class="form-select" onchange="updateLists()" title="Trigger Action">
+                  {{FOREACH action;[[allowedActions]]}}
+                    <option value="[[action]]">[[action]]</option>
+                  {{ENDFOREACH}}
+                </select>
+              </div>
+
+              {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_TASK_ACCESS]])]]}}
+                <div class="col-auto">
+                  <select id="Task" name="tasks" class="form-select" title="Task">
+                    <option value="ALL">ALL</option>
+                    {{FOREACH task;[[allTasks]]}}
+                      <option value="[[task.getId()]]">[[task.getTaskName()]] ([[task.getId()]])</option>
+                    {{ENDFOREACH}}
+                  </select>
+                </div>
+              {{ENDIF}}
+              
+              {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_AGENT_ACCESS]])]]}}
+                <div class="col-auto">
+                  <select id="Agent" name="agents" class="form-select" title="Agent">
+                    <option value="ALL">ALL</option>
+                    {{FOREACH agent;[[allAgents]]}}
+                      <option value="[[agent.getId()]]">[[agent.getAgentName()]] ([[agent.getId()]])</option>
+                    {{ENDFOREACH}}
+                  </select>
+                </div>
+              {{ENDIF}}
+              
+              {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_HASHLIST_ACCESS]])]]}}
+                <div class="col-auto">
+                  <select id="Hashlist" name="hashlists" class="form-select" title="Hashlist">
+                    <option value="ALL">ALL</option>
+                    {{FOREACH hashlist;[[allHashlists]]}}
+                      <option value="[[hashlist.getId()]]">[[hashlist.getHashlistName()]] ([[hashlist.getId()]])</option>
+                    {{ENDFOREACH}}
+                  </select>
+                </div>
+              {{ENDIF}}
+              
+              {{IF [[accessControl.hasPermission([[$DAccessControl::USER_CONFIG_ACCESS]])]]}}
+                <div class="col-auto">
+                  <select id="User" name="users" class="form-select" title="User">
+                    <option value="ALL">ALL</option>
+                    {{FOREACH user;[[allUsers]]}}
+                      <option value="[[user.getId()]]">[[user.getUsername()]] ([[user.getId()]])</option>
+                    {{ENDFOREACH}}
+                  </select>
+                </div>
+              {{ENDIF}}
+
+              <div class="col-auto">
+                <label for="notificationSelect" class="form-label mb-0">Executed Notification:</label>
+              </div>
+              <div class="col-auto">
+                <select id="notificationSelect" name="notification" class="form-select" title="Notification">
+                  {{FOREACH notification;[[allNotifications]]}}
+                    <option value="[[notification]]">[[notification]]</option>
+                  {{ENDFOREACH}}
+                </select>
+              </div>
+
+              <div class="col-auto">
+                <label for="receiver" class="form-label mb-0">Receiver:</label>
+              </div>
+              <div class="col-auto">
+                <input type="text" id="receiver" name="receiver" class="form-control" title="Receiver">
+              </div>
+
+              <div class="col-auto">
+                <button type="submit" class="btn btn-success">
+                  <i class="fas fa-plus" aria-hidden="true"></i> Create
+                </button>
+              </div>
             </form>
           </td>
         </tr>
-      {{ENDFOREACH}}
-	  </table>
+      </tbody>
+    </table>
   </div>
 </div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-bordered table-sm mb-0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th style="width: 10%;">Active</th>
+          <th>Trigger Action</th>
+          <th>Applied To</th>
+          <th>Called Notification</th>
+          <th>Receiver</th>
+          <th style="width: 8%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{FOREACH notification;[[notifications]]}}
+          <tr>
+            <td>[[notification.getId()]]</td>
+            <td class="text-center">
+              <form id="active[[notification.getId()]]" action="notifications.php" method="post">
+                <input type='hidden' name='action' value='[[$DNotificationAction::SET_ACTIVE]]'>
+                <input type="hidden" name="notification" value="[[notification.getId()]]">
+                <input type="hidden" name="csrf" value="[[csrf]]">
+                <input class="form-check-input" title="Active" type="checkbox" {{IF [[notification.getIsActive()]] == 1}} checked{{ENDIF}} onChange="document.getElementById('active[[notification.getId()]]').submit();">
+              </form>
+            </td>
+            <td>[[notification.getAction()]]</td>
+            <td>[[allApplies.getVal([[notification.getId()]])]]</td>
+            <td>[[notification.getNotification()]]</td>
+            <td><code>[[htmlentities([[notification.getReceiver()]], ENT_QUOTES, "UTF-8")]]</code></td>
+            <td class="text-end">
+              <form action="notifications.php" method="POST" onSubmit="if (!confirm('Really delete notification [[notification.getId()]]?')) return false;">
+                <input type='hidden' name='action' value='[[$DNotificationAction::DELETE_NOTIFICATION]]'>
+                <input type="hidden" name="notification" value="[[notification.getId()]]">
+                <input type="hidden" name="csrf" value="[[csrf]]">
+                <button type="submit" class='btn btn-sm btn-danger' data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                  <i class="fas fa-trash" aria-hidden="true"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+        {{ENDFOREACH}}
+      </tbody>
+    </table>
+  </div>
+</div>
+
 <script type="text/javascript">
   $( document ).ready(function() {
     updateLists();
   });
 </script>
+
 {%TEMPLATE->struct/foot%}

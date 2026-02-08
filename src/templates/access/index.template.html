@@ -1,40 +1,58 @@
 {%TEMPLATE->struct/head%}
 {%TEMPLATE->struct/menu%}
-<h2>All Permission Groups ([[sizeof([[groups]])]])</h2>
+<h2>All Permission Groups <span class="badge bg-primary">[[sizeof([[groups]])]]</span></h2>
 {%TEMPLATE->struct/messages%}
+
 <div class="card">
+  <div class="card-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Permission Groups</h5>
+      <a href="access.php?new=true" class="btn btn-success btn-sm">
+        <i class="fas fa-plus" aria-hidden="true"></i> Create New Group
+      </a>
+    </div>
+  </div>
+  
   <div class="table-responsive">
-    <table class="table table-bordered">
-      <tr>
-        <th colspan="5" class="text-center">
-          <a href="access.php?new=true"><button class="btn btn-success">Create New Permission Group</button></a>
-        </th>
-      </tr>
-		  <tr>
-			  <th>ID</th>
-			  <th>Name</th>
-			  <th># of Users</th>
-			  <th>Action</th>
-		  </tr>
-		  {{FOREACH group;[[groups]]}}
-			  <tr>
-				  <td>[[group.getId()]]</td>
-				  <td>[[htmlentities([[group.getGroupName()]], ENT_QUOTES, "UTF-8")]]</td>
-				  <td>[[users.getVal([[group.getId()]])]]</td>
-          <td>
-            <form class="float-right mx-1" action="access.php" method="POST" onSubmit="if (!confirm('Really delete access group [[htmlentities([[group.getGroupName()]], ENT_QUOTES, 'UTF-8')]]?')) return false;">
-              <input type="hidden" name="action" value="[[$DAccessControlAction::DELETE_GROUP]]">
-              <input type="hidden" name="csrf" value="[[csrf]]">
-              <input type="hidden" name="groupId" value="[[group.getId()]]">
-              <button type="submit" class='btn btn-danger' {{IF [[users.getVal([[group.getId()]])]] > 0}} disabled{{ENDIF}}><i class="fas fa-trash" aria-hidden="true"></i></button>
-            </form>
-            <div class="float-right mx-1">
-              <a class='btn btn-primary' href="access.php?id=[[group.getId()]]" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit" aria-hidden="true"></i></a>
-            </div>
-          </td>
-			  </tr>
-		  {{ENDFOREACH}}
-	  </table>
+    <table class="table table-bordered table-sm mb-0">
+      <thead>
+        <tr>
+          <th style="width: 10%;">ID</th>
+          <th style="width: 40%;">Name</th>
+          <th style="width: 20%; text-align: center;">Users</th>
+          <th style="width: 30%; text-align: center;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{FOREACH group;[[groups]]}}
+          <tr>
+            <td><code>[[group.getId()]]</code></td>
+            <td>[[htmlentities([[group.getGroupName()]], ENT_QUOTES, "UTF-8")]]</td>
+            <td class="text-center">
+              {{IF [[users.getVal([[group.getId()]])]] > 0}}
+                <span class="badge bg-info">[[users.getVal([[group.getId()]])]]</span>
+              {{ELSE}}
+                <span class="badge bg-secondary">0</span>
+              {{ENDIF}}
+            </td>
+            <td class="text-center">
+              <a class='btn btn-primary btn-sm' href="access.php?id=[[group.getId()]]" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                <i class="fas fa-edit" aria-hidden="true"></i> Edit
+              </a>
+              <form class="d-inline" action="access.php" method="POST" onSubmit="if (!confirm('Really delete access group [[htmlentities([[group.getGroupName()]], ENT_QUOTES, 'UTF-8')]]?')) return false;">
+                <input type="hidden" name="action" value="[[$DAccessControlAction::DELETE_GROUP]]">
+                <input type="hidden" name="csrf" value="[[csrf]]">
+                <input type="hidden" name="groupId" value="[[group.getId()]]">
+                <button type="submit" class='btn btn-danger btn-sm' {{IF [[users.getVal([[group.getId()]])]] > 0}}disabled{{ENDIF}}>
+                  <i class="fas fa-trash" aria-hidden="true"></i> Delete
+                </button>
+              </form>
+            </td>
+          </tr>
+        {{ENDFOREACH}}
+      </tbody>
+    </table>
   </div>
 </div>
+
 {%TEMPLATE->struct/foot%}

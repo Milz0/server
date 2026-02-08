@@ -1,394 +1,434 @@
 {%TEMPLATE->struct/head%}
 {%TEMPLATE->struct/menu%}
-<h2>Task details{{IF [[task.getUsePreprocessor()]]}} (Preprocessor task){{ENDIF}}{{IF [[task.getIsArchived()]]}} (Archived){{ENDIF}}</h2>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="mb-0">
+    Task details
+    {{IF [[task.getUsePreprocessor()]]}} <span class="badge bg-info">Preprocessor task</span>{{ENDIF}}
+    {{IF [[task.getIsArchived()]]}} <span class="badge bg-secondary">Archived</span>{{ENDIF}}
+  </h2>
+  {{IF [[accessControl.hasPermission([[$DAccessControl::CREATE_TASK_ACCESS]])]]}}
+    <form action="tasks.php" method="POST" onSubmit="return confirm('Really delete task [[task.getId()]]?');" class="d-inline">
+      <input type="hidden" name="action" value="[[$DTaskAction::DELETE_TASK]]">
+      <input type="hidden" name="csrf" value="[[csrf]]">
+      <input type="hidden" name="task" value="[[task.getId()]]">
+      <button type="submit" class='btn btn-danger btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Delete this task">
+        <i class="fas fa-trash"></i> Delete
+      </button>
+    </form>
+  {{ENDIF}}
+</div>
+
 {%TEMPLATE->struct/messages%}
 {%TEMPLATE->tasks/autorefresh%}
-<br>
+
 <div class="card">
   <div class="table-responsive">
-    <table class="table table-bordered">
-      <tr>
-        <th>Property</th>
-        <th>Value</th>
-      </tr>
-      <tr>
-        <td>ID:</td>
-        <td>
-          <code>[[task.getId()]]</code>
-          {{IF [[accessControl.hasPermission([[$DAccessControl::CREATE_TASK_ACCESS]])]]}}
-            <form style ='float: right;' action="tasks.php" method="POST" onSubmit="if (!confirm('Really delete task [[task.getId()]]?')) return false;">
-              <input type="hidden" name="action" value="[[$DTaskAction::DELETE_TASK]]">
-              <input type="hidden" name="csrf" value="[[csrf]]">
-              <input type="hidden" name="task" value="[[task.getId()]]">
-              <button type="submit" class='btn btn-danger' data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
-            </form>
-          {{ENDIF}}
-        </td>
-      </tr>
-      <tr>
-        <td>Name:</td>
-        <td>
-          {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-            <form class='form-inline' action="tasks.php?id=[[task.getId()]]" method="POST">
-              <input type="hidden" name="action" value="[[$DTaskAction::RENAME_TASK]]">
-              <input type="hidden" name="task" value="[[task.getId()]]">
-              <input type="text" class='form-control' name="name" size="25" value="[[task.getTaskName()]]" title="Task Name">&nbsp;&nbsp;
-              <input type="hidden" name="csrf" value="[[csrf]]">
-              <button type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' data-toggle="tooltip" data-placement="top" title="Set"><i class="fas fa-save" aria-hidden="true"></i></button>
-            </form>
-          {{ELSE}}
-            [[task.getTaskName()]]
-          {{ENDIF}}
-        </td>
-      </tr>
-      <tr>
-        <td>Attack command:</td>
-        <td>
-          {{IF [[accessControl.hasPermission([[$DAccessControl::CREATE_TASK_ACCESS]])]]}}
-            <form class='form-inline' action="tasks.php?id=[[task.getId()]]" onsubmit="return confirm('Do you really want to change the attack command? If the task already was started, it will be completely purged before and reset to an initial state. (Note that you cannot change files)')" method="POST">
-              <input type="hidden" name="action" value="[[$DTaskAction::CHANGE_ATTACK]]">
-              <input type="hidden" name="task" value="[[task.getId()]]">
-              <input type="hidden" name="csrf" value="[[csrf]]">
-              <input type="text" style="width: 80%;" name="attackCmd" class="form-control mx-1" title="Attack Command" value="[[htmlentities([[task.getAttackCmd()]], ENT_QUOTES, 'UTF-8')]]">
-              <button type="submit" class='btn btn-warning mx-1' data-toggle="tooltip" data-placement="top" title="Change"><i class="fas fa-save" aria-hidden="true"></i></button>
-            </form>
-          {{ELSE}}
-            <pre>[[htmlentities([[task.getAttackCmd()]], ENT_QUOTES, "UTF-8")]]</pre>
-          {{ENDIF}}
-        </td>
-      </tr>
-      {{IF [[task.getUsePreprocessor()]]}}
+    <table class="table table-bordered table-sm">
+      <tbody>
         <tr>
-          <td>Preprocessor Settings:</td>
-          <td>
-            [[htmlentities([[preprocessor.getName()]], ENT_QUOTES, "UTF-8")]]<pre>[[htmlentities([[task.getPreprocessorCommand()]], ENT_QUOTES, "UTF-8")]]</pre>
-          </td>
+          <td width="20%"><strong>ID:</strong></td>
+          <td><code>[[task.getId()]]</code></td>
         </tr>
-      {{ENDIF}}
-      <tr>
-        <td>
-          Task Notes
-        </td>
-        <td>
-          {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-            <form class='form-inline' action="tasks.php?id=[[task.getId()]]" method="POST">
-              <input type="hidden" name="action" value="[[$DTaskAction::EDIT_NOTES]]">
-              <input type="hidden" name="task" value="[[task.getId()]]">
-              <input type="hidden" name="csrf" value="[[csrf]]">
-              <textarea class="form-control my-1" style="width: 100%" name="notes" title="Task Notes" placeholder="Write task notes here...">[[task.getNotes()]]</textarea>
-              <button type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}} my-1' data-toggle="tooltip" data-placement="top" title="Save"><i class="fas fa-save" aria-hidden="true"></i></button>
-            </form>
-          {{ENDIF}}
-        </td>
-      </tr>
-      <tr>
-        <td>Chunk size:</td>
-        <td>
-          {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-            <form class='form-inline' action="tasks.php?id=[[task.getId()]]" method="POST">
-              <input type="hidden" name="action" value="[[$DTaskAction::SET_TIME]]">
-              <input type="hidden" name="task" value="[[task.getId()]]">
-              <input type="hidden" name="csrf" value="[[csrf]]">
-              <input type="text" class='form-control' name="chunktime" size="5" value="[[task.getChunkTime()]]" title="Chunk Length">
-              &nbsp;seconds&nbsp;
-              <button type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' data-toggle="tooltip" data-placement="top" title="Set"><i class="fas fa-save" aria-hidden="true"></i></button>
-            </form>
-          {{ELSE}}
-            [[task.getChunkTime()]] seconds
-          {{ENDIF}}
-        </td>
-      </tr>
-      <tr>
-        <td>Number of Chunks:</td>
-        <td>
-          [[numChunks]]
-        </td>
-      </tr>
-      <tr>
-        <td>Color:</td>
-        <td>
-          {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-            <form class='form-inline' id="taskcolor" action="tasks.php?id=[[task.getId()]]" method="POST">
-              <input type="hidden" name="action" value="[[$DTaskAction::SET_COLOR]]">
-              <input type="hidden" name="task" value="[[task.getId()]]">
-              <input type="hidden" name="csrf" value="[[csrf]]">
-              #<input type="text" class='form-control color {required:false}' size="6" name="color" value="[[task.getColor()]]" title="Color">&nbsp;&nbsp;
-               <button type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' data-toggle="tooltip" data-placement="top" title="Set"><i class="fas fa-save" aria-hidden="true"></i></button>
-            </form>
-          {{ELSE}}
-            #[[task.getColor()]]
-          {{ENDIF}}
-        </td>
-      </tr>
-      <tr>
-        <td>Benchmark Type:</td>
-        <td>
-          {{IF [[task.getUseNewBench()]] == 0}}
-            Runtime Benchmark
-          {{ELSE}}
-            Speed Test
-          {{ENDIF}}
-        </td>
-      </tr>
-      <tr>
-        <td>Status timer:</td>
-        <td>
-          {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-            <form class='form-inline' action="tasks.php?id=[[task.getId()]]" method="POST" onSubmit="if (!confirm('This change only takes effect on an agent running this task when either a chunk is aborted or the agent is reactivated/restarted.')) return false;">
-              <input type="hidden" name="action" value="[[$DTaskAction::SET_STATUS_TIMER]]">
-              <input type="hidden" name="task" value="[[task.getId()]]">
-              <input type="hidden" name="csrf" value="[[csrf]]">
-              <input type="text" class='form-control' name="statusTimer" size="4" value="[[task.getStatusTimer()]]" title="Status timer">&nbsp;&nbsp;
-              <button type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' data-toggle="tooltip" data-placement="top" title="Set"><i class="fas fa-save" aria-hidden="true"></i></button>
-            </form>
-          {{ELSE}}
-            [[task.getStatusTimer()]] seconds
-          {{ENDIF}}
-        </td>
-      </tr>
-      <tr>
-        <td>Priority:</td>
-        <td>
-          {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-            <form class='form-inline' action="tasks.php?id=[[task.getId()]]" method="POST">
-              <input type="hidden" name="action" value="[[$DTaskAction::SET_PRIORITY]]">
-              <input type="hidden" name="task" value="[[task.getId()]]">
-              <input type="hidden" name="csrf" value="[[csrf]]">
-              <input type="text" class='form-control' name="priority" size="4" value="[[task.getPriority()]]" title="Priority">&nbsp;&nbsp;
-              <button type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' data-toggle="tooltip" data-placement="top" title="Set"><i class="fas fa-save" aria-hidden="true"></i></button>
-            </form>
-          {{ELSE}}
-            [[task.getPriority()]]
-          {{ENDIF}}
-        </td>
-      </tr>
-      <tr>
-        <td>Max agents:</td>
-        <td>
-          {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-            <form class='form-inline' action="tasks.php?id=[[task.getId()]]" method="POST">
-              <input type="hidden" name="action" value="[[$DTaskAction::SET_MAX_AGENTS]]">
-              <input type="hidden" name="task" value="[[task.getId()]]">
-              <input type="hidden" name="csrf" value="[[csrf]]">
-              <input type="text" class='form-control' name="maxAgents" size="4" value="[[task.getMaxAgents()]]" title="Max agents">&nbsp;&nbsp;
-              <button type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' data-toggle="tooltip" data-placement="top" title="Set"><i class="fas fa-save" aria-hidden="true"></i></button>
-            </form>
-          {{ELSE}}
-            [[task.getMaxAgents()]]
-          {{ENDIF}}
-        </td>
-      </tr>
-      <tr>
-        <td>Is CPU only task:</td>
-        <td>
-          {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-            <form class='form-inline' action="tasks.php?id=[[task.getId()]]" method="POST">
-              <input type="hidden" name="action" value="[[$DTaskAction::SET_CPU_TASK]]">
-              <input type="hidden" name="task" value="[[task.getId()]]">
-              <input type="hidden" name="csrf" value="[[csrf]]">
-              <select name="isCpu" class="form-control" title="CPU Only">
-                <option value="0"{{IF [[task.getIsCpuTask()]] == 0}} selected{{ENDIF}}>No</option>
-                <option value="1"{{IF [[task.getIsCpuTask()]] == 1}} selected{{ENDIF}}>Yes</option>
-              </select>&nbsp;&nbsp;
-              <button type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' data-toggle="tooltip" data-placement="top" title="Set"><i class="fas fa-save" aria-hidden="true"></i></button>
-            </form>
-          {{ELSE}}
-            {{IF [[task.getIsCpuTask()]] == 1}}
-              Yes
-            {{ELSE}}
-              No
-            {{ENDIF}}
-          {{ENDIF}}
-        </td>
-      </tr>
-      <tr>
-        <td>Is small task:</td>
-        <td>
-          {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-            <form class='form-inline' action="tasks.php?id=[[task.getId()]]" method="POST">
-              <input type="hidden" name="action" value="[[$DTaskAction::SET_SMALL_TASK]]">
-              <input type="hidden" name="task" value="[[task.getId()]]">
-              <input type="hidden" name="csrf" value="[[csrf]]">
-              <select name="isSmall" class="form-control" title="Small Task">
-                <option value="0"{{IF [[task.getIsSmall()]] == 0}} selected{{ENDIF}}>No</option>
-                <option value="1"{{IF [[task.getIsSmall()]] == 1}} selected{{ENDIF}}>Yes</option>
-              </select>&nbsp;&nbsp;
-              <button type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' data-toggle="tooltip" data-placement="top" title="Set"><i class="fas fa-save" aria-hidden="true"></i></button>
-            </form>
-          {{ELSE}}
-            {{IF [[task.getIsSmall()]] == 1}}
-              Yes
-            {{ELSE}}
-              No
-            {{ENDIF}}
-          {{ENDIF}}
-        </td>
-      </tr>
-      <tr>
-        <td>Enforce Piping:</td>
-        <td>
-          {{IF [[task.getForcePipe()]] == 1}}
-            Yes
-          {{ELSE}}
-            No
-          {{ENDIF}}
-        </td>
-      </tr>
-      <tr>
-        <td>Skipping keyspace at the beginning:</td>
-        <td>
-          [[task.getSkipKeyspace()]]
-        </td>
-      </tr>
-      {{IF [[taskWrapper.getHashlistId()]] != null}}
+
         <tr>
-          <td>Keyspace size:</td>
+          <td><strong>Name:</strong></td>
           <td>
-            {{IF [[task.getKeyspace()]] > 0}}
-              [[task.getKeyspace()]]
-            {{ELSE}}
-              N/A
-            {{ENDIF}}
-          </td>
-        </tr>
-        <tr>
-          <td>Keyspace dispatched:</td>
-          <td>
-            [[task.getKeyspaceProgress()]]{{IF [[task.getKeyspace()]] > 0}} ([[Util::showperc([[task.getKeyspaceProgress()]], [[task.getKeyspace()]])]]%){{ENDIF}}
-            {{IF [[isActive]] == 0 && [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-              <form class='form-inline' action="tasks.php?id=[[task.getId()]]" method="POST" onSubmit="if (!confirm('Really completely purge task [[task.getId()]]?')) return false;">
-                <input type="hidden" name="action" value="[[$DTaskAction::PURGE_TASK]]">
+            {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
+              <form class='d-flex gap-2' action="tasks.php?id=[[task.getId()]]" method="POST">
+                <input type="hidden" name="action" value="[[$DTaskAction::RENAME_TASK]]">
                 <input type="hidden" name="task" value="[[task.getId()]]">
                 <input type="hidden" name="csrf" value="[[csrf]]">
-                <input type="submit" class='btn btn-danger' value="Purge">
+                <input type="text" class='form-control form-control-sm' name="name" style="max-width: 300px;" value="[[task.getTaskName()]]" title="Task Name">
+                <button type="submit" class='btn btn-outline-secondary btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Set name">
+                  <i class="fas fa-save"></i>
+                </button>
               </form>
-            {{ENDIF}}
-          </td>
-        </tr>
-        <tr>
-          <td>Keyspace searched:</td>
-          <td>
-            {{IF [[task.getKeyspace()]] > 0 || ([[task.getUsePreprocessor()]] && [[cProgress]] > 0)}}
-              [[cProgress]]{{IF [[task.getKeyspace()]] > 0}} ([[Util::showperc([[cProgress]], [[task.getKeyspace()]])]]%){{ENDIF}}
             {{ELSE}}
-              N/A
+              [[task.getTaskName()]]
             {{ENDIF}}
           </td>
         </tr>
+
         <tr>
-          <td>Time spent:</td>
+          <td><strong>Attack command:</strong></td>
           <td>
-            [[Util::sectotime([[timeSpent]])]]
-          </td>
-        </tr>
-        <tr>
-          <td>Estimated time:</td>
-          <td>
-            {{IF [[timeLeft]] > 0}}
-              [[Util::sectotime([[timeLeft]])]]
+            {{IF [[accessControl.hasPermission([[$DAccessControl::CREATE_TASK_ACCESS]])]]}}
+              <form class='d-flex gap-2' action="tasks.php?id=[[task.getId()]]" method="POST" onsubmit="return confirm('Do you really want to change the attack command? If the task already was started, it will be completely purged before and reset to an initial state. (Note that you cannot change files)');">
+                <input type="hidden" name="action" value="[[$DTaskAction::CHANGE_ATTACK]]">
+                <input type="hidden" name="task" value="[[task.getId()]]">
+                <input type="hidden" name="csrf" value="[[csrf]]">
+                <input type="text" name="attackCmd" class="form-control form-control-sm" style="flex: 1;" title="Attack Command" value="[[htmlentities([[task.getAttackCmd()]], ENT_QUOTES, 'UTF-8')]]">
+                <button type="submit" class='btn btn-warning btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Change attack command">
+                  <i class="fas fa-exclamation-triangle"></i> Change
+                </button>
+              </form>
             {{ELSE}}
-              ---
+              <pre class="mb-0"><code>[[htmlentities([[task.getAttackCmd()]], ENT_QUOTES, "UTF-8")]]</code></pre>
             {{ENDIF}}
           </td>
         </tr>
-        <tr>
-          <td>Speed:</td>
-          <td>[[Util::nicenum([[currentSpeed]], 10000, 1000)]]H/s</td>
-        </tr>
-        <tr>
-          <td>
-            {{IF [[hashlist.getFormat()]] == 3}}
-              Superhashlist
-            {{ELSE}}
-              Hashlist
-            {{ENDIF}}
-          </td>
-          <td>
-            {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_HASHLIST_ACCESS]])]]}}
-              {{IF [[hashlist.getFormat()]] == 3}}
-                <a href="superhashlists.php?id=[[hashlist.getId()]]">[[hashlist.getHashlistName()]]</a>
-                ([[hashtype.getDescription()]])
-              {{ELSE}}
-                <a href="hashlists.php?id=[[hashlist.getId()]]">[[hashlist.getHashlistName()]]</a>
-                ([[hashtype.getDescription()]])
-              {{ENDIF}}
-            {{ELSE}}
-              [[hashlist.getHashlistName()]]
-            {{ENDIF}}
-          </td>
-        </tr>
-        {{IF [[accessControl.hasPermission([[$DAccessControl::CRACKER_BINARY_ACCESS]])]]}}
+
+        {{IF [[task.getUsePreprocessor()]]}}
           <tr>
+            <td><strong>Preprocessor:</strong></td>
             <td>
-              Cracker binary
-            </td>
-            <td>
-              <a href ="crackers.php?id=[[TaskUtils::getCrackerInfo([[task]],'id')]]">[[TaskUtils::getCrackerInfo([[task]])]]</a>
+              <strong>[[htmlentities([[preprocessor.getName()]], ENT_QUOTES, "UTF-8")]]</strong>
+              <pre class="mb-0"><code>[[htmlentities([[task.getPreprocessorCommand()]], ENT_QUOTES, "UTF-8")]]</code></pre>
             </td>
           </tr>
         {{ENDIF}}
-        {{IF [[task.getKeyspace()]] >= 0}}
+
+        <tr>
+          <td><strong>Task Notes:</strong></td>
+          <td>
+            {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
+              <form action="tasks.php?id=[[task.getId()]]" method="POST">
+                <input type="hidden" name="action" value="[[$DTaskAction::EDIT_NOTES]]">
+                <input type="hidden" name="task" value="[[task.getId()]]">
+                <input type="hidden" name="csrf" value="[[csrf]]">
+                <textarea class="form-control form-control-sm mb-2" style="min-height: 100px;" name="notes" title="Task Notes" placeholder="Write task notes here...">[[task.getNotes()]]</textarea>
+                <button type="submit" class='btn btn-outline-secondary btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Save notes">
+                  <i class="fas fa-save"></i> Save Notes
+                </button>
+              </form>
+            {{ELSE}}
+              {{IF [[task.getNotes()]]}}
+                <p>[[task.getNotes()]]</p>
+              {{ELSE}}
+                <span class="text-muted">No notes</span>
+              {{ENDIF}}
+            {{ENDIF}}
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>Chunk size:</strong></td>
+          <td>
+            {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
+              <form class='d-flex gap-2 align-items-center' action="tasks.php?id=[[task.getId()]]" method="POST">
+                <input type="hidden" name="action" value="[[$DTaskAction::SET_TIME]]">
+                <input type="hidden" name="task" value="[[task.getId()]]">
+                <input type="hidden" name="csrf" value="[[csrf]]">
+                <input type="text" class='form-control form-control-sm' name="chunktime" style="max-width: 80px;" value="[[task.getChunkTime()]]" title="Chunk Length">
+                <span>seconds</span>
+                <button type="submit" class='btn btn-outline-secondary btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Set chunk size">
+                  <i class="fas fa-save"></i>
+                </button>
+              </form>
+            {{ELSE}}
+              [[task.getChunkTime()]] seconds
+            {{ENDIF}}
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>Number of Chunks:</strong></td>
+          <td>[[numChunks]]</td>
+        </tr>
+
+        <tr>
+          <td><strong>Color:</strong></td>
+          <td>
+            {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
+              <form class='d-flex gap-2 align-items-center' action="tasks.php?id=[[task.getId()]]" method="POST">
+                <input type="hidden" name="action" value="[[$DTaskAction::SET_COLOR]]">
+                <input type="hidden" name="task" value="[[task.getId()]]">
+                <input type="hidden" name="csrf" value="[[csrf]]">
+                <div class="input-group" style="max-width: 120px;">
+                  <span class="input-group-text">#</span>
+                  <input type="text" class='form-control form-control-sm' name="color" value="[[task.getColor()]]" title="Color" placeholder="RRGGBB">
+                </div>
+                <button type="submit" class='btn btn-outline-secondary btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Set color">
+                  <i class="fas fa-save"></i>
+                </button>
+              </form>
+            {{ELSE}}
+              <span style="display: inline-block; width: 20px; height: 20px; background-color: #[[task.getColor()]]; border: 1px solid #ccc; border-radius: 3px;" title="#[[task.getColor()]]"></span>
+              #[[task.getColor()]]
+            {{ENDIF}}
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>Benchmark Type:</strong></td>
+          <td>
+            {{IF [[task.getUseNewBench()]] == 0}}
+              <span class="badge bg-primary">Runtime Benchmark</span>
+            {{ELSE}}
+              <span class="badge bg-success">Speed Test</span>
+            {{ENDIF}}
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>Status timer:</strong></td>
+          <td>
+            {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
+              <form class='d-flex gap-2 align-items-center' action="tasks.php?id=[[task.getId()]]" method="POST" onSubmit="return confirm('This change only takes effect on an agent running this task when either a chunk is aborted or the agent is reactivated/restarted.');">
+                <input type="hidden" name="action" value="[[$DTaskAction::SET_STATUS_TIMER]]">
+                <input type="hidden" name="task" value="[[task.getId()]]">
+                <input type="hidden" name="csrf" value="[[csrf]]">
+                <input type="text" class='form-control form-control-sm' name="statusTimer" style="max-width: 80px;" value="[[task.getStatusTimer()]]" title="Status timer">
+                <span>seconds</span>
+                <button type="submit" class='btn btn-outline-secondary btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Set status timer">
+                  <i class="fas fa-save"></i>
+                </button>
+              </form>
+            {{ELSE}}
+              [[task.getStatusTimer()]] seconds
+            {{ENDIF}}
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>Priority:</strong></td>
+          <td>
+            {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
+              <form class='d-flex gap-2 align-items-center' action="tasks.php?id=[[task.getId()]]" method="POST">
+                <input type="hidden" name="action" value="[[$DTaskAction::SET_PRIORITY]]">
+                <input type="hidden" name="task" value="[[task.getId()]]">
+                <input type="hidden" name="csrf" value="[[csrf]]">
+                <input type="text" class='form-control form-control-sm' name="priority" style="max-width: 80px;" value="[[task.getPriority()]]" title="Priority">
+                <button type="submit" class='btn btn-outline-secondary btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Set priority">
+                  <i class="fas fa-save"></i>
+                </button>
+              </form>
+            {{ELSE}}
+              <span class="badge bg-secondary">[[task.getPriority()]]</span>
+            {{ENDIF}}
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>Max agents:</strong></td>
+          <td>
+            {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
+              <form class='d-flex gap-2 align-items-center' action="tasks.php?id=[[task.getId()]]" method="POST">
+                <input type="hidden" name="action" value="[[$DTaskAction::SET_MAX_AGENTS]]">
+                <input type="hidden" name="task" value="[[task.getId()]]">
+                <input type="hidden" name="csrf" value="[[csrf]]">
+                <input type="text" class='form-control form-control-sm' name="maxAgents" style="max-width: 80px;" value="[[task.getMaxAgents()]]" title="Max agents">
+                <button type="submit" class='btn btn-outline-secondary btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Set max agents">
+                  <i class="fas fa-save"></i>
+                </button>
+              </form>
+            {{ELSE}}
+              <span class="badge bg-secondary">[[task.getMaxAgents()]]</span>
+            {{ENDIF}}
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>CPU only task:</strong></td>
+          <td>
+            {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
+              <form class='d-flex gap-2 align-items-center' action="tasks.php?id=[[task.getId()]]" method="POST">
+                <input type="hidden" name="action" value="[[$DTaskAction::SET_CPU_TASK]]">
+                <input type="hidden" name="task" value="[[task.getId()]]">
+                <input type="hidden" name="csrf" value="[[csrf]]">
+                <select name="isCpu" class="form-select form-select-sm" style="max-width: 100px;" title="CPU Only">
+                  <option value="0"{{IF [[task.getIsCpuTask()]] == 0}} selected{{ENDIF}}>No</option>
+                  <option value="1"{{IF [[task.getIsCpuTask()]] == 1}} selected{{ENDIF}}>Yes</option>
+                </select>
+                <button type="submit" class='btn btn-outline-secondary btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Set CPU only">
+                  <i class="fas fa-save"></i>
+                </button>
+              </form>
+            {{ELSE}}
+              {{IF [[task.getIsCpuTask()]] == 1}}<span class="badge bg-danger">CPU Only</span>{{ELSE}}<span class="badge bg-success">GPU Enabled</span>{{ENDIF}}
+            {{ENDIF}}
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>Small task:</strong></td>
+          <td>
+            {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
+              <form class='d-flex gap-2 align-items-center' action="tasks.php?id=[[task.getId()]]" method="POST">
+                <input type="hidden" name="action" value="[[$DTaskAction::SET_SMALL_TASK]]">
+                <input type="hidden" name="task" value="[[task.getId()]]">
+                <input type="hidden" name="csrf" value="[[csrf]]">
+                <select name="isSmall" class="form-select form-select-sm" style="max-width: 100px;" title="Small Task">
+                  <option value="0"{{IF [[task.getIsSmall()]] == 0}} selected{{ENDIF}}>No</option>
+                  <option value="1"{{IF [[task.getIsSmall()]] == 1}} selected{{ENDIF}}>Yes</option>
+                </select>
+                <button type="submit" class='btn btn-outline-secondary btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Set small task">
+                  <i class="fas fa-save"></i>
+                </button>
+              </form>
+            {{ELSE}}
+              {{IF [[task.getIsSmall()]] == 1}}<span class="badge bg-warning">Small Task</span>{{ELSE}}<span class="badge bg-secondary">Normal</span>{{ENDIF}}
+            {{ENDIF}}
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>Enforce Piping:</strong></td>
+          <td>
+            {{IF [[task.getForcePipe()]] == 1}}<span class="badge bg-danger">Yes</span>{{ELSE}}<span class="badge bg-success">No</span>{{ENDIF}}
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>Skipping keyspace:</strong></td>
+          <td><code>[[task.getSkipKeyspace()]]</code></td>
+        </tr>
+
+        {{IF [[taskWrapper.getHashlistId()]] != null}}
+          <tr>
+            <td><strong>Keyspace size:</strong></td>
+            <td>
+              {{IF [[task.getKeyspace()]] > 0}}
+                <code>[[task.getKeyspace()]]</code>
+              {{ELSE}}
+                <span class="text-muted">N/A</span>
+              {{ENDIF}}
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Keyspace dispatched:</strong></td>
+            <td>
+              <div class="d-flex gap-2 align-items-center justify-content-between">
+                <div>
+                  [[task.getKeyspaceProgress()]]{{IF [[task.getKeyspace()]] > 0}} ([[Util::showperc([[task.getKeyspaceProgress()]], [[task.getKeyspace()]])]]%){{ENDIF}}
+                </div>
+                {{IF [[isActive]] == 0 && [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
+                  <form action="tasks.php?id=[[task.getId()]]" method="POST" onSubmit="return confirm('Really completely purge task [[task.getId()]]?');" class="d-inline">
+                    <input type="hidden" name="action" value="[[$DTaskAction::PURGE_TASK]]">
+                    <input type="hidden" name="task" value="[[task.getId()]]">
+                    <input type="hidden" name="csrf" value="[[csrf]]">
+                    <button type="submit" class='btn btn-danger btn-sm'>
+                      <i class="fas fa-broom"></i> Purge
+                    </button>
+                  </form>
+                {{ENDIF}}
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Keyspace searched:</strong></td>
+            <td>
+              {{IF [[task.getKeyspace()]] > 0 || ([[task.getUsePreprocessor()]] && [[cProgress]] > 0)}}
+                [[cProgress]]{{IF [[task.getKeyspace()]] > 0}} ([[Util::showperc([[cProgress]], [[task.getKeyspace()]])]]%){{ENDIF}}
+              {{ELSE}}
+                <span class="text-muted">N/A</span>
+              {{ENDIF}}
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Time spent:</strong></td>
+            <td>[[Util::sectotime([[timeSpent]])]]</td>
+          </tr>
+
+          <tr>
+            <td><strong>Estimated time:</strong></td>
+            <td>
+              {{IF [[timeLeft]] > 0}}
+                [[Util::sectotime([[timeLeft]])]]
+              {{ELSE}}
+                <span class="text-muted">---</span>
+              {{ENDIF}}
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Speed:</strong></td>
+            <td><code>[[Util::nicenum([[currentSpeed]], 10000, 1000)]]H/s</code></td>
+          </tr>
+
+          <tr>
+            <td><strong>{{IF [[hashlist.getFormat()]] == 3}}Superhashlist{{ELSE}}Hashlist{{ENDIF}}:</strong></td>
+            <td>
+              {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_HASHLIST_ACCESS]])]]}}
+                {{IF [[hashlist.getFormat()]] == 3}}
+                  <a href="superhashlists.php?id=[[hashlist.getId()]]">[[hashlist.getHashlistName()]]</a>
+                {{ELSE}}
+                  <a href="hashlists.php?id=[[hashlist.getId()]]">[[hashlist.getHashlistName()]]</a>
+                {{ENDIF}}
+                <br><small class="text-muted">([[hashtype.getDescription()]])</small>
+              {{ELSE}}
+                [[hashlist.getHashlistName()]]
+              {{ENDIF}}
+            </td>
+          </tr>
+
+          {{IF [[accessControl.hasPermission([[$DAccessControl::CRACKER_BINARY_ACCESS]])]]}}
+            <tr>
+              <td><strong>Cracker binary:</strong></td>
+              <td>
+                <a href="crackers.php?id=[[TaskUtils::getCrackerInfo([[task]],'id')]]">[[TaskUtils::getCrackerInfo([[task]])]]</a>
+              </td>
+            </tr>
+          {{ENDIF}}
+
+          {{IF [[task.getKeyspace()]] >= 0}}
+          </tbody>
         </table>
       </div>
     </div>
+
+    <h3>Visual representation</h3>
     <div class="card">
-      <div class="table-responsive">
-        <table class="table table-bordered">
-          <tr>
-            <td>Visual representation</td>
-          </tr>
-          <tr>
-            <td>
-              <img class='img-fluid' style="height: 32px" src="api/taskimg.php?task=[[task.getId()]]&x=1500&y=32">
-            </td>
-          </tr>
+      <div class="card-body">
+        <img class='img-fluid' style="height: 32px; width: 100%;" src="api/taskimg.php?task=[[task.getId()]]&x=1500&y=32" alt="Task progress visualization">
+      </div>
+    </div>
+          {{ENDIF}}
         {{ENDIF}}
       {{ENDIF}}
-    </table>
-  </div>
-</div>
+
 {{IF [[sizeof([[attachedFiles]])]] > 0}}
   <h3>Attached files</h3>
   <div class="card">
     <div class="table-responsive">
-      <table class="table table-bordered">
-        <tr>
-          <th>ID</th>
-          <th>Filename</th>
-          <th>Size</th>
-        </tr>
-        {{FOREACH file;[[attachedFiles]]}}
+      <table class="table table-bordered table-sm">
+        <thead>
           <tr>
-            <td>[[file.getId()]]</td>
-            <td>
-              {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_FILE_ACCESS]])]]}}
-                <a href="files.php#[[file.getId()]]">[[file.getFilename()]]</a>
-              {{ELSE}}
-                [[file.getFilename()]]
-              {{ENDIF}}
-              {{IF [[file.getIsSecret()]] == 1}}
-                <span class="fas fa-lock" aria-hidden="true"></span>
-              {{ENDIF}}
-            </td>
-            <td class='num'>
-              [[Util::nicenum([[file.getSize()]])]]B
-            </td>
+            <th>ID</th>
+            <th>Filename</th>
+            <th>Size</th>
           </tr>
-        {{ENDFOREACH}}
+        </thead>
+        <tbody>
+          {{FOREACH file;[[attachedFiles]]}}
+            <tr>
+              <td>[[file.getId()]]</td>
+              <td>
+                {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_FILE_ACCESS]])]]}}
+                  <a href="files.php#[[file.getId()]]">[[file.getFilename()]]</a>
+                {{ELSE}}
+                  [[file.getFilename()]]
+                {{ENDIF}}
+                {{IF [[file.getIsSecret()]] == 1}}
+                  <i class="fas fa-lock" title="Secret file"></i>
+                {{ENDIF}}
+              </td>
+              <td class='text-end'>
+                [[Util::nicenum([[file.getSize()]])]]B
+              </td>
+            </tr>
+          {{ENDFOREACH}}
+        </tbody>
       </table>
     </div>
   </div>
 {{ENDIF}}
+
 {{IF [[taskGraph]] > 0}}
   <h3>Task Speed</h3>
-  <div class="row">
-    <div class="col col-12">
+  <div class="card">
+    <div class="card-body">
       <canvas id="taskSpeed"></canvas>
     </div>
   </div>
 
   <script type="text/javascript">
-    var config = {
+    const ctxTaskSpeed = document.getElementById('taskSpeed').getContext('2d');
+    const configTaskSpeed = {
       type: 'line',
       data: {
         labels: [[taskSpeedXLabels]],
@@ -397,222 +437,126 @@
       options: {
         responsive: true,
         maintainAspectRatio: true,
-        tooltips: {
+        interaction: {
           mode: 'index',
-          intersect: false,
-          callbacks: {
-            label: function (tooltipItem, data) {
-              var dataLabel = data.labels[tooltipItem.index];
-              var value = ': ' + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].toLocaleString();
-              
-              if (Chart.helpers.isArray(dataLabel)) {
-                dataLabel = dataLabel.slice();
-                dataLabel[0] += value;
-              } else {
-                dataLabel += value;
-              }
-              return dataLabel;
+          intersect: false
+        },
+        plugins: {
+          legend: {
+            display: true,
+            labels: {
+              color: '#adb5bd',
+              font: {
+                size: 12
+              },
+              padding: 15,
+              usePointStyle: true
             }
           },
-        },
-        hover: {
-            mode: 'nearest',
-            intersect: true
-        },
-        scales: {
-          xAxes: [{
-            display: true,
-            scaleLabel: {
-              display: true,
-              labelString: 'Time'
-            }
-          }],
-          yAxes: [{
-            display: true,
-            scaleLabel: {
-              display: true,
-              labelString: 'H/s'
-            },
-            ticks: {
-              beginAtZero: true,
-              callback: function(value, index, values) {
-                return value.toLocaleString();
+          tooltip: {
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            titleColor: '#ffffff',
+            bodyColor: '#adb5bd',
+            borderColor: '#495057',
+            borderWidth: 1,
+            padding: 12,
+            displayColors: true,
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': ' + context.parsed.y.toLocaleString() + ' H/s';
               }
             }
-          }]
+          }
+        },
+        scales: {
+          x: {
+            display: true,
+            title: {
+              display: true,
+              text: 'Time',
+              color: '#adb5bd',
+              font: {
+                size: 12,
+                weight: 'bold'
+              }
+            },
+            ticks: {
+              color: '#adb5bd',
+              font: {
+                size: 11
+              }
+            },
+            grid: {
+              color: '#495057',
+              drawBorder: true,
+              borderColor: '#495057'
+            }
+          },
+          y: {
+            display: true,
+            title: {
+              display: true,
+              text: 'H/s',
+              color: '#adb5bd',
+              font: {
+                size: 12,
+                weight: 'bold'
+              }
+            },
+            ticks: {
+              color: '#adb5bd',
+              font: {
+                size: 11
+              },
+              beginAtZero: true,
+              callback: function(value) {
+                return value.toLocaleString();
+              }
+            },
+            grid: {
+              color: '#495057',
+              drawBorder: true,
+              borderColor: '#495057'
+            }
+          }
         }
       }
     };
 
-    window.onload = function () {
-        var ctx = document.getElementById('taskSpeed').getContext('2d');
-        window.myLine = new Chart(ctx, config);
-    };
+    $(document).ready(function() {
+      new Chart(ctxTaskSpeed, configTaskSpeed);
+    });
   </script>
 {{ENDIF}}
+
 <h3>Assigned agents</h3>
 <div class="card">
   <div class="table-responsive">
-    <table class="table table-bordered">
-      <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Benchmark</th>
-        <th>Speed</th>
-        <th>Keyspace searched</th>
-        <th>Time spent</th>
-        <th>Cracked</th>
-        <th>Last activity</th>
-        <th>Action</th>
-      </tr>
-      {{FOREACH agent;[[agents]]}}
-        <tr>
-          <td>
-            {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_AGENT_ACCESS]])]]}}
-              <a href="agents.php?id=[[agent.getId()]]">[[agent.getId()]]</a>
-            {{ELSE}}
-              [[agent.getId()]]
-            {{ENDIF}}
-            {{IF [[activeAgents.getVal([[agent.getId()]])]] == 1}}
-              <i class="fas fa-spinner fa-spin"></i>
-            {{ENDIF}}
-          </td>
-          <td>
-            {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_AGENT_ACCESS]])]]}}
-              <a href="agents.php?id=[[agent.getId()]]">[[agent.getAgentName()]]</a>
-            {{ELSE}}
-              [[agent.getAgentName()]]
-            {{ENDIF}}
-            {{IF [[agent.getIsTrusted()]] == 1}}
-              <span class="fas fa-lock" aria-hidden="true"></span>
-            {{ENDIF}}
-            {{IF [[agent.getIsActive()]] == 0}}
-              <span class="fas fa-pause" aria-hidden="true"></span>
-            {{ENDIF}}
-          </td>
-          <td>
-            {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-              <form class='form-inline' action="tasks.php?id=[[task.getId()]]" method="POST">
-                <input type="hidden" name="action" value="[[$DTaskAction::SET_BENCHMARK]]">
-                <input type="hidden" name="agentId" value="[[agent.getId()]]">
-                <input type="hidden" name="csrf" value="[[csrf]]">
-                <input type="text" class='form-control' name="bench" value="[[agentsBench.getVal([[agent.getId()]])]]" size="20" title="Benchmark">&nbsp;
-                <input type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' value="Set">
-              </form>
-            {{ELSE}}
-              [[agentsBench.getVal([[agent.getId()]])]]
-            {{ENDIF}}
-          </td>
-          <td class="num">
-            {{IF [[activeAgents.getVal([[agent.getId()]])]] == 1}}
-              [[Util::nicenum([[agentsSpeed.getVal([[agent.getId()]])]], 10000, 1000)]]H/s
-            {{ELSE}}
-              ---
-            {{ENDIF}}
-          </td>
-          <td class="num">
-            {{IF [[task.getKeyspace()]] > 0}}
-              [[agentsProgress.getVal([[agent.getId()]])]]
-              ([[Util::showperc([[agentsProgress.getVal([[agent.getId()]])]], [[task.getKeyspace()]])]]%)
-            {{ELSE}}
-              ---
-            {{ENDIF}}
-          </td>
-          <td class="num">[[Util::sectotime([[agentsSpent.getVal([[agent.getId()]])]])]]</td>
-          <td class="num">
-            {{IF [[agentsCracked.getVal([[agent.getId()]])]] > 0}}
-              [[agentsCracked.getVal([[agent.getId()]])]]
-            {{ELSE}}
-              0
-            {{ENDIF}}
-          </td>
-          <td>
-            {{IF [[agent.getLastTime()]] > 0}}
-              [[date([[config.getVal(DConfig::TIME_FORMAT)]], [[agent.getLastTime()]])]]
-            {{ELSE}}
-              ---
-            {{ENDIF}}
-          </td>
-          <td>
-            {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-              <form style='float: left; padding-right: 5px;' action="agents.php?task=[[task.getId()]]" method="POST">
-                <input type="hidden" name="action" value="[[$DAgentAction::ASSIGN_AGENT]]">
-                <input type="hidden" name="agentId" value="[[agent.getId()]]">
-                <input type="hidden" name="csrf" value="[[csrf]]">
-                <input type="hidden" name="task" value="">
-                <input type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' value="Unassign">
-              </form>
-            {{ENDIF}}
-          </td>
-        </tr>
-      {{ENDFOREACH}}
-
-      {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]] || [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-        <tr>
-          {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
-            <td colspan="4">
-              <form action="agents.php?task=[[task.getId()]]" method="POST">
-                <div class="row">
-                  <div class="col">
-                    <input type="hidden" name="action" value="[[$DAgentAction::ASSIGN_AGENT]]">
-                    <input type="hidden" name="task" value="[[task.getId()]]">
-                    <input type="hidden" name="csrf" value="[[csrf]]">
-                    <select class='form-control' name="agentId" title="Assign">
-                      {{FOREACH agent;[[assignAgents]]}}
-                        <option value='[[agent.getId()]]'>
-                          [[agent.getId()]]
-                          {{IF [[agent.getAgentName()]] != ""}}
-                            ([[agent.getAgentName()]])
-                          {{ENDIF}}
-                        </option>
-                      {{ENDFOREACH}}
-                    </select>
-                  </div>
-                  <div class="col">
-                    <input type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' value="Assign">
-                  </div>
-                </div>
-              </form>
-            </td>
-          {{ELSE}}
-            <td colspan="4">&nbsp;</td>
-          {{ENDIF}}
-          {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-            <td colspan="6">
-              {{IF [[showAllAgents]]}}
-                <a href="tasks.php?id=[[task.getId()]]" class='btn btn-warning'>Hide all Assignments</a>
-              {{ELSE}}
-                <a href="tasks.php?id=[[task.getId()]]&allagents=true" class='btn btn-success'>Show all Assignments</a>
-              {{ENDIF}}
-            </td>
-          {{ELSE}}
-            <td colspan="6">&nbsp;</td>
-          {{ENDIF}}
-        </tr>
-      {{ENDIF}}
-    </table>
-  </div>
-</div>
-{{IF [[showAllAgents]]}}
-  <h3>All assigned Agents (over all task time)</h3>
-  <div class="card">
-    <div class="table-responsive">
-      <table class="table table-bordered">
+    <table class="table table-bordered table-sm">
+      <thead>
         <tr>
           <th>ID</th>
           <th>Name</th>
+          <th>Benchmark</th>
+          <th>Speed</th>
           <th>Keyspace searched</th>
           <th>Time spent</th>
           <th>Cracked</th>
           <th>Last activity</th>
+          <th style="min-width: 100px;">Action</th>
         </tr>
-        {{FOREACH agent;[[agentObjects]]}}
+      </thead>
+      <tbody>
+        {{FOREACH agent;[[agents]]}}
           <tr>
             <td>
               {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_AGENT_ACCESS]])]]}}
                 <a href="agents.php?id=[[agent.getId()]]">[[agent.getId()]]</a>
               {{ELSE}}
                 [[agent.getId()]]
+              {{ENDIF}}
+              {{IF [[activeAgents.getVal([[agent.getId()]])]] == 1}}
+                <i class="fas fa-spinner fa-spin text-success"></i>
               {{ENDIF}}
             </td>
             <td>
@@ -622,61 +566,216 @@
                 [[agent.getAgentName()]]
               {{ENDIF}}
               {{IF [[agent.getIsTrusted()]] == 1}}
-                <span class="fas fa-lock" aria-hidden="true"></span>
+                <i class="fas fa-shield-alt" title="Trusted"></i>
               {{ENDIF}}
-              {{IF [[activeAgents.getVal([[agent.getId()]])]] == 1}}
-                <i class="fas fa-spinner fa-spin"></i>
+              {{IF [[agent.getIsActive()]] == 0}}
+                <i class="fas fa-pause" title="Paused"></i>
               {{ENDIF}}
             </td>
-            <td class="num">
+            <td>
+              {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
+                <form class='d-flex gap-2' action="tasks.php?id=[[task.getId()]]" method="POST">
+                  <input type="hidden" name="action" value="[[$DTaskAction::SET_BENCHMARK]]">
+                  <input type="hidden" name="agentId" value="[[agent.getId()]]">
+                  <input type="hidden" name="csrf" value="[[csrf]]">
+                  <input type="text" class='form-control form-control-sm' name="bench" value="[[agentsBench.getVal([[agent.getId()]])]]" style="max-width: 120px;" title="Benchmark">
+                  <button type="submit" class='btn btn-outline-secondary btn-sm'>Set</button>
+                </form>
+              {{ELSE}}
+                [[agentsBench.getVal([[agent.getId()]])]]
+              {{ENDIF}}
+            </td>
+            <td class="text-end">
+              {{IF [[activeAgents.getVal([[agent.getId()]])]] == 1}}
+                <code>[[Util::nicenum([[agentsSpeed.getVal([[agent.getId()]])]], 10000, 1000)]]H/s</code>
+              {{ELSE}}
+                <span class="text-muted">---</span>
+              {{ENDIF}}
+            </td>
+            <td class="text-end">
               {{IF [[task.getKeyspace()]] > 0}}
                 [[agentsProgress.getVal([[agent.getId()]])]]
-                ([[Util::showperc([[agentsProgress.getVal([[agent.getId()]])]], [[task.getKeyspace()]])]]%)
+                <br><small>([[Util::showperc([[agentsProgress.getVal([[agent.getId()]])]], [[task.getKeyspace()]])]]%)</small>
+              {{ELSE}}
+                <span class="text-muted">---</span>
               {{ENDIF}}
             </td>
-            <td class="num">[[Util::sectotime([[agentsSpent.getVal([[agent.getId()]])]])]]</td>
-            <td class="num">[[agentsCracked.getVal([[agent.getId()]])]]</td>
+            <td class="text-end">[[Util::sectotime([[agentsSpent.getVal([[agent.getId()]])]])]]</td>
+            <td class="text-end">
+              {{IF [[agentsCracked.getVal([[agent.getId()]])]] > 0}}
+                <span class="badge bg-success">[[agentsCracked.getVal([[agent.getId()]])]]</span>
+              {{ELSE}}
+                <span class="text-muted">0</span>
+              {{ENDIF}}
+            </td>
             <td>
               {{IF [[agent.getLastTime()]] > 0}}
-                [[date([[config.getVal(DConfig::TIME_FORMAT)]], [[agent.getLastTime()]])]]
+                <small>[[date([[config.getVal(DConfig::TIME_FORMAT)]], [[agent.getLastTime()]])]]</small>
+              {{ELSE}}
+                <span class="text-muted">---</span>
+              {{ENDIF}}
+            </td>
+            <td>
+              {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
+                <form action="agents.php?task=[[task.getId()]]" method="POST" class="d-inline">
+                  <input type="hidden" name="action" value="[[$DAgentAction::ASSIGN_AGENT]]">
+                  <input type="hidden" name="agentId" value="[[agent.getId()]]">
+                  <input type="hidden" name="csrf" value="[[csrf]]">
+                  <input type="hidden" name="task" value="">
+                  <button type="submit" class='btn btn-outline-danger btn-sm'>Unassign</button>
+                </form>
               {{ENDIF}}
             </td>
           </tr>
         {{ENDFOREACH}}
+
+        {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]] || [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
+          <tr>
+            <td colspan="9">
+              <div class="row g-2">
+                {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
+                  <div class="col-auto">
+                    <form action="agents.php?task=[[task.getId()]]" method="POST" class="d-flex gap-2">
+                      <input type="hidden" name="action" value="[[$DAgentAction::ASSIGN_AGENT]]">
+                      <input type="hidden" name="task" value="[[task.getId()]]">
+                      <input type="hidden" name="csrf" value="[[csrf]]">
+                      <select class='form-select form-select-sm' name="agentId" title="Assign agent" style="min-width: 250px;">
+                        <option value="">--- Select agent to assign ---</option>
+                        {{FOREACH agent;[[assignAgents]]}}
+                          <option value='[[agent.getId()]]'>
+                            [[agent.getId()]] {{IF [[agent.getAgentName()]] != ""}}([[agent.getAgentName()]]){{ENDIF}}
+                          </option>
+                        {{ENDFOREACH}}
+                      </select>
+                      <button type="submit" class='btn btn-success btn-sm'>Assign</button>
+                    </form>
+                  </div>
+                {{ENDIF}}
+
+                {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
+                  <div class="col">
+                    {{IF [[showAllAgents]]}}
+                      <a href="tasks.php?id=[[task.getId()]]" class='btn btn-warning btn-sm'>
+                        <i class="fas fa-eye-slash"></i> Hide all Assignments
+                      </a>
+                    {{ELSE}}
+                      <a href="tasks.php?id=[[task.getId()]]&allagents=true" class='btn btn-info btn-sm'>
+                        <i class="fas fa-eye"></i> Show all Assignments
+                      </a>
+                    {{ENDIF}}
+                  </div>
+                {{ENDIF}}
+              </div>
+            </td>
+          </tr>
+        {{ENDIF}}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{{IF [[showAllAgents]]}}
+  <h3>All assigned Agents (over all task time)</h3>
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Keyspace searched</th>
+            <th>Time spent</th>
+            <th>Cracked</th>
+            <th>Last activity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{FOREACH agent;[[agentObjects]]}}
+            <tr>
+              <td>
+                {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_AGENT_ACCESS]])]]}}
+                  <a href="agents.php?id=[[agent.getId()]]">[[agent.getId()]]</a>
+                {{ELSE}}
+                  [[agent.getId()]]
+                {{ENDIF}}
+              </td>
+              <td>
+                {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_AGENT_ACCESS]])]]}}
+                  <a href="agents.php?id=[[agent.getId()]]">[[agent.getAgentName()]]</a>
+                {{ELSE}}
+                  [[agent.getAgentName()]]
+                {{ENDIF}}
+                {{IF [[agent.getIsTrusted()]] == 1}}
+                  <i class="fas fa-shield-alt" title="Trusted"></i>
+                {{ENDIF}}
+                {{IF [[activeAgents.getVal([[agent.getId()]])]] == 1}}
+                  <i class="fas fa-spinner fa-spin text-success"></i>
+                {{ENDIF}}
+              </td>
+              <td class="text-end">
+                {{IF [[task.getKeyspace()]] > 0}}
+                  [[agentsProgress.getVal([[agent.getId()]])]]
+                  <br><small>([[Util::showperc([[agentsProgress.getVal([[agent.getId()]])]], [[task.getKeyspace()]])]]%)</small>
+                {{ENDIF}}
+              </td>
+              <td class="text-end">[[Util::sectotime([[agentsSpent.getVal([[agent.getId()]])]])]]</td>
+              <td class="text-end">
+                {{IF [[agentsCracked.getVal([[agent.getId()]])]] > 0}}
+                  <span class="badge bg-success">[[agentsCracked.getVal([[agent.getId()]])]]</span>
+                {{ELSE}}
+                  <span class="text-muted">0</span>
+                {{ENDIF}}
+              </td>
+              <td>
+                {{IF [[agent.getLastTime()]] > 0}}
+                  <small>[[date([[config.getVal(DConfig::TIME_FORMAT)]], [[agent.getLastTime()]])]]</small>
+                {{ELSE}}
+                  <span class="text-muted">---</span>
+                {{ENDIF}}
+              </td>
+            </tr>
+          {{ENDFOREACH}}
+        </tbody>
       </table>
     </div>
   </div>
 {{ENDIF}}
+
 <h3 id="dispatched-chunks">
   Dispatched chunks
   {{IF [[chunkFilter]] == 0}}
-    (Showing active only -
-    <a href="tasks.php?id=[[task.getId()]]&all=1#dispatched-chunks">Show latest 100</a> -
+    <span class="badge bg-info">Active only</span>
+    (<a href="tasks.php?id=[[task.getId()]]&all=1#dispatched-chunks">Show latest 100</a> |
     <a href="tasks.php?id=[[task.getId()]]&all=2#dispatched-chunks">Show all</a>)
   {{ENDIF}}
   {{IF [[chunkFilter]] == 1}}
-    (Showing latest 100 -
-    <a href="tasks.php?id=[[task.getId()]]&all=0#dispatched-chunks">Show active only</a> -
+    <span class="badge bg-info">Latest 100</span>
+    (<a href="tasks.php?id=[[task.getId()]]&all=0#dispatched-chunks">Show active only</a> |
     <a href="tasks.php?id=[[task.getId()]]&all=2#dispatched-chunks">Show all</a>)
   {{ENDIF}}
   {{IF [[chunkFilter]] == 2}}
-    (Showing entries [[Util::calculate(([[page]] * 100) + 1)]] to [[Util::calculate(([[page]] + 1) * 100)]] -
-    <a href="tasks.php?id=[[task.getId()]]&all=0#dispatched-chunks">Show active only</a> -
+    <span class="badge bg-info">All entries</span>
+    ([[Util::calculate(([[page]] * 100) + 1)]]-[[Util::calculate(([[page]] + 1) * 100)]] of [[sizeof([[chunks]])]])
+    (<a href="tasks.php?id=[[task.getId()]]&all=0#dispatched-chunks">Show active only</a> |
     <a href="tasks.php?id=[[task.getId()]]&all=1#dispatched-chunks">Show latest 100</a>)
   {{ENDIF}}
 </h3>
+
 {{IF [[chunkFilter]] == 2}}
-  <div class="panel panel-default" style="text-align: center">
-    <div class="btn-group" role="group">
-      <a href="tasks.php?id=[[task.getId()]]&all=2&page=[[Util::calculate([[page]] - 1)]]#dispatched-chunks"><button type="button" class="btn btn-default" {{IF [[page]] == 0}} disabled{{ENDIF}}>&lt;</button></a>
-      <button type="button" class="btn btn-default">Page [[page]]</button>
-      <a href="tasks.php?id=[[task.getId()]]&all=2&page=[[Util::calculate([[page]] + 1)]]#dispatched-chunks"><button type="button" class="btn btn-default" {{IF [[page]] == [[maxpage]]}} disabled{{ENDIF}}>&gt;</button></a>
-    </div>
+  <div class="d-flex justify-content-center gap-2 mb-3">
+    <a href="tasks.php?id=[[task.getId()]]&all=2&page=[[Util::calculate([[page]] - 1)]]#dispatched-chunks" class="btn btn-outline-secondary btn-sm" {{IF [[page]] == 0}}aria-disabled="true" style="opacity: 0.5; pointer-events: none;"{{ENDIF}}>
+      <i class="fas fa-chevron-left"></i> Previous
+    </a>
+    <button type="button" class="btn btn-outline-secondary btn-sm" disabled>Page [[page]] of [[maxpage]]</button>
+    <a href="tasks.php?id=[[task.getId()]]&all=2&page=[[Util::calculate([[page]] + 1)]]#dispatched-chunks" class="btn btn-outline-secondary btn-sm" {{IF [[page]] == [[maxpage]]}}aria-disabled="true" style="opacity: 0.5; pointer-events: none;"{{ENDIF}}>
+      Next <i class="fas fa-chevron-right"></i>
+    </a>
   </div>
 {{ENDIF}}
+
 <div class="card">
   <div class="table-responsive">
-    <table class="table table-bordered" id="chunks">
+    <table class="table table-bordered table-sm" id="chunks">
       <thead>
         <tr>
           <th>ID</th>
@@ -690,115 +789,134 @@
           <th>Time spent</th>
           <th>State</th>
           <th>Cracked</th>
-          <th>Action</th>
+          <th style="min-width: 100px;">Action</th>
         </tr>
       </thead>
-      {{FOREACH chunk;[[chunks]]}}
-        <tr>
-          <td>
-            [[chunk.getId()]]
-            {{IF [[activeChunks.getVal([[chunk.getId()]])]]}}
-              <i class="fas fa-spinner fa-spin"></i>
-            {{ENDIF}}
-          </td>
-          <td class="num">[[chunk.getSkip()]]</td>
-          <td class="num">[[chunk.getLength()]]</td>
-          <td class="num">
-            [[chunk.getCheckpoint()]]
-            {{IF [[chunk.getLength()]] > 0}}
-              ([[Util::showperc([[chunk.getCheckpoint()]] - [[chunk.getSkip()]], [[chunk.getLength()]])]]%)
-            {{ENDIF}}
-          </td>
-          <td class="num">
-            {{IF [[chunk.getProgress()]] == null}}
-              N/A
-            {{ELSE}}
-              [[Util::showperc([[chunk.getProgress()]], 10000)]]%
-            {{ENDIF}}
-          </td>
-          <td>
-            {{IF ![[chunk.getAgentId()]]}}
-              N/A
-            {{ELSE}}
-              {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_AGENT_ACCESS]])]]}}
-                <a href="agents.php?id=[[chunk.getAgentId()]]">[[fullAgents.getVal([[chunk.getAgentId()]]).getAgentName()]]</a>
-              {{ELSE}}
-                [[fullAgents.getVal([[chunk.getAgentId()]]).getAgentName()]]
+      <tbody>
+        {{FOREACH chunk;[[chunks]]}}
+          <tr>
+            <td>
+              [[chunk.getId()]]
+              {{IF [[activeChunks.getVal([[chunk.getId()]])]]}}
+                <i class="fas fa-spinner fa-spin text-success"></i>
               {{ENDIF}}
-            {{ENDIF}}
-          </td>
-          <td>
-            {{IF [[chunk.getDispatchTime()]] == 0}}
-              (no activity)
-            {{ELSE}}
-              [[date([[config.getVal(DConfig::TIME_FORMAT)]], [[chunk.getDispatchTime()]])]]
-            {{ENDIF}}
-          </td>
-          <td>
-            {{IF [[chunk.getSolveTime()]] == 0}}
-              (no activity)
+            </td>
+            <td class="text-end"><small>[[chunk.getSkip()]]</small></td>
+            <td class="text-end"><small>[[chunk.getLength()]]</small></td>
+            <td class="text-end">
+              <small>
+                [[chunk.getCheckpoint()]]
+                {{IF [[chunk.getLength()]] > 0}}
+                  <br>([[Util::showperc([[chunk.getCheckpoint()]] - [[chunk.getSkip()]], [[chunk.getLength()]])]]%)
+                {{ENDIF}}
+              </small>
+            </td>
+            <td class="text-end">
+              <small>
+                {{IF [[chunk.getProgress()]] == null}}
+                  <span class="text-muted">N/A</span>
+                {{ELSE}}
+                  [[Util::showperc([[chunk.getProgress()]], 10000)]]%
+                {{ENDIF}}
+              </small>
             </td>
             <td>
-            {{ELSE}}
-              [[date([[config.getVal(DConfig::TIME_FORMAT)]], [[chunk.getSolveTime()]])]]
+              {{IF ![[chunk.getAgentId()]]}}
+                <span class="text-muted">N/A</span>
+              {{ELSE}}
+                {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_AGENT_ACCESS]])]]}}
+                  <a href="agents.php?id=[[chunk.getAgentId()]]">[[fullAgents.getVal([[chunk.getAgentId()]]).getAgentName()]]</a>
+                {{ELSE}}
+                  [[fullAgents.getVal([[chunk.getAgentId()]]).getAgentName()]]
+                {{ENDIF}}
+              {{ENDIF}}
             </td>
-            <td class='num'>
-              [[Util::sectotime([[chunk.getSolveTime()]] - [[chunk.getDispatchTime()]])]]
-            {{ENDIF}}
-          </td>
-          <td>
-            [[Util::getStaticArray([[chunk.getState()]], 'states')]]
-          </td>
-          <td class="num">
-            {{IF [[chunk.getCracked()]] > 0 && [[accessControl.hasPermission([[$DAccessControl::VIEW_HASHES_ACCESS]])]]}}
-              <a href="hashes.php?chunk=[[chunk.getId()]]">[[chunk.getCracked()]]</a>
-            {{ELSE}}
-              [[chunk.getCracked()]]
-            {{ENDIF}}
-          </td>
-          <td>
-            {{IF [[activeChunks.getVal([[chunk.getId()]])]] == false && [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-              <form action="tasks.php?id=[[task.getId()]]" method="POST" onSubmit="if (!confirm('Really reset chunk [[chunk.getId()]]?')) return false;">
-                <input type="hidden" name="action" value="[[$DTaskAction::RESET_CHUNK]]">
-                <input type="hidden" name="chunk" value="[[chunk.getId()]]">
-                <input type="hidden" name="csrf" value="[[csrf]]">
-                <input type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' value="Reset">
-              </form>
-            {{ENDIF}}
-            {{IF [[activeChunks.getVal([[chunk.getId()]])]] && [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-              <form action="tasks.php?id=[[task.getId()]]" method="POST" onSubmit="if (!confirm('Really abort cracking chunk [[chunk.getId()]]?')) return false;">
-                <input type="hidden" name="action" value="[[$DTaskAction::ABORT_CHUNK]]">
-                <input type="hidden" name="chunk" value="[[chunk.getId()]]">
-                <input type="hidden" name="csrf" value="[[csrf]]">
-                <input type="submit" class='btn btn-danger' value="Abort">
-              </form>
-            {{ENDIF}}
-          </td>
-        </tr>
-      {{ENDFOREACH}}
+            <td>
+              <small>
+                {{IF [[chunk.getDispatchTime()]] == 0}}
+                  <span class="text-muted">(no activity)</span>
+                {{ELSE}}
+                  [[date([[config.getVal(DConfig::TIME_FORMAT)]], [[chunk.getDispatchTime()]])]]
+                {{ENDIF}}
+              </small>
+            </td>
+            <td>
+              <small>
+                {{IF [[chunk.getSolveTime()]] == 0}}
+                  <span class="text-muted">(no activity)</span>
+                {{ELSE}}
+                  [[date([[config.getVal(DConfig::TIME_FORMAT)]], [[chunk.getSolveTime()]])]]
+                {{ENDIF}}
+              </small>
+            </td>
+            <td class='text-end'>
+              <small>
+                {{IF [[chunk.getSolveTime()]] != 0}}
+                  [[Util::sectotime([[chunk.getSolveTime()]] - [[chunk.getDispatchTime()]])]]
+                {{ELSE}}
+                  <span class="text-muted">---</span>
+                {{ENDIF}}
+              </small>
+            </td>
+            <td>
+              <small>[[Util::getStaticArray([[chunk.getState()]], 'states')]]</small>
+            </td>
+            <td class="text-end">
+              {{IF [[chunk.getCracked()]] > 0 && [[accessControl.hasPermission([[$DAccessControl::VIEW_HASHES_ACCESS]])]]}}
+                <a href="hashes.php?chunk=[[chunk.getId()]]">[[chunk.getCracked()]]</a>
+              {{ELSE}}
+                [[chunk.getCracked()]]
+              {{ENDIF}}
+            </td>
+            <td>
+              {{IF [[activeChunks.getVal([[chunk.getId()]])]] == false && [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
+                <form action="tasks.php?id=[[task.getId()]]" method="POST" onSubmit="return confirm('Really reset chunk [[chunk.getId()]]?');" class="d-inline">
+                  <input type="hidden" name="action" value="[[$DTaskAction::RESET_CHUNK]]">
+                  <input type="hidden" name="chunk" value="[[chunk.getId()]]">
+                  <input type="hidden" name="csrf" value="[[csrf]]">
+                  <button type="submit" class='btn btn-outline-secondary btn-sm'>Reset</button>
+                </form>
+              {{ENDIF}}
+              {{IF [[activeChunks.getVal([[chunk.getId()]])]] && [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
+                <form action="tasks.php?id=[[task.getId()]]" method="POST" onSubmit="return confirm('Really abort cracking chunk [[chunk.getId()]]?');" class="d-inline">
+                  <input type="hidden" name="action" value="[[$DTaskAction::ABORT_CHUNK]]">
+                  <input type="hidden" name="chunk" value="[[chunk.getId()]]">
+                  <input type="hidden" name="csrf" value="[[csrf]]">
+                  <button type="submit" class='btn btn-danger btn-sm'>Abort</button>
+                </form>
+              {{ENDIF}}
+            </td>
+          </tr>
+        {{ENDFOREACH}}
+      </tbody>
     </table>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#chunks').DataTable({
-                bInfo : false,
-                bPaginate: false,
-                pageLength: 100,
-                "order": [ [7, 'desc'], [0, 'asc'] ],
-                "columnDefs": [
-                    { "orderable": false, "targets": [11] },
-                    { "orderable": true, "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }
-                ]
-            });
-        });
-        $(document).ready(function () {
-            $('td[rel=popover]').popover({
-                html: true,
-                trigger: 'hover',
-                container: 'body',
-                content: function () { return '<img style="width: 100%; height: 6px; padding: 0px;" src="' + $(this).data('img') + '">'; }
-            });
-        });
-    </script>
   </div>
 </div>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    // Initialize DataTable for chunks
+    const chunksTable = $('#chunks').DataTable({
+      bInfo: false,
+      bPaginate: false,
+      pageLength: 100,
+      order: [[7, 'desc'], [0, 'asc']],
+      columnDefs: [
+        { orderable: false, targets: [11] },
+        { orderable: true, targets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }
+      ],
+      language: {
+        search: "_INPUT_",
+        searchPlaceholder: "Search chunks..."
+      }
+    });
+
+    // Initialize Bootstrap tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+      new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  });
+</script>
+
 {%TEMPLATE->struct/foot%}

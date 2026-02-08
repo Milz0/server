@@ -1,19 +1,21 @@
 {%TEMPLATE->struct/head%}
 {%TEMPLATE->struct/menu%}
-<h2>Superhashlists ([[sizeof([[lists]])]])</h2>
+
+<h2>Superhashlists <span class="badge bg-primary">[[sizeof([[lists]])]]</span></h2>
 {%TEMPLATE->struct/messages%}
+
 <div class="card">
   <div class="table-responsive">
-    <table class="table table-bordered table-sm" id="superhashlists">
+    <table class="table table-bordered table-sm mb-0" id="superhashlists">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Hash type</th>
-          <th>Cracked</th>
-          <th>Hashlists</th>
-          <th>Pre-cracked</th>
-          <th>Action</th>
+          <th style="width: 6%;">ID</th>
+          <th style="width: 20%;">Name</th>
+          <th style="width: 12%;">Hash type</th>
+          <th style="width: 12%;">Cracked</th>
+          <th style="width: 30%;">Hashlists</th>
+          <th style="width: 10%; text-align: center;">Pre-cracked</th>
+          <th style="width: 10%; text-align: center;">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -23,48 +25,58 @@
               <a href="hashlists.php?id=[[list.getId()]]">[[list.getId()]]</a>
             </td>
             <td>
-              <a href="hashlists.php?id=[[list.getId()]]">[[list.getHashlistName()]]</a>
-              {{IF [[list.getIsSecret()]] == 1}}
-                <span class="fas fa-lock" aria-hidden="true"></span>
-              {{ENDIF}}
-              [[Util::tickdone([[list.getCracked()]], [[list.getHashCount()]])]]
+              <a href="hashlists.php?id=[[list.getId()]]">
+                [[list.getHashlistName()]]
+                {{IF [[list.getIsSecret()]] == 1}}
+                  <i class="fas fa-lock text-warning ms-2" title="Secret hashlist"></i>
+                {{ENDIF}}
+              </a>
+              <div class="small text-muted">[[Util::tickdone([[list.getCracked()]], [[list.getHashCount()]])]]</div>
             </td>
             <td>
-              [[hashtypes.getVal([[list.getHashtypeId()]])]]
+              <small>[[hashtypes.getVal([[list.getHashtypeId()]])]]</small>
             </td>
             <td data-sort="[[list.getCracked()]]">
-              [[Util::showperc([[list.getCracked()]], [[list.getHashCount()]])]]%<br>
-              (<a href="hashes.php?hashlist=[[list.getId()]]&filter=cracked">[[list.getCracked()]]</a>
-              / <a href="hashes.php?hashlist=[[list.getId()]]">[[list.getHashCount()]]</a>)
+              <strong>[[Util::showperc([[list.getCracked()]], [[list.getHashCount()]])]]%</strong><br>
+              <small>
+                <a href="hashes.php?hashlist=[[list.getId()]]&filter=cracked">[[list.getCracked()]]</a>
+                / <a href="hashes.php?hashlist=[[list.getId()]]">[[list.getHashCount()]]</a>
+              </small>
             </td>
             <td>
-              {{FOREACH subList;[[subLists.getVal([[list.getId()]])]]}}
-                <a href="hashlists.php?id=[[subList.getId()]]">[[subList.getHashlistName()]]</a><br>
-              {{ENDFOREACH}}
+              <div class="list-group list-group-sm">
+                {{FOREACH subList;[[subLists.getVal([[list.getId()]])]]}}
+                  <a href="hashlists.php?id=[[subList.getId()]]" class="list-group-item list-group-item-action py-1 px-2">
+                    <small>[[subList.getHashlistName()]]</small>
+                  </a>
+                {{ENDFOREACH}}
+              </div>
             </td>
-            <td>
+            <td class="text-center">
+              <div class="btn-group btn-group-sm" role="group">
+                {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_HASHLIST_ACCESS]])]]}}
+                  <form action="hashlists.php" method="POST" class="d-inline">
+                    <input type="hidden" name="action" value="[[$DHashlistAction::ZAP_HASHLIST]]">
+                    <input type="hidden" name="hashlist" value="[[list.getId()]]">
+                    <input type="hidden" name="csrf" value="[[csrf]]">
+                    <button type="submit" class='btn btn-info btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Import"><i class="fas fa-file-import" aria-hidden="true"></i></button>
+                  </form>
+                  <form action="hashlists.php" method="POST" class="d-inline">
+                    <input type="hidden" name="action" value="[[$DHashlistAction::EXPORT_HASHLIST]]">
+                    <input type="hidden" name="hashlist" value="[[list.getId()]]">
+                    <input type="hidden" name="csrf" value="[[csrf]]">
+                    <button type="submit" class='btn btn-info btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Export"><i class="fas fa-file-export" aria-hidden="true"></i></button>
+                  </form>
+                {{ENDIF}}
+              </div>
+            </td>
+            <td class="text-center">
               {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_HASHLIST_ACCESS]])]]}}
-                <form class="float-right mx-1" action="hashlists.php" method="POST">
-                  <input type="hidden" name="action" value="[[$DHashlistAction::EXPORT_HASHLIST]]">
-                  <input type="hidden" name="hashlist" value="[[list.getId()]]">
-                  <input type="hidden" name="csrf" value="[[csrf]]">
-                  <button type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' data-toggle="tooltip" data-placement="top" title="Export"><i class="fas fa-file-export" aria-hidden="true"></i></button>
-                </form>
-                <form class="float-right mx-1" action="hashlists.php" method="POST">
-                  <input type="hidden" name="action" value="[[$DHashlistAction::ZAP_HASHLIST]]">
-                  <input type="hidden" name="hashlist" value="[[list.getId()]]">
-                  <input type="hidden" name="csrf" value="[[csrf]]">
-                  <button type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' data-toggle="tooltip" data-placement="top" title="Import"><i class="fas fa-file-import" aria-hidden="true"></i></button>
-                </form>
-              {{ENDIF}}
-            </td>
-            <td>
-              {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_HASHLIST_ACCESS]])]]}}
-                <form class="float-right" action="hashlists.php" method="POST" onSubmit="if (!confirm('Really delete superhashlist [[list.getId()]]?\n(Included hashes will stay intact in their hashlists)')) return false;">
+                <form action="hashlists.php" method="POST" class="d-inline" onSubmit="if (!confirm('Really delete superhashlist [[list.getId()]]?\\n(Included hashes will stay intact in their hashlists)')) return false;">
                   <input type="hidden" name="action" value="[[$DHashlistAction::DELETE_HASHLIST]]">
                   <input type="hidden" name="hashlist" value="[[list.getId()]]">
                   <input type="hidden" name="csrf" value="[[csrf]]">
-                  <button type="submit" class='btn btn-danger' data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                  <button type="submit" class='btn btn-danger btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                 </form>
               {{ENDIF}}
             </td>
@@ -72,6 +84,7 @@
         {{ENDFOREACH}}
       </tbody>
     </table>
+
     <script type="text/javascript">
       $(document).ready(function () {
         $('#superhashlists').DataTable({
@@ -86,4 +99,5 @@
     </script>
   </div>
 </div>
+
 {%TEMPLATE->struct/foot%}

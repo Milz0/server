@@ -11,17 +11,58 @@
 
   <title>[[$APP_NAME]] [[version]] [ [[host]] ]{{IF strlen([[pageTitle]]) > 0}} - [[pageTitle]]{{ENDIF}}</title>
 
-  <link id="bootstrapCSS" href="static/bootstrap{{IF [[toggledarkmode]] > 0}}.dark{{ENDIF}}.min.css" rel="stylesheet">
+  <!-- Bootswatch Darkly v5.3.0 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/darkly/bootstrap.min.css" rel="stylesheet">
 
+  <!-- Custom Styling -->
   <link href="static/navbar.css" rel="stylesheet">
   <link href="static/vast/css/vast-notifications.css" rel="stylesheet">
-  {{IF [[toggledarkmode]] > 0}}
-  <link href="static/bootstrap.dark.custom.css" rel="stylesheet">{{ENDIF}}
-  <link rel="stylesheet" type="text/css" href="static/datatables.min.css">
-  <link href="static/select2.min.css" rel="stylesheet" type="text/css">
-  <link href="static/select2-bootstrap-5{{IF [[toggledarkmode]] > 0}}.dark{{ENDIF}}.min.css" rel="stylesheet" type="text/css">
-  <style>
 
+  <!-- DataTables v1.13.7 Bootstrap 5 -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+  <!-- Select2 v4.0.13 with Bootstrap 5 theme -->
+  <link href="static/select2.min.css" rel="stylesheet" type="text/css">
+  <link href="static/select2-bootstrap-5.min.css" rel="stylesheet" type="text/css">
+
+  <style>
+  /* DataTables wrapper padding */
+  .dataTables_wrapper {
+    padding: 1rem;
+  }
+
+  /* DataTables controls spacing */
+  .dataTables_length,
+  .dataTables_filter {
+    margin-bottom: 1rem;
+  }
+
+  .dataTables_info,
+  .dataTables_paginate {
+    margin-top: 1rem;
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 575px) {
+    .dataTables_wrapper {
+      padding: 0.5rem;
+    }
+
+    .dataTables_length,
+    .dataTables_filter {
+      margin-bottom: 0.75rem;
+    }
+
+    .dataTables_info,
+    .dataTables_paginate {
+      margin-top: 0.75rem;
+    }
+  }
+</style>
+
+  <style>
+    /* Select2 Responsive Width Adjustments */
     /* X-Small devices (portrait phones, less than 576px) */
     .select2-selection__rendered {
       max-width: 49vw;
@@ -29,14 +70,16 @@
     
     /* Small devices (landscape phones, 576px and up) */
     @media (min-width: 576px) {
-    .select2-selection__rendered {
-      max-width: 46vw;
+      .select2-selection__rendered {
+        max-width: 46vw;
+      }
     }
-  }
 
     /* Medium devices (tablets, 768px and up) */
     @media (min-width: 768px) {
-
+      .select2-selection__rendered {
+        max-width: 50vw;
+      }
     }
 
     /* Large devices (desktops, 992px and up) */
@@ -59,15 +102,26 @@
         max-width: 64vw;
       }
     }
-    
   </style>
+
+  <!-- External Libraries -->
   <script type="text/javascript" src="jscolor/jscolor.js"></script>
   <script src="static/jquery.min.js"></script>
   <script src="static/js.cookie.min.js"></script>
-  <script src="static/popper.min.js"></script>
-  <script src="static/bootstrap.min.js"></script>
-  <script src="static/chartjs.bundle.min.js"></script>
-  <script type="text/javascript" src="static/datatables.min.js"></script>
+  
+  <!-- Bootstrap 5.3.0 Bundle (includes Popper.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Chart.js v4.4.0 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+
+  <!-- DataTables v1.13.7 Bootstrap 5 -->
+  <script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
+  <!-- Select2 -->
   <script type="text/javascript" src="static/select2.min.js"></script>
 
   {{IF [[autorefresh]] > 0}}
@@ -76,75 +130,70 @@
   {{ENDIF}}
 
   <script type='text/javascript'>
-    /*$( window ).on( "load", function() {
-      if (typeof Cookies.get('toggledarkmode') === "undefined")
-        $('#bootstrapCSS').attr('href','static/bootstrap.dark.min.css');
-      else 
-        $('#bootstrapCSS').attr('href','static/bootstrap.min.css');
-    });*/
+    // Set Select2 default theme to Bootstrap 5
+    $.fn.select2.defaults.set("theme", "bootstrap-5");
 
-    function darkMode() {
-      if (typeof Cookies.get('toggledarkmode') === "undefined")
-        Cookies.set('toggledarkmode', '1', { expires: 365 });
-      else
-        Cookies.remove('toggledarkmode');
+    // Initialize DataTables with Bootstrap 5 defaults
+    $.extend($.fn.dataTable.defaults, {
+      language: {
+        search: "_INPUT_",
+        searchPlaceholder: "Search...",
+        lengthMenu: "Show _MENU_ entries",
+        info: "Showing _START_ to _END_ of _TOTAL_ entries",
+        infoEmpty: "No entries to show",
+        infoFiltered: "(filtered from _MAX_ total entries)",
+        paginate: {
+          first: '<i class="fas fa-chevron-left"></i><i class="fas fa-chevron-left"></i>',
+          previous: '<i class="fas fa-chevron-left"></i>',
+          next: '<i class="fas fa-chevron-right"></i>',
+          last: '<i class="fas fa-chevron-right"></i><i class="fas fa-chevron-right"></i>'
+        }
+      },
+      dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+           '<"row"<"col-sm-12"tr>>' +
+           '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+      responsive: true,
+      autoWidth: false
+    });
 
-      window.location.reload();
-    }
+    // Form utility functions
+    function sourceChange(value) {
+      const pasteObject = document.getElementById("pasteLine");
+      const uploadObject = document.getElementById("uploadLine");
+      const importObject = document.getElementById("importLine");
+      const downloadObject = document.getElementById("downloadLine");
 
-    function sourceChange(valu) {
-      var pasteObject = document
-        .getElementById("pasteLine");
-      var uploadObject = document
-        .getElementById("uploadLine");
-      var importObject = document
-        .getElementById("importLine");
-      var downloadObject = document
-        .getElementById("downloadLine");
-      switch (valu) {
+      // Hide all first
+      if (pasteObject) pasteObject.style.display = 'none';
+      if (uploadObject) uploadObject.style.display = 'none';
+      if (importObject) importObject.style.display = 'none';
+      if (downloadObject) downloadObject.style.display = 'none';
+
+      // Show selected
+      switch (value) {
         case 'paste':
-          pasteObject.style.display = '';
-          uploadObject.style.display = 'none';
-          importObject.style.display = 'none';
-          downloadObject.style.display = 'none';
+          if (pasteObject) pasteObject.style.display = '';
           break;
-
         case 'upload':
-          pasteObject.style.display = 'none';
-          uploadObject.style.display = '';
-          importObject.style.display = 'none';
-          downloadObject.style.display = 'none';
+          if (uploadObject) uploadObject.style.display = '';
           break;
-
         case 'import':
-          pasteObject.style.display = 'none';
-          uploadObject.style.display = 'none';
-          importObject.style.display = '';
-          downloadObject.style.display = 'none';
+          if (importObject) importObject.style.display = '';
           break;
-
         case 'url':
-          pasteObject.style.display = 'none';
-          uploadObject.style.display = 'none';
-          importObject.style.display = 'none';
-          downloadObject.style.display = '';
+          if (downloadObject) downloadObject.style.display = '';
           break;
       }
     }
 
     function checkAll(formname, checktoggle) {
-      var checkboxes = [];
-      checkboxes = document.getElementById(formname)
-        .getElementsByTagName('input');
-      for (var i = 0; i < checkboxes.length; i++) {
+      const checkboxes = document.getElementById(formname).getElementsByTagName('input');
+      for (let i = 0; i < checkboxes.length; i++) {
         if (checkboxes[i].type === 'checkbox') {
           checkboxes[i].checked = checktoggle;
         }
       }
     }
-
-    // Set the select2 default theme to be boostrap
-    $.fn.select2.defaults.set("theme", "bootstrap-5");
   </script>
 </head>
 

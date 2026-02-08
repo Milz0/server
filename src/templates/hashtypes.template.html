@@ -5,11 +5,11 @@
 <form action="hashtypes.php" method="POST">
 	<input type='hidden' name='action' value='[[$DHashtypeAction::ADD_HASHTYPE]]'>
 	<input type="hidden" name="csrf" value="[[csrf]]">
-	<div class="card">
-    <div class="table-responsive">
-      <table class="table table-bordered">
+	<div class="card mb-4">
+    <div class="table-responsive p-4">
+      <table class="table table-bordered mb-0">
 			  <tr>
-				  <th colspan='4' style='text-align: center;'>
+				  <th colspan='4' class='text-center'>
 					  <b>Add new Hashtype</b>
 				  </th>
 			  </tr>
@@ -21,27 +21,29 @@
 			  </tr>
 			  <tr>
 				  <td>
-					  <input type='text' name='id' class='form-control' title="ID">
+					  <input type='text' name='id' class='form-control' title="ID" placeholder="e.g., 0 or 1000">
 				  </td>
 				  <td>
-					  <input type='text' name='description' class='form-control' title="Description">
+					  <input type='text' name='description' class='form-control' title="Description" placeholder="Description of hash type">
 				  </td>
 				  <td>
-					  <select name="isSalted" class="form-control" title="Is Salted">
+					  <select name="isSalted" class="form-select" title="Is Salted">
               <option value="0">No</option>
               <option value="1">Yes</option>
             </select>
 				  </td>
 				  <td>
-					  <select name="isSlowHash" class="form-control" title="Is Slow Hash">
+					  <select name="isSlowHash" class="form-select" title="Is Slow Hash">
               <option value="0">No</option>
               <option value="1">Yes</option>
             </select>
 				  </td>
 			  </tr>
 			  <tr>
-				  <td colspan="4">
-					  <input type="submit" class='btn btn-success' value="Add">
+				  <td colspan="4" class="text-center">
+					  <button type="submit" class='btn btn-success'>
+              <i class="fas fa-plus" aria-hidden="true"></i> Add
+            </button>
 				  </td>
 			  </tr>
 		  </table>
@@ -50,43 +52,47 @@
 </form>
 <div class="card">
   <div class="table-responsive">
-    <table class="table table-bordered">
-		  <tr>
+    <table class="table table-bordered mb-0">
+		  <thead>
+		    <tr>
 			  <th>Hashtype (Hashcat -m)</th>
 			  <th>Description</th>
-        <th>Salted</th>
-        <th>Slow Hash</th>
+              <th>Salted</th>
+              <th>Slow Hash</th>
 			  <th>&nbsp;</th>
-		  </tr>
-		  {{FOREACH type;[[hashtypes]]}}
+		    </tr>
+		  </thead>
+		  <tbody>
+		    {{FOREACH type;[[hashtypes]]}}
 			  <tr>
 				  <td>[[type.getId()]]</td>
 				  <td>[[type.getDescription()]]</td>
-          <td>
-            {{IF [[type.getIsSalted()]] == 1}}
-              Yes
-            {{ELSE}}
-              No
-            {{ENDIF}}
-          </td>
-          <td>
-            {{IF [[type.getIsSlowHash()]] == 1}}
-              Yes
-            {{ELSE}}
-              No
-            {{ENDIF}}
-          </td>
+              <td>
+                {{IF [[type.getIsSalted()]] == 1}}
+                  Yes
+                {{ELSE}}
+                  No
+                {{ENDIF}}
+              </td>
+              <td>
+                {{IF [[type.getIsSlowHash()]] == 1}}
+                  Yes
+                {{ELSE}}
+                  No
+                {{ENDIF}}
+              </td>
 				  <td>
-					  <form class="float-right" action="hashtypes.php" method="POST" onSubmit="if (!confirm('Really delete hashtype [[type.getId()]]?')) return false;">
+					  <form class="d-inline" action="hashtypes.php" method="POST" onSubmit="if (!confirm('Really delete hashtype [[type.getId()]]?')) return false;">
 						  <input type="hidden" name="action" value="[[$DHashtypeAction::DELETE_HASHTYPE]]">
 						  <input type="hidden" name="type" value="[[type.getId()]]">
 						  <input type="hidden" name="csrf" value="[[csrf]]">
-              <button type="submit" class='btn btn-danger' data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+              <button type="submit" class='btn btn-danger' data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
 					  </form>
 				  </td>
 			  </tr>
-		  {{ENDFOREACH}}
-	  </table>
+		    {{ENDFOREACH}}
+	  </tbody>
+    </table>
   </div>
 </div>
 {%TEMPLATE->struct/foot%}

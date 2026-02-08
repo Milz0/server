@@ -61,12 +61,12 @@
   </td>
   <td style='min-width: 130px' data-sort="[[set.getVal('priority')]]">
     {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-      <form class="form-inline" action="tasks.php" method="POST">
+      <form class="d-inline-flex gap-2 align-items-center" action="tasks.php" method="POST">
         <input type='hidden' name='action' value='[[$DTaskAction::SET_PRIORITY]]'>
         <input type="hidden" name="task" value="[[set.getVal('taskId')]]">
         <input type="hidden" name="csrf" value="[[csrf]]">
-        <input type="text" class='form-control' style='width: 60px;' name="priority" size="4" value="[[set.getVal('priority')]]" title="Priority">
-        <button type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}} mx-1' data-toggle="tooltip" data-placement="top" title="Set Priority"><i class="fas fa-save" aria-hidden="true"></i></button>
+        <input type="text" class='form-control form-control-sm' style='width: 60px;' name="priority" size="4" value="[[set.getVal('priority')]]" title="Priority">
+        <button type="submit" class='btn btn-primary btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Set Priority"><i class="fas fa-save" aria-hidden="true"></i></button>
       </form>
     {{ELSE}}
       [[set.getVal('priority')]]
@@ -74,42 +74,43 @@
   </td>
   <td style='min-width: 130px' data-sort="[[set.getVal('maxAgents')]]">
     {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_TASK_ACCESS]])]]}}
-      <form class="form-inline" action="tasks.php" method="POST">
+      <form class="d-inline-flex gap-2 align-items-center" action="tasks.php" method="POST">
         <input type='hidden' name='action' value='[[$DTaskAction::SET_MAX_AGENTS]]'>
         <input type="hidden" name="task" value="[[set.getVal('taskId')]]">
         <input type="hidden" name="csrf" value="[[csrf]]">
-        <input type="text" class='form-control' style='width: 60px;' name="maxAgents" size="4" value="[[set.getVal('maxAgents')]]" title="Max agents">
-        <button type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}} mx-1' data-toggle="tooltip" data-placement="top" title="Set max agents"><i class="fas fa-save" aria-hidden="true"></i></button>
+        <input type="text" class='form-control form-control-sm' style='width: 60px;' name="maxAgents" size="4" value="[[set.getVal('maxAgents')]]" title="Max agents">
+        <button type="submit" class='btn btn-primary btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Set max agents"><i class="fas fa-save" aria-hidden="true"></i></button>
       </form>
     {{ELSE}}
       [[set.getVal('maxAgents')]]
     {{ENDIF}}
   </td>
-  <td style='min-width: 120px'>
+  <td style='min-width: 200px'>
     {{IF [[accessControl.hasPermission([[$DAccessControl::CREATE_TASK_ACCESS]])]]}}
-      <form class="float-right mx-1" action="tasks.php" method="POST" onSubmit="if (!confirm('Really delete task [[set.getVal('taskId')]]?')) return false;">
-        <input type="hidden" name="action" value="[[$DTaskAction::DELETE_TASK]]">
-        <input type="hidden" name="task" value="[[set.getVal('taskId')]]">
-        <input type="hidden" name="csrf" value="[[csrf]]">
-        <button type="submit" class='btn btn-danger' data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
-      </form>
-      {{IF ![[showArchived]]}}
-        <form class="float-right mx-1" action="tasks.php" method="POST" onSubmit="if (!confirm('Really archive task [[set.getVal('taskId')]]?')) return false;">
-          <input type="hidden" name="action" value="[[$DTaskAction::ARCHIVE_TASK]]">
+      <div class="d-flex gap-1 justify-content-end flex-wrap">
+        <form action="tasks.php" method="POST" onSubmit="if (!confirm('Really delete task [[set.getVal('taskId')]]?')) return false;">
+          <input type="hidden" name="action" value="[[$DTaskAction::DELETE_TASK]]">
           <input type="hidden" name="task" value="[[set.getVal('taskId')]]">
           <input type="hidden" name="csrf" value="[[csrf]]">
-          <button type="submit" class='btn btn-warning' data-toggle="tooltip" data-placement="top" title="Archive Task"><i class="fas fa-archive" aria-hidden="true"></i></button>
+          <button type="submit" class='btn btn-danger btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
         </form>
-      {{ENDIF}}
-      <form class="float-right mx-1" action="tasks.php?new=true&copy=[[set.getVal('taskId')]]" method="post">
-        <button type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' data-toggle="tooltip" data-placement="top" title="Copy to Task"><i class="fas fa-copy" aria-hidden="true"></i></button>
-      </form>
-      {{IF [[accessControl.hasPermission([[$DAccessControl::CREATE_PRETASK_ACCESS]])]]}}
-				<form class="float-right mx-1" action="pretasks.php?new=true&copyTask=[[set.getVal('taskId')]]" method="POST">
-          <button type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' data-toggle="tooltip" data-placement="top" title="Copy to Pretask"><i class="fas fa-bookmark" aria-hidden="true"></i></button>
-				</form>
-			{{ENDIF}}
+        {{IF ![[showArchived]]}}
+          <form action="tasks.php" method="POST" onSubmit="if (!confirm('Really archive task [[set.getVal('taskId')]]?')) return false;">
+            <input type="hidden" name="action" value="[[$DTaskAction::ARCHIVE_TASK]]">
+            <input type="hidden" name="task" value="[[set.getVal('taskId')]]">
+            <input type="hidden" name="csrf" value="[[csrf]]">
+            <button type="submit" class='btn btn-warning btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Archive Task"><i class="fas fa-archive" aria-hidden="true"></i></button>
+          </form>
+        {{ENDIF}}
+        <form action="tasks.php?new=true&copy=[[set.getVal('taskId')]]" method="post">
+          <button type="submit" class='btn btn-primary btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Copy to Task"><i class="fas fa-copy" aria-hidden="true"></i></button>
+        </form>
+        {{IF [[accessControl.hasPermission([[$DAccessControl::CREATE_PRETASK_ACCESS]])]]}}
+          <form action="pretasks.php?new=true&copyTask=[[set.getVal('taskId')]]" method="POST">
+            <button type="submit" class='btn btn-primary btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Copy to Pretask"><i class="fas fa-bookmark" aria-hidden="true"></i></button>
+          </form>
+        {{ENDIF}}
+      </div>
     {{ENDIF}}
-    
   </td>
 </tr>

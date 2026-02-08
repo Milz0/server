@@ -1,41 +1,69 @@
 {%TEMPLATE->struct/head%}
 {%TEMPLATE->struct/menu%}
+
 <h2>New superhashlist</h2>
 {%TEMPLATE->struct/messages%}
+
 <form id="newsuper" action="hashlists.php" method="POST">
-	<input type='hidden' name='action' value='[[$DHashlistAction::CREATE_SUPERHASHLIST]]'>
-	<input type="hidden" name="csrf" value="[[csrf]]">
-	<div class="card">
-    <div class="table-responsive">
-      <table class="table table-bordered">
-			  <tr>
-				  <th>ID</th>
-				  <th>Name</th>
-				  <th>Hash type</th>
-			  </tr>
-			  {{FOREACH list;[[lists]]}}
-				  <tr>
-					  <td>
-						  <input type="checkbox" name="hlist[]" value="[[list.getId()]]" title="Hashlist"> [[list.getId()]]
-					  </td>
-					  <td>[[list.getHashlistName()]]</td>
-					  <td>[[hashtypes.getVal([[list.getHashtypeId()]])]]</td>
-				  </tr>
-			  {{ENDFOREACH}}
-			  <tr>
-				  <td>Name:</td>
-				  <td colspan="2">
-					  <input type="text" class='form-control' name="name" title="Superhashlist Name">
-				  </td>
-			  </tr>
-			  <tr>
-				  <td colspan="3">
-					  <input type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' value="Create">
-					  <input type="checkbox" onChange="checkAll('newsuper',this.checked);" title="Check All"> Select All
-				  </td>
-			  </tr>
-		  </table>
+  <input type='hidden' name='action' value='[[$DHashlistAction::CREATE_SUPERHASHLIST]]'>
+  <input type="hidden" name="csrf" value="[[csrf]]">
+
+  <div class="card">
+    <div class="card-header">
+      <h5 class="mb-0">Select hashlists to combine</h5>
     </div>
-	</div>
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm mb-0">
+        <thead>
+          <tr>
+            <th style="width: 8%; text-align: center;">
+              <input type="checkbox" id="selectAll" onChange="checkAll('newsuper', this.checked);" title="Select all">
+            </th>
+            <th style="width: 8%;">ID</th>
+            <th style="width: 42%;">Name</th>
+            <th style="width: 42%;">Hash type</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{FOREACH list;[[lists]]}}
+            <tr>
+              <td class="text-center">
+                <input type="checkbox" name="hlist[]" value="[[list.getId()]]" title="Select hashlist">
+              </td>
+              <td>
+                <code>[[list.getId()]]</code>
+              </td>
+              <td>[[list.getHashlistName()]]</td>
+              <td><small class="text-muted">[[hashtypes.getVal([[list.getHashtypeId()]])]]</small></td>
+            </tr>
+          {{ENDFOREACH}}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-body border-top">
+      <div class="mb-3">
+        <label for="superhashlistName" class="form-label"><strong>Superhashlist name:</strong></label>
+        <input type="text" class='form-control' id="superhashlistName" name="name" title="Superhashlist Name" placeholder="Enter name for the new superhashlist" required>
+      </div>
+
+      <div class="d-grid gap-2">
+        <button type="submit" class='btn btn-success btn-lg'>
+          <i class="fas fa-plus-circle"></i> Create superhashlist
+        </button>
+      </div>
+    </div>
+  </div>
 </form>
+
+<script type="text/javascript">
+  function checkAll(formId, checked) {
+    const form = document.getElementById(formId);
+    const checkboxes = form.querySelectorAll('input[name="hlist[]"]');
+    checkboxes.forEach(checkbox => {
+      checkbox.checked = checked;
+    });
+  }
+</script>
+
 {%TEMPLATE->struct/foot%}

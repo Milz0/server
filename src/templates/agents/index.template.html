@@ -5,7 +5,7 @@
 <div class="card">
   <div class="table-responsive">
     <table class="table table-bordered table-sm" id="agents">
-      <thead>
+      <thead class="table-dark">
         <tr>
           <th>Id</th>
           <th>Act</th>
@@ -32,10 +32,10 @@
             <td data-sort="[[agent.getAgentName()]]">
               <a href="agents.php?id=[[agent.getId()]]">[[agent.getAgentName()]]</a>
               {{IF [[agent.getIsTrusted()]] == 1}}
-                <span class="fas fa-lock" aria-hidden="true"></span>
+                <span class="fas fa-lock" aria-hidden="true" title="Trusted"></span>
               {{ENDIF}}
               {{IF [[agent.getIsActive()]] == 0}}
-                <span class="fas fa-pause-circle" aria-hidden="true"></span>
+                <span class="fas fa-pause-circle" aria-hidden="true" title="Inactive"></span>
               {{ENDIF}}
               <br>
               {{IF [[agent.getUserId()]] > 0}}
@@ -44,9 +44,9 @@
                 ---
               {{ENDIF}}
               {{IF strlen([[agent.getClientSignature()]]) > 0}}
-                <br>Running: [[agent.getClientSignature()]]
+                <br><small class="text-muted">Running: [[agent.getClientSignature()]]</small>
               {{ELSE}}
-                <br>Running: unknown
+                <br><small class="text-muted">Running: unknown</small>
               {{ENDIF}}
             </td>
             <td>
@@ -54,15 +54,15 @@
             </td>
             <td>
               {{IF [[agent.getCpuOnly()]] == 0}}
-                No
+                <span class="badge bg-success">No</span>
               {{ELSE}}
-                Yes
+                <span class="badge bg-warning">Yes</span>
               {{ENDIF}}
             </td>
             <td>
               <code>[[agent.getLastAct()]]</code> at <br>
-              [[date([[config.getVal(DConfig::TIME_FORMAT)]], [[agent.getLastTime()]])]]<br>
-              IP:
+              <small>[[date([[config.getVal(DConfig::TIME_FORMAT)]], [[agent.getLastTime()]])]]</small><br>
+              <small class="text-muted">IP:</small>
               {{IF [[config.getVal([[$DConfig::HIDE_IP_INFO]])]] == 0}}
                 <code>[[agent.getLastIp()]]</code>
               {{ELSE}}
@@ -71,16 +71,19 @@
             </td>
             <td>
               {{FOREACH accessGroup;[[accessGroupAgents.getVal([[agent.getId()]])]]}}
-                [[accessGroup.getGroupName()]]<br>
+                <span class="badge bg-info">[[accessGroup.getGroupName()]]</span><br>
               {{ENDFOREACH}}
+              {{IF empty([[accessGroupAgents.getVal([[agent.getId()]])]])}}
+                <span class="text-muted">None</span>
+              {{ENDIF}}
             </td>
             {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
               <td>
-                <form action="agents.php" method="POST" class="float-right" onSubmit="if (!confirm('Really delete agent [[agent.getId()]]?')) return false;">
+                <form action="agents.php" method="POST" class="float-end" onSubmit="if (!confirm('Really delete agent [[agent.getId()]]?')) return false;">
                   <input type='hidden' name='action' value='[[$DAgentAction::DELETE_AGENT]]'>
                   <input type="hidden" name="agentId" value="[[agent.getId()]]">
                   <input type="hidden" name="csrf" value="[[csrf]]">
-                  <button type="submit" class='btn btn-danger' data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                  <button type="submit" class='btn btn-danger btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Agent"><i class="fas fa-trash" aria-hidden="true"></i></button>
                 </form>
               </td>
             {{ELSE}}
@@ -94,11 +97,17 @@
       $(document).ready(function () {
         $('#agents').DataTable({
           pageLength: 50,
-          "order": [ [0, 'asc'] ],
-          "columnDefs": [
-            { "orderable": false, "targets": [5, 7] },
-            { "orderable": true, "targets": [0, 1, 2, 3, 4, 6] }
+          order: [[0, 'asc']],
+          columnDefs: [
+            { orderable: false, targets: [5, 7] },
+            { orderable: true, targets: [0, 1, 2, 3, 4, 6] }
           ]
+        });
+
+        // Initialize tooltips for dynamic content
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl);
         });
       });
     </script>

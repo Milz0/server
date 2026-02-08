@@ -2,41 +2,100 @@
 {%TEMPLATE->struct/menu%}
 <h2>Log Entries</h2>
 {%TEMPLATE->struct/messages%}
-<div class="card">
-  <div class="table-responsive">
-    <table class="table table-bordered">
-		  <tr>
-			  <td colspan="5">
-          <form class='form-inline' action="log.php" method="post">
-            <input type="hidden" name="show" value="true">
-            <select name="level" class="form-control" title="Loglevel">
-              <option value="0"{{IF [[level]] == 0}} selected{{ENDIF}}>ALL</option>
-              <option value="information"{{IF [[level]] == 'information'}} selected{{ENDIF}}>information</option>
-              <option value="warning"{{IF [[level]] == 'warning'}} selected{{ENDIF}}>warning</option>
-              <option value="error"{{IF [[level]] == 'error'}} selected{{ENDIF}}>error</option>
-              <option value="fatal error"{{IF [[level]] == 'fatal error'}} selected{{ENDIF}}>fatal error</option>
-            </select>&nbsp;&nbsp;
-            <input type='submit' class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' value='Show'>
-          </form>
-			  </td>
-		  </tr>
-		  <tr>
-			  <th>Entry ID</th>
-			  <th>Time</th>
-			  <th>Level</th>
-			  <th>Issuer</th>
-			  <th>Message</th>
-		  </tr>
-		  {{FOREACH entry;[[entries]]}}
-			  <tr style="background-color: #{{IF [[entry.getLevel()]] == 'information'}}397b39{{ENDIF}}{{IF [[entry.getLevel()]] == 'warning'}}b16a06{{ENDIF}}{{IF [[entry.getLevel()]] == 'error'}}8b0010{{ENDIF}}{{IF [[entry.getLevel()]] == 'fatal error'}}750404{{ENDIF}}">
-				  <td>[[entry.getId()]]</td>
-				  <td>[[date("d.m.Y - H:i:s", [[entry.getTime()]])]]</td>
-				  <td>[[entry.getLevel()]]</td>
-				  <td>[[entry.getIssuer()]]-ID[[entry.getIssuerId()]]</td>
-          <td>[[entry.getMessage()]]</td>
-			  </tr>
-		  {{ENDFOREACH}}
-	  </table>
+
+<style>
+code {
+  color: #303030;
+}
+</style>
+<div class="card mb-4">
+  <div class="card-body">
+    <form class='d-flex gap-2 align-items-end' action="log.php" method="post">
+      <input type="hidden" name="show" value="true">
+      
+      <div class="flex-grow-1">
+        <label for="levelSelect" class="form-label mb-0">Filter by level:</label>
+        <select name="level" id="levelSelect" class="form-select" title="Loglevel">
+          <option value="0"{{IF [[level]] == 0}} selected{{ENDIF}}>ALL</option>
+          <option value="information"{{IF [[level]] == 'information'}} selected{{ENDIF}}>Information</option>
+          <option value="warning"{{IF [[level]] == 'warning'}} selected{{ENDIF}}>Warning</option>
+          <option value="error"{{IF [[level]] == 'error'}} selected{{ENDIF}}>Error</option>
+          <option value="fatal error"{{IF [[level]] == 'fatal error'}} selected{{ENDIF}}>Fatal Error</option>
+        </select>
+      </div>
+      
+      <button type='submit' class='btn btn-primary'>
+        <i class="fas fa-filter" aria-hidden="true"></i> Filter
+      </button>
+    </form>
   </div>
 </div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-bordered table-sm mb-0">
+      <thead>
+        <tr>
+          <th style="width: 10%;">Entry ID</th>
+          <th style="width: 20%;">Time</th>
+          <th style="width: 12%;">Level</th>
+          <th style="width: 15%;">Issuer</th>
+          <th>Message</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{FOREACH entry;[[entries]]}}
+          <tr class="
+            {{IF [[entry.getLevel()]] == 'information'}}table-success{{ENDIF}}
+            {{IF [[entry.getLevel()]] == 'warning'}}table-warning{{ENDIF}}
+            {{IF [[entry.getLevel()]] == 'error'}}table-danger{{ENDIF}}
+            {{IF [[entry.getLevel()]] == 'fatal error'}}table-danger{{ENDIF}}
+          ">
+            <td>
+              <code>[[entry.getId()]]</code>
+            </td>
+            <td>
+              <small>[[date("d.m.Y - H:i:s", [[entry.getTime()]])]]</small>
+            </td>
+            <td>
+              <span class="
+                badge 
+                {{IF [[entry.getLevel()]] == 'information'}}bg-success{{ENDIF}}
+                {{IF [[entry.getLevel()]] == 'warning'}}bg-warning text-dark{{ENDIF}}
+                {{IF [[entry.getLevel()]] == 'error'}}bg-danger{{ENDIF}}
+                {{IF [[entry.getLevel()]] == 'fatal error'}}bg-danger{{ENDIF}}
+              ">
+                {{IF [[entry.getLevel()]] == 'information'}}
+                  <i class="fas fa-check-circle" aria-hidden="true"></i> Info
+                {{ENDIF}}
+                {{IF [[entry.getLevel()]] == 'warning'}}
+                  <i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Warning
+                {{ENDIF}}
+                {{IF [[entry.getLevel()]] == 'error'}}
+                  <i class="fas fa-exclamation-circle" aria-hidden="true"></i> Error
+                {{ENDIF}}
+                {{IF [[entry.getLevel()]] == 'fatal error'}}
+                  <i class="fas fa-times-circle" aria-hidden="true"></i> Fatal
+                {{ENDIF}}
+              </span>
+            </td>
+            <td>
+              <small>
+                {{IF [[entry.getIssuer()]] != null}}
+                  [[entry.getIssuer()]] <code>#[[entry.getIssuerId()]]</code>
+                {{ELSE}}
+                  <span class="text-muted">System</span>
+                {{ENDIF}}
+              </small>
+            </td>
+            <td>
+              [[entry.getMessage()]]
+            </td>
+          </tr>
+        {{ENDFOREACH}}
+      </tbody>
+    </table>
+  </div>
+</div>
+
 {%TEMPLATE->struct/foot%}

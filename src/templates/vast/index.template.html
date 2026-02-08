@@ -1,21 +1,25 @@
 {%TEMPLATE->struct/head%}
 {%TEMPLATE->struct/menu%}
-<h2>Vast.ai Cloud GPU</h2>
-{%TEMPLATE->struct/messages%}
 
-{{IF [[vastConfigured]] == 0}}
-<div class="alert alert-warning">
-  <strong>Configuration Required:</strong>
-  Please configure your Vast.ai API key and default image in
-  <a href="config.php?view=9">Server Configuration</a> before using this feature.
-</div>
-{{ENDIF}}
+<div class="container mt-4">
+	<h2 class="mb-4">Vast.ai Cloud GPU</h2>
+	{%TEMPLATE->struct/messages%}
 
-{%TEMPLATE->vast/header%}
+	{{IF [[vastConfigured]] == 0}}
+		<div class="alert alert-warning alert-dismissible fade show" role="alert">
+			<strong>Configuration Required:</strong>
+			Please configure your Vast.ai API key and default image in
+			<a href="config.php?view=9" class="alert-link">Server Configuration</a> before using this feature.
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	{{ENDIF}}
 
-<div class="tab-content mt-3" id="vastTabContent">
-  {%TEMPLATE->vast/tab-offers%}
-  {%TEMPLATE->vast/tab-instances%}
+	{%TEMPLATE->vast/header%}
+
+	<div class="tab-content mt-3" id="vastTabContent">
+		{%TEMPLATE->vast/tab-offers%}
+		{%TEMPLATE->vast/tab-instances%}
+	</div>
 </div>
 
 {%TEMPLATE->vast/modal-create%}

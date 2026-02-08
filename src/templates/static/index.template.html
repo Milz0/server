@@ -4,56 +4,82 @@
 {{IF ![[login.isLoggedin()]]}}
   <h2>Login</h2>
   {%TEMPLATE->struct/messages%}
-  <div class="alert {{IF [[toggledarkmode]] > 0}}alert-dark" style="background-color: #32383e;{{ELSE}}alert-neutral{{ENDIF}}">
-      <div class="row">
-          <div class='col-md-3'></div>
-          <div class='col-md-6'>
-              <br>
-              <form action='login.php' method='post' class="form-horizontal">
-                  <input type='hidden' name='fw' value='[[fw]]'>
-                  <div class="form-group">
-                      <label for="inputUsername" class="col-sm-4 control-label">Username</label>
-                      <div class="col-sm-12">
-                          <input name='username' type="text" class="form-control" id="inputUsername" placeholder="Username" autofocus>
-                      </div>
+  
+  <div class="alert alert-dark">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-body p-4">
+              <h5 class="card-title text-center mb-4">Sign in to [[$APP_NAME]]</h5>
+              
+              <form action='login.php' method='post'>
+                <input type='hidden' name='fw' value='[[fw]]'>
+                
+                <div class="mb-3">
+                  <label for="inputUsername" class="form-label">Username</label>
+                  <input name='username' type="text" class="form-control" id="inputUsername" placeholder="Enter your username" autofocus required>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="inputPassword" class="form-label">Password</label>
+                  <input name='password' type="password" class="form-control" id="inputPassword" placeholder="Enter your password" required>
+                </div>
+                
+                {{IF [[Util::isYubikeyEnabled()]]}}
+                  <div class="mb-3">
+                    <label for="inputOTP" class="form-label">Yubikey OTP <span class="text-muted">(if enabled)</span></label>
+                    <input name='otp' type="password" class="form-control" id="inputOTP" placeholder="Enter OTP">
                   </div>
-                  <div class="form-group">
-                      <label for="inputPassword" class="col-sm-4 control-label">Password</label>
-                      <div class="col-sm-12">
-                          <input name='password' type="password" class="form-control" id="inputPassword" placeholder="Password">
-                      </div>
-                  </div>
-                  {{IF [[Util::isYubikeyEnabled()]]}}
-                      <div class="form-group">
-                          <label for="inputOTP" class="col-sm-4 control-label">Yubikey OTP (if enabled)</label>
-                          <div class="col-sm-12">
-                              <input name='otp' type="password" class="form-control" id="inputOTP" placeholder="OTP">
-                          </div>
-                      </div>
-                  {{ENDIF}}
-                  <div class="form-group">
-                      <div class="col-sm-offset-4 col-sm-8">
-                          <button type="submit" class="btn btn-success">Sign in</button>
-                          &nbsp;&nbsp;&nbsp;
-                          <a href='forgot.php'>Forgot password</a>
-                      </div>
-                  </div>
+                {{ENDIF}}
+                
+                <div class="d-grid gap-2">
+                  <button type="submit" class="btn btn-success btn-lg">Sign in</button>
+                </div>
+                
+                <div class="text-center mt-3">
+                  <a href='forgot.php' class="text-decoration-none">Forgot password?</a>
+                </div>
               </form>
+            </div>
           </div>
-          <div class='col-md-3'></div>
+        </div>
       </div>
+    </div>
   </div>
-  <div class='alert alert-info'>
-    This is a private closed system. If you need access you need to contact an admin of this page and
-    ask for creating an account.
+  
+  <div class='alert alert-info' role="alert">
+    <strong>Note:</strong> This is a private closed system. If you need access, please contact an administrator to request an account.
   </div>
+
 {{ELSE}}
   {%TEMPLATE->struct/messages%}
-  <div class='alert alert-success'>Hi [[user.getUsername()]], welcome back!</div>
-  <div class="alert {{IF [[toggledarkmode]] > 0}}alert-primary{{ELSE}}alert-neutral{{ENDIF}}">
-    [[$APP_NAME]] Sourcecode is available in these Github repositories:&nbsp;&nbsp;<a href="https://github.com/hashtopolis/server" target="_blank" rel="noopener"><button class="btn btn-primary">Server</button></a>&nbsp;&nbsp;
-    <a href="https://github.com/hashtopolis/agent" target="_blank" rel="noopener"><button class="btn btn-primary">Client(s)</button></a><br><br>
-    To get more information about how to use [[$APP_NAME]], please visit the <a href="https://github.com/hashtopolis/server/wiki" target="_blank" rel="noopener">wiki</a> or the <a href="https://hashtopolis.org" target="_blank" rel="noopener">Forum</a>.
+  
+  <div class='alert alert-success' role="alert">
+    <strong>Welcome back, [[user.getUsername()]]!</strong>
   </div>
+  
+  <div class="alert alert-dark" role="alert">
+    <strong>[[$APP_NAME]] Resources:</strong><br>
+    <div class="mt-3">
+      <p class="mb-3">
+        Sourcecode is available in these Github repositories:
+      </p>
+      <div class="btn-group mb-3" role="group">
+        <a href="https://github.com/hashtopolis/server" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+          <i class="fab fa-github"></i> Server
+        </a>
+        <a href="https://github.com/hashtopolis/agent" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+          <i class="fab fa-github"></i> Client(s)
+        </a>
+      </div>
+      <p class="mb-0">
+        For more information, visit the <a href="https://github.com/hashtopolis/server/wiki" target="_blank" rel="noopener noreferrer" class="alert-link">wiki</a> 
+        or the <a href="https://hashtopolis.org" target="_blank" rel="noopener noreferrer" class="alert-link">forum</a>.
+      </p>
+    </div>
+  </div>
+
 {{ENDIF}}
+
 {%TEMPLATE->struct/foot%}

@@ -1,76 +1,120 @@
 {%TEMPLATE->struct/head%}
 {%TEMPLATE->struct/menu%}
-<h2>API Group '[[htmlentities([[group.getName()]], ENT_QUOTES, "UTF-8")]]'</h2>
+
+<h2>API Group '<code>[[htmlentities([[group.getName()]], ENT_QUOTES, "UTF-8")]]</code>'</h2>
 {%TEMPLATE->struct/messages%}
-<h3>Assigned Keys</h3>
-<div class="card">
-  <div class="table-responsive">
-    <table class="table table-bordered">
-      <tr>
-        <th>Key ID</th>
-        <th>Key</th>
-        <th>Username</th>
-      </tr>
-		  {{FOREACH key;[[keys]]}}
-			  <tr>
-				  <td>[[key.getId()]]</td>
-				  <td><pre>[[key.getAccessKey()]]</pre></td>
-				  <td><a href="users.php?id=[[key.getUserId()]]">[[htmlentities([[Util::getUsernameById([[key.getUserId()]])]], ENT_QUOTES, 'UTF-8')]]</a></td>
-			  </tr>
-		  {{ENDFOREACH}}
-		  {{IF [[sizeof([[keys]])]] == 0}}
-			  <tr><td>---</td><td>---</td><td>---</td></tr>
-		  {{ENDIF}}
-	  </table>
+
+<!-- Assigned Keys Section -->
+<div class="mb-4">
+  <h3>Assigned Keys</h3>
+  <div class="card">
+    {{IF [[sizeof([[keys]])]] > 0}}
+      <div class="table-responsive">
+        <table class="table table-bordered table-sm mb-0">
+          <thead>
+            <tr>
+              <th style="width: 15%;">Key ID</th>
+              <th style="width: 50%;">Key</th>
+              <th style="width: 35%;">Username</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{FOREACH key;[[keys]]}}
+              <tr>
+                <td>
+                  <code>[[key.getId()]]</code>
+                </td>
+                <td>
+                  <code class="text-muted" style="font-size: 0.85em; word-break: break-all;">[[key.getAccessKey()]]</code>
+                </td>
+                <td>
+                  <a href="users.php?id=[[key.getUserId()]]">[[htmlentities([[Util::getUsernameById([[key.getUserId()]])]], ENT_QUOTES, 'UTF-8')]]</a>
+                </td>
+              </tr>
+            {{ENDFOREACH}}
+          </tbody>
+        </table>
+      </div>
+    {{ELSE}}
+      <div class="alert alert-info mb-0">
+        <i class="fas fa-info-circle"></i> No API keys assigned to this group.
+      </div>
+    {{ENDIF}}
   </div>
 </div>
-<h3>Permissions (Section '[[currentSection]]')</h3>
-<div class='btn-toolbar'>
-  <div class='btn-group'>
+
+<!-- Permissions Section -->
+<div class="mb-4">
+  <h3>Permissions (Section '<code>[[currentSection]]</code>')</h3>
+  
+  <!-- Section Navigation Tabs -->
+  <ul class="nav nav-tabs mb-3" role="tablist">
     {{FOREACH section;[[sectionConstants]]}}
-      <button class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}{{IF [[section]] == [[currentSection]]}} active{{ENDIF}}' onclick="window.location='api.php?id=[[group.getId()]]&section=[[section]]'">[[ucfirst([[section]])]]</button>
+      <li class="nav-item" role="presentation">
+        <a class="nav-link {{IF [[section]] == [[currentSection]]}}active{{ENDIF}}" 
+           href="api.php?id=[[group.getId()]]&section=[[section]]" 
+           role="tab">
+          [[ucfirst([[section]])]]
+        </a>
+      </li>
     {{ENDFOREACH}}
-  </div>
-</div>
-<br>
-<form action="api.php?id=[[group.getId()]]&section=[[currentSection]]" method="post">
-	<input type="hidden" name="csrf" value="[[csrf]]">
-	<input type="hidden" name="groupId" value="[[group.getId()]]">
-	<input type='hidden' name='action' value='[[$DApiAction::EDIT]]'>
-  <input type="hidden" name="section" value="[[currentSection]]">
-	<div class="card">
-    <div class="table-responsive">
-      <table class="table table-bordered">
-			  <tr>
-				  <th>Permission</th>
-				  <th>Setting</th>
-			  </tr>
-			  {{FOREACH constant;[[currentConstants]]}}
-				  <tr>
-					  <td>[[UApi::getDescription([[currentSection]], [[constant]])]]</td>
-					  <td>
-						  {{IF [[perm]] == 'ALL' || [[currentSection]] == 'test'}}
-							  <select name="perm[]" class="form-control" title="Permission">
-								  <option selected>Allowed (enforced)</option>
-							  </select>
-						  {{ELSE}}
-							  <select name="perm[]" class="form-control" title="Permission">
-								  <option value="[[constant]]-0" {{IF [[perm.getVal([[constant]])]] == false}}selected{{ENDIF}}>No Permission{{IF [[perm.getVal([[constant]])]] == false}} (current){{ENDIF}}</option>
-								  <option value="[[constant]]-1" {{IF [[perm.getVal([[constant]])]] == true}}selected{{ENDIF}}>Allowed{{IF [[perm.getVal([[constant]])]] == true}} (current){{ENDIF}}</option>
-							  </select>
-						  {{ENDIF}}
-					  </td>
-				  </tr>
-			  {{ENDFOREACH}}
-			  {{IF [[perm]] != 'ALL'}}
-				  <tr>
-					  <td colspan="2" class="text-center">
-						  <button type="submit" class="btn btn-success">Save Permissions</button>
-					  </td>
-				  </tr>
-			  {{ENDIF}}
-		  </table>
+  </ul>
+
+  <!-- Permissions Form -->
+  <form action="api.php?id=[[group.getId()]]&section=[[currentSection]]" method="post">
+    <input type="hidden" name="csrf" value="[[csrf]]">
+    <input type="hidden" name="groupId" value="[[group.getId()]]">
+    <input type='hidden' name='action' value='[[$DApiAction::EDIT]]'>
+    <input type="hidden" name="section" value="[[currentSection]]">
+
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-bordered table-sm mb-0">
+          <thead>
+            <tr>
+              <th style="width: 50%;">Permission</th>
+              <th style="width: 50%;">Setting</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{FOREACH constant;[[currentConstants]]}}
+              <tr>
+                <td>
+                  <strong>[[UApi::getDescription([[currentSection]], [[constant]])]]</strong>
+                </td>
+                <td>
+                  {{IF [[perm]] == 'ALL' || [[currentSection]] == 'test'}}
+                    <select name="perm[]" class="form-select form-select-sm" title="Permission" disabled>
+                      <option selected>Allowed (enforced)</option>
+                    </select>
+                  {{ELSE}}
+                    <select name="perm[]" class="form-select form-select-sm" title="Permission">
+                      <option value="[[constant]]-0" {{IF [[perm.getVal([[constant]])]] == false}}selected{{ENDIF}}>
+                        No Permission{{IF [[perm.getVal([[constant]])]] == false}} (current){{ENDIF}}
+                      </option>
+                      <option value="[[constant]]-1" {{IF [[perm.getVal([[constant]])]] == true}}selected{{ENDIF}}>
+                        Allowed{{IF [[perm.getVal([[constant]])]] == true}} (current){{ENDIF}}
+                      </option>
+                    </select>
+                  {{ENDIF}}
+                </td>
+              </tr>
+            {{ENDFOREACH}}
+          </tbody>
+        </table>
+      </div>
+
+      {{IF [[perm]] != 'ALL'}}
+        <div class="card-body border-top">
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-success btn-lg">
+              <i class="fas fa-save"></i> Save Permissions
+            </button>
+          </div>
+        </div>
+      {{ENDIF}}
     </div>
-	</div>
-</form>
+  </form>
+</div>
+
 {%TEMPLATE->struct/foot%}

@@ -1,236 +1,303 @@
 {%TEMPLATE->struct/head%}
 {%TEMPLATE->struct/menu%}
-<h2>Files</h2>
-<script>
-	function addLine(tablename) { 
-		var table = document.getElementById(tablename); 
-		var pos = table.getElementsByTagName('tr').length-1; 
-		var row = table.insertRow(pos); 
-		var cell = row.insertCell(0); 
-		cell.innerHTML= '<input type="file" class="form-control" name="upfile[]"><br>'; 
-	}
-</script>
-{%TEMPLATE->struct/messages%}
-<div class="row">
-{{IF [[accessControl.hasPermission([[$DAccessControl::ADD_FILE_ACCESS]])]]}}
-<div class='col-md-8'>
-{{ELSE}}
-<div class='col-md-12'>
-{{ENDIF}}
-  <div class='btn-toolbar'>
-    <div class='btn-group'>
-      <button class='btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[view]] == "rule"}} active{{ENDIF}}' onclick="window.location='files.php?view=rule'">Rules</button>
-      <button class='btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[view]] == "dict"}} active{{ENDIF}}' onclick="window.location='files.php?view=dict'">Wordlists</button>
-      <button class='btn {{IF [[toggledarkmode]] > 0}}btn-dark{{ELSE}}btn-light{{ENDIF}}{{IF [[view]] == "other"}} active{{ENDIF}}' onclick="window.location='files.php?view=other'">Other</button>
-    </div>
-  </div>
-  <br>
-  <h3>Existing [[fileType]] ([[sizeof([[files]])]])</h3>
-    <div class="card">
-        <div class="table-responsive">
-            <table class="table table-bordered" id="files">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>File</th>
-                  <th><span class="fas fa-lock" aria-hidden="true"></span></th>
-                  <th style="text-align: right">Size</th>
-                  <th style="text-align: right">Line count</th>
-                  <th>Access Group</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {{FOREACH file;[[files]]}}
-                  <tr>
-                      <td>[[file.getId()]]</td>
-                      <td>
-                          <a name="[[file.getId()]]" href="getFile.php?file=[[file.getId()]]" target="_blank">[[file.getFilename()]]</a>
-                          {{IF [[objectStorageEnabled]] == 1 && [[downloadSource]] == "remote"}}
-                            <span class="badge badge-info ml-1">REMOTE</span>
-                          {{ELSE}}
-                            <span class="badge badge-secondary ml-1">LOCAL</span>
-                          {{ENDIF}}
 
-                          {{IF [[file.getIsSecret()]] == '1'}}
-                              <span class="fas fa-lock" aria-hidden="true"></span>
-                          {{ENDIF}}
-                      </td>
-                      <td data-sort="[[file.getIsSecret()]]">
-                          {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_FILE_ACCESS]])]]}}
-                              <form id="secret[[file.getId()]]" action="files.php?view=[[view]]" method="POST">
-                                  <input type="hidden" name="file" value="[[file.getId()]]">
-                                  <input type="hidden" name="action" value="[[$DFileAction::SET_SECRET]]">
-                                  <input type="hidden" name="csrf" value="[[csrf]]">
-                                  <input type='hidden' name="secret" value="{{IF [[file.getIsSecret()]] == '0'}}1 {{ELSE}}0 {{ENDIF}}">
-                                  <input title="Is Secret" type="checkbox" onChange="document.getElementById('secret[[file.getId()]]').submit();" {{IF [[file.getIsSecret()]] == '1'}} checked{{ENDIF}}>
-                              </form>
-                          {{ELSE}}
-                              <input type='checkbox' {{IF [[file.getIsSecret()]] == 1}} checked{{ENDIF}} disabled title="Is Secret">
-                          {{ENDIF}}
-                      </td>
-                      <td class='num' data-sort="[[file.getSize()]]">
-                          [[Util::nicenum([[file.getSize()]])]]B
-                      </td>
-                      <td class='num'>
-                        [[file.getLineCount()]]
-                      </td>
-                      <td>
-                        [[accessGroups.getVal([[file.getAccessGroupId()]]).getGroupName()]]
-                      </td>
-                      <td>
-                          {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_FILE_ACCESS]])]]}}
-                            <form class="float-right mx-1" action="files.php?view=[[view]]" method="POST" onSubmit="if (!confirm('Really delete file [[file.getFilename()]]?')) return false;">
-                              <input type="hidden" name="action" value="[[$DFileAction::DELETE_FILE]]">
-                              <input type="hidden" name="csrf" value="[[csrf]]">
-                              <input type="hidden" name="file" value="[[file.getId()]]">
-                              <button type="submit" class='btn btn-danger' data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
-                             </form>
-                            <form class="float-right mx-1" action="files.php?view=[[view]]&edit=[[file.getId()]]" method="POST">
-                              <button type="submit" class='btn btn-primary' data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit" aria-hidden="true"></i></button>
-                            </form>
-                            <form class="float-right mx-1" action="files.php?view=[[view]]" method="POST">
-                              <input type="hidden" name="action" value="[[$DFileAction::COUNT_FILE_LINES]]">
-                              <input type="hidden" name="csrf" value="[[csrf]]">
-                              <input type="hidden" name="file" value="[[file.getId()]]">
-                              <button type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' data-toggle="tooltip" data-placement="top" title="Recount the lines in this file">✓?</button>
-                            </form>
-                          {{ENDIF}}
-                      </td>
-                  </tr>
-                {{ENDFOREACH}}
-              </tbody>
-            </table>
-            <script type="text/javascript">
-              $(document).ready(function () {
-                $('#files').DataTable({
-                  pageLength: 25,
-                  "order": [1, 'asc'],
-                  "columnDefs": [
-                    { "orderable": false, "targets": [5] },
-                    { "orderable": true, "targets": [0, 1, 2, 3, 4] }
-                  ]
-                });
+<h2>Files</h2>
+
+<script>
+  function addLine(containerId) { 
+    var container = document.getElementById(containerId);
+    var fileInput = document.createElement('div');
+    fileInput.className = 'mb-3';
+    fileInput.innerHTML = '<input type="file" class="form-control" name="upfile[]">';
+    container.appendChild(fileInput);
+  }
+
+  function checkAll(formId, checked) {
+    var form = document.getElementById(formId);
+    var inputs = form.querySelectorAll('input[type="checkbox"]');
+    inputs.forEach(function(input) {
+      if (input.id !== 'selectAllImport') {
+        input.checked = checked;
+      }
+    });
+  }
+</script>
+
+<style>
+  .form-control[type="file"]::file-selector-button {
+    background-color: #375a7f !important;
+    color: white !important;
+    border: none !important;
+    padding: 0.375rem 0.75rem !important;
+    border-radius: 0.25rem !important;
+    cursor: pointer !important;
+    font-weight: 500 !important;
+    transition: background-color 0.15s ease-in-out !important;
+  }
+
+  .form-control[type="file"]::file-selector-button:hover {
+    background-color: #2c4662 !important;
+  }
+
+  .form-control[type="file"]::file-selector-button:active {
+    background-color: #1f3142 !important;
+  }
+
+  /* For older browsers (Firefox, etc) */
+  .form-control[type="file"]::-webkit-file-upload-button {
+    background-color: #375a7f !important;
+    color: white !important;
+    border: none !important;
+    padding: 0.375rem 0.75rem !important;
+    border-radius: 0.25rem !important;
+    cursor: pointer !important;
+    font-weight: 500 !important;
+    transition: background-color 0.15s ease-in-out !important;
+  }
+
+  .form-control[type="file"]::-webkit-file-upload-button:hover {
+    background-color: #2c4662 !important;
+  }
+
+  .form-control[type="file"]::-webkit-file-upload-button:active {
+    background-color: #1f3142 !important;
+  }
+</style>
+
+{%TEMPLATE->struct/messages%}
+
+<div class="row">
+  {{IF [[accessControl.hasPermission([[$DAccessControl::ADD_FILE_ACCESS]])]]}}
+    <div class='col-lg-8'>
+  {{ELSE}}
+    <div class='col-12'>
+  {{ENDIF}}
+      <div class="btn-group d-flex mb-3" role="group" aria-label="File type navigation">
+        <button type="button" class='btn btn-outline-primary {{IF [[view]] == "rule"}}active{{ENDIF}}' onclick="window.location='files.php?view=rule'">
+          <i class="fas fa-scroll"></i> Rules
+        </button>
+        <button type="button" class='btn btn-outline-primary {{IF [[view]] == "dict"}}active{{ENDIF}}' onclick="window.location='files.php?view=dict'">
+          <i class="fas fa-book"></i> Wordlists
+        </button>
+        <button type="button" class='btn btn-outline-primary {{IF [[view]] == "other"}}active{{ENDIF}}' onclick="window.location='files.php?view=other'">
+          <i class="fas fa-folder"></i> Other
+        </button>
+      </div>
+      
+      <h3>Existing [[fileType]] <span class="badge bg-primary">[[sizeof([[files]])]]</span></h3>
+      
+      <div class="card">
+        <div class="table-responsive">
+          <table class="table table-hover table-bordered" id="files">
+            <thead class="table-dark">
+              <tr>
+                <th>ID</th>
+                <th>File</th>
+                <th><i class="fas fa-lock" aria-hidden="true"></i></th>
+                <th style="text-align: right">Size</th>
+                <th style="text-align: right">Line count</th>
+                <th>Access Group</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{FOREACH file;[[files]]}}
+                <tr>
+                  <td>[[file.getId()]]</td>
+                  <td>
+                    <a name="[[file.getId()]]" href="getFile.php?file=[[file.getId()]]" target="_blank">[[file.getFilename()]]</a>
+                    {{IF [[objectStorageEnabled]] == 1 && [[downloadSource]] == "remote"}}
+                      <span class="badge bg-info text-dark ms-2">REMOTE</span>
+                    {{ELSE}}
+                      <span class="badge bg-secondary ms-2">LOCAL</span>
+                    {{ENDIF}}
+                    {{IF [[file.getIsSecret()]] == '1'}}
+                      <i class="fas fa-lock ms-2" aria-hidden="true" title="Secret file"></i>
+                    {{ENDIF}}
+                  </td>
+                  <td data-sort="[[file.getIsSecret()]]">
+                    {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_FILE_ACCESS]])]]}}
+                      <form id="secret[[file.getId()]]" action="files.php?view=[[view]]" method="POST">
+                        <input type="hidden" name="file" value="[[file.getId()]]">
+                        <input type="hidden" name="action" value="[[$DFileAction::SET_SECRET]]">
+                        <input type="hidden" name="csrf" value="[[csrf]]">
+                        <input type='hidden' name="secret" value="{{IF [[file.getIsSecret()]] == '0'}}1{{ELSE}}0{{ENDIF}}">
+                        <input title="Is Secret" type="checkbox" class="form-check-input" onChange="document.getElementById('secret[[file.getId()]]').submit();" {{IF [[file.getIsSecret()]] == '1'}} checked{{ENDIF}}>
+                      </form>
+                    {{ELSE}}
+                      <input type='checkbox' class="form-check-input" {{IF [[file.getIsSecret()]] == 1}} checked{{ENDIF}} disabled title="Is Secret">
+                    {{ENDIF}}
+                  </td>
+                  <td class='num' data-sort="[[file.getSize()]]">
+                    [[Util::nicenum([[file.getSize()]])]]B
+                  </td>
+                  <td class='num'>
+                    [[file.getLineCount()]]
+                  </td>
+                  <td>
+                    [[accessGroups.getVal([[file.getAccessGroupId()]]).getGroupName()]]
+                  </td>
+                  <td>
+                    {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_FILE_ACCESS]])]]}}
+                      <div class="d-flex gap-1 justify-content-end flex-wrap">
+                        <form action="files.php?view=[[view]]" method="POST" onSubmit="if (!confirm('Really delete file [[file.getFilename()]]?')) return false;">
+                          <input type="hidden" name="action" value="[[$DFileAction::DELETE_FILE]]">
+                          <input type="hidden" name="csrf" value="[[csrf]]">
+                          <input type="hidden" name="file" value="[[file.getId()]]">
+                          <button type="submit" class='btn btn-danger btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                        </form>
+                        <form action="files.php?view=[[view]]&edit=[[file.getId()]]" method="POST">
+                          <button type="submit" class='btn btn-primary btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="fas fa-edit" aria-hidden="true"></i></button>
+                        </form>
+                        <form action="files.php?view=[[view]]" method="POST">
+                          <input type="hidden" name="action" value="[[$DFileAction::COUNT_FILE_LINES]]">
+                          <input type="hidden" name="csrf" value="[[csrf]]">
+                          <input type="hidden" name="file" value="[[file.getId()]]">
+                          <button type="submit" class='btn btn-primary btn-sm' data-bs-toggle="tooltip" data-bs-placement="top" title="Recount the lines in this file"><i class="fas fa-sync-alt"></i></button>
+                        </form>
+                      </div>
+                    {{ENDIF}}
+                  </td>
+                </tr>
+              {{ENDFOREACH}}
+            </tbody>
+          </table>
+          <script type="text/javascript">
+            $(document).ready(function () {
+              $('#files').DataTable({
+                pageLength: 25,
+                order: [[1, 'asc']],
+                columnDefs: [
+                  { orderable: false, targets: [6] },
+                  { orderable: true, targets: [0, 1, 2, 3, 4, 5] }
+                ]
               });
-            </script>
+            });
+          </script>
         </div>
+      </div>
     </div>
+
+    {{IF [[accessControl.hasPermission([[$DAccessControl::ADD_FILE_ACCESS]])]]}}
+      <div class='col-lg-4'>
+        <h3>Add new [[fileType]]</h3>
+
+        <!-- Upload Files Card -->
+        <form action="files.php?view=[[view]]" method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="source" value="upload">
+          <input type="hidden" name="csrf" value="[[csrf]]">
+          <input type="hidden" name="action" value="[[$DFileAction::ADD_FILE]]">
+          
+          <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span>Upload files</span>
+              <button type="button" class='btn btn-sm btn-primary' onclick="addLine('upfiles');" data-bs-toggle="tooltip" data-bs-placement="top" title="Add another file input">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="card-body">
+              <div id="upfiles">
+                <div class="mb-3">
+                  <input type="file" class="form-control" name="upfile[]">
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Associated Access Group</label>
+                <select name="accessGroupId" class="form-select" title="Access Group">
+                  {{FOREACH accessGroup;[[allAccessGroups]]}}
+                    <option value="[[accessGroup.getId()]]">[[accessGroup.getGroupName()]]</option>
+                  {{ENDFOREACH}}
+                </select>
+              </div>
+              <button type="submit" class='btn btn-primary w-100'>
+                <i class="fas fa-upload"></i> Upload files
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <!-- Import Files Card -->
+        <form id="impfiles" action="files.php?view=[[view]]" method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="source" value="import">
+          <input type="hidden" name="action" value="[[$DFileAction::ADD_FILE]]">
+          <input type="hidden" name="csrf" value="[[csrf]]">
+          
+          <div class="card mb-3">
+            <div class="card-header">
+              <span>Import files</span>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label class="form-label">Associated Access Group</label>
+                <select name="accessGroupId" class="form-select" title="Access Group">
+                  {{FOREACH accessGroup;[[allAccessGroups]]}}
+                    <option value="[[accessGroup.getId()]]">[[accessGroup.getGroupName()]]</option>
+                  {{ENDFOREACH}}
+                </select>
+              </div>
+              
+              {{IF [[sizeof([[impfiles]])]] == 0}}
+                <div class="alert alert-info mb-0" role="alert">
+                  <i class="fas fa-info-circle"></i> 'import' directory is empty.
+                </div>
+              {{ELSE}}
+                <div class="mb-3" style="max-height: 250px; overflow-y: auto;">
+                  {{FOREACH impfile;[[impfiles]]}}
+                    <div class="form-check mb-2">
+                      <input type="checkbox" class="form-check-input" name="imfile[]" value="[[impfile.getVal('file')]]" id="imfile_[[impfile.getVal('file')]]" title="Import File">
+                      <label class="form-check-label" for="imfile_[[impfile.getVal('file')]]">
+                        [[impfile.getVal('file')]] ([[Util::nicenum([[impfile.getVal('size')]])]]B)
+                      </label>
+                    </div>
+                  {{ENDFOREACH}}
+                </div>
+                <div class="mb-3">
+                  <div class="form-check">
+                    <input type="checkbox" class="form-check-input" onChange="checkAll('impfiles', this.checked);" id="selectAllImport" title="Select All">
+                    <label class="form-check-label" for="selectAllImport">
+                      Select All
+                    </label>
+                  </div>
+                </div>
+                <button type="submit" class='btn btn-primary w-100'>
+                  <i class="fas fa-download"></i> Import files
+                </button>
+              {{ENDIF}}
+            </div>
+          </div>
+        </form>
+
+        <!-- Download URL Card -->
+        <form action="files.php?view=[[view]]" method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="action" value="[[$DFileAction::ADD_FILE]]">
+          <input type="hidden" name="source" value="url">
+          <input type="hidden" name="csrf" value="[[csrf]]">
+          
+          <div class="card">
+            <div class="card-header">
+              <span>Download URL</span>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label class="form-label">Associated Access Group</label>
+                <select name="accessGroupId" class="form-select" title="Access Group">
+                  {{FOREACH accessGroup;[[allAccessGroups]]}}
+                    <option value="[[accessGroup.getId()]]">[[accessGroup.getGroupName()]]</option>
+                  {{ENDFOREACH}}
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="urlInput" class="form-label">URL:</label>
+                <input type="text" id="urlInput" class='form-control' name="url" title="URL" placeholder="https://example.com/file.zip">
+              </div>
+              <button type="submit" class='btn btn-primary w-100'>
+                <i class="fas fa-download"></i> Download file
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    {{ENDIF}}
 </div>
-{{IF [[accessControl.hasPermission([[$DAccessControl::ADD_FILE_ACCESS]])]]}}
-  <div class='col-md-4'>
-    <h3>Add new [[fileType]]</h3>
-    <form action="files.php?view=[[view]]" method="POST" enctype="multipart/form-data">
-      <input type="hidden" name="source" value="upload">
-      <input type="hidden" name="csrf" value="[[csrf]]">
-      <input type="hidden" name="action" value="[[$DFileAction::ADD_FILE]]">
-            <div class="card">
-                <div class="table-responsive">
-                    <table class="table table-bordered" id="upfiles">
-                        <tr>
-                            <th>
-                                Upload files
-                                <button type="button" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' onclick="addLine('upfiles');">Add file</button>
-                            </th>
-                        </tr>
-                      <tr>
-                        <td>
-                          Associated Access Group<br>
-                          <select name="accessGroupId" class="form-control" title="Access Group">
-                            {{FOREACH accessGroup;[[allAccessGroups]]}}
-                              <option value="[[accessGroup.getId()]]">[[accessGroup.getGroupName()]]</option>
-                            {{ENDFOREACH}}
-                          </select>
-                        </td>
-                      </tr>
-                        <tr>
-                            <td>
-                                <input type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' value="Upload files">
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </form>
-    <form id="impfiles" action="files.php?view=[[view]]" method="POST" enctype="multipart/form-data">
-      <input type="hidden" name="source" value="import">
-      <input type="hidden" name="action" value="[[$DFileAction::ADD_FILE]]">
-      <input type="hidden" name="csrf" value="[[csrf]]">
-            <div class="card">
-                <div class="table-responsive">
-                    <table class="table table-bordered" id="imfiles">
-                        <tr>
-                            <th>Import files</th>
-                        </tr>
-                      <tr>
-                        <td>
-                          Associated Access Group<br>
-                          <select name="accessGroupId" class="form-control" title="Access Group">
-                            {{FOREACH accessGroup;[[allAccessGroups]]}}
-                              <option value="[[accessGroup.getId()]]">[[accessGroup.getGroupName()]]</option>
-                            {{ENDFOREACH}}
-                          </select>
-                        </td>
-                      </tr>
-                        {{FOREACH impfile;[[impfiles]]}}
-                        <tr>
-                            <td>
-                                <input type="checkbox" name="imfile[]" value="[[impfile.getVal('file')]]" title="Import File">
-                                [[impfile.getVal('file')]] ([[Util::nicenum([[impfile.getVal('size')]])]]B)
-                            </td>
-                        </tr>
-                        {{ENDFOREACH}}
-                        {{IF [[sizeof([[impfiles]])]] == 0}}
-                        <tr>
-                            <td>'import' directory is empty.</td>
-                        </tr>
-                        {{ELSE}}
-                        <tr>
-                            <td>
-                                <input type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' value="Import files">
-                                <input type="checkbox" onChange="checkAll('impfiles',this.checked);" title="Select All"> Select All
-                            </td>
-                        </tr>
-                        {{ENDIF}}
-                    </table>
-                </div>
-            </div>
-        </form>
-    <form action="files.php?view=[[view]]" method="POST" enctype="multipart/form-data">
-      <input type="hidden" name="action" value="[[$DFileAction::ADD_FILE]]">
-    <input type="hidden" name="source" value="url">
-      <input type="hidden" name="csrf" value="[[csrf]]">
-            <div class="card">
-                <div class="table-responsive">
-                    <table class="table table-bordered" id="upfiles">
-                        <tr>
-                            <td colspan='2'>Download URL</td>
-                        </tr>
-                        <tr>
-                          <td colspan="2">
-                            Associated Access Group<br>
-                            <select name="accessGroupId" class="form-control" title="Access Group">
-                              {{FOREACH accessGroup;[[allAccessGroups]]}}
-                                <option value="[[accessGroup.getId()]]">[[accessGroup.getGroupName()]]</option>
-                              {{ENDFOREACH}}
-                            </select>
-                          </td>
-                        </tr>
-                        <tr>
-                            <td>URL:</td>
-                            <td>
-                                <input type="text" class='form-control' name="url" title="URL">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="2">
-                                <input type="submit" class='btn {{IF [[toggledarkmode]] > 0}}btn-primary{{ELSE}}btn-light{{ENDIF}}' value="Download file">
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </form>
-  </div>
-{{ENDIF}}
-</div>
+
 {%TEMPLATE->struct/foot%}
