@@ -1,416 +1,518 @@
 {%TEMPLATE->struct/head%}
 {%TEMPLATE->struct/menu%}
-<h2>Agent details</h2>
-{%TEMPLATE->struct/messages%}
 
-<div class="card">
-  <div class="table-responsive">
-    <table class="table table-bordered table-sm">
-      <tbody>
-        <tr>
-          <td><strong>Agent ID:</strong></td>
-          <td>[[agent.getId()]]</td>
-        </tr>
+<div class="container-fluid">
+	<h2 class="mb-4">Agent Details</h2>
+	{%TEMPLATE->struct/messages%}
 
-        <tr>
-          <td><strong>Active:</strong></td>
-          <td>
-            {{IF [[agent.getUserId()]] == [[login.getUserId()]] || [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
-              <form id="active[[agent.getId()]]" action="agents.php?id=[[agent.getId()]]" method="post">
-                <input type='hidden' name='action' value='[[$DAgentAction::SET_ACTIVE]]'>
-                <input type="hidden" name="agentId" value="[[agent.getId()]]">
-                <input type="hidden" name="csrf" value="[[csrf]]">
-                <input type="checkbox" {{IF [[agent.getIsActive()]] == 1}} checked{{ENDIF}} onChange="document.getElementById('active[[agent.getId()]]').submit();" title="Is Active">
-              </form>
-            {{ELSE}}
-              <input type="checkbox" {{IF [[agent.getIsActive()]] == 1}} checked{{ENDIF}} disabled title="Is Active">
-            {{ENDIF}}
-          </td>
-        </tr>
+	<!-- Main Agent Info Card -->
+	<div class="card mb-4">
+		<div class="card-header bg-dark">
+			<h5 class="mb-0">Basic Information</h5>
+		</div>
+		<div class="card-body">
+			<div class="table-responsive">
+				<table class="table table-sm">
+					<tbody>
+						<tr>
+							<td class="fw-bold" style="width: 200px;">Agent ID:</td>
+							<td><code>[[agent.getId()]]</code></td>
+						</tr>
 
-        <tr>
-          <td><strong>Last activity:</strong></td>
-          <td>
-            <small>
-              <strong>Action:</strong> [[agent.getLastAct()]]<br>
-              <strong>Time:</strong> [[date([[config.getVal(DConfig::TIME_FORMAT)]], [[agent.getLastTime()]])]]<br>
-              <strong>IP:</strong>
-              {{IF [[config.getVal([[$DConfig::HIDE_IP_INFO]])]] == 0}}
-                <code>[[agent.getLastIp()]]</code>
-              {{ELSE}}
-                <code>Hidden</code>
-              {{ENDIF}}
-            </small>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+						<tr>
+							<td class="fw-bold">Active:</td>
+							<td>
+								{{IF [[agent.getUserId()]] == [[login.getUserId()]] || [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
+									<form id="active[[agent.getId()]]" action="agents.php?id=[[agent.getId()]]" method="post" class="d-inline">
+										<input type="hidden" name="action" value="[[$DAgentAction::SET_ACTIVE]]">
+										<input type="hidden" name="agentId" value="[[agent.getId()]]">
+										<input type="hidden" name="csrf" value="[[csrf]]">
+										<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="activeToggle[[agent.getId()]]" {{IF [[agent.getIsActive()]] == 1}}checked{{ENDIF}} onchange="document.getElementById('active[[agent.getId()]]').submit();" title="Toggle Active Status">
+											<label class="form-check-label" for="activeToggle[[agent.getId()]]">
+												Agent is {{IF [[agent.getIsActive()]] == 1}}Active{{ELSE}}Inactive{{ENDIF}}
+											</label>
+										</div>
+									</form>
+								{{ELSE}}
+									<div class="form-check">
+										<input class="form-check-input" type="checkbox" id="activeToggleDisabled[[agent.getId()]]" {{IF [[agent.getIsActive()]] == 1}}checked{{ENDIF}} disabled>
+										<label class="form-check-label" for="activeToggleDisabled[[agent.getId()]]">
+											Agent is {{IF [[agent.getIsActive()]] == 1}}Active{{ELSE}}Inactive{{ENDIF}}
+										</label>
+									</div>
+								{{ENDIF}}
+							</td>
+						</tr>
 
-    <button class="btn btn-primary my-2" type="button" data-bs-toggle="collapse" data-bs-target="#showAgentDetails[[agent.getId()]]" aria-expanded="false" aria-controls="showAgentDetails[[agent.getId()]]">
-      <i class="fas fa-chevron-down"></i> Show/Hide details
-    </button>
+						<tr>
+							<td class="fw-bold">Last Activity:</td>
+							<td>
+								<div class="row g-2">
+									<div class="col-md-4">
+										<small class="text-muted">Action:</small><br>
+										<code>[[agent.getLastAct()]]</code>
+									</div>
+									<div class="col-md-4">
+										<small class="text-muted">Time:</small><br>
+										<code>[[date([[config.getVal(DConfig::TIME_FORMAT)]], [[agent.getLastTime()]])]]</code>
+									</div>
+									<div class="col-md-4">
+										<small class="text-muted">IP Address:</small><br>
+										{{IF [[config.getVal([[$DConfig::HIDE_IP_INFO]])]] == 0}}
+											<code>[[agent.getLastIp()]]</code>
+										{{ELSE}}
+											<code class="text-warning">Hidden</code>
+										{{ENDIF}}
+									</div>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
 
-    <table class="table table-bordered table-sm collapse" id="showAgentDetails[[agent.getId()]]">
-      <tbody>
-        <tr>
-          <td><strong>Owner</strong></td>
-          <td>
-            {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
-              <form class='d-flex gap-2' action="agents.php?id=[[agent.getId()]]" method="post">
-                <input type='hidden' name='action' value='[[$DAgentAction::SET_OWNER]]'>
-                <input type='hidden' name='agentId' value='[[agent.getId()]]'>
-                <input type="hidden" name="csrf" value="[[csrf]]">
-                <select class='form-select form-select-sm' name='owner' title="owner" style="max-width: 200px;">
-                  <option value="">---</option>
-                  {{FOREACH user;[[users]]}}
-                  <option value='[[user.getId()]]' {{IF [[user.getId()]] == [[agent.getUserId()]]}} selected{{ENDIF}}>[[htmlentities([[user.getUsername()]], ENT_QUOTES, "UTF-8")]]</option>
-                  {{ENDFOREACH}}
-                </select>
-                <button type="submit" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Set Owner">
-                  <i class="fas fa-save"></i>
-                </button>
-              </form>
-            {{ELSE}}
-              [[htmlentities([[Util::getUsernameById([[agent.getUserId()]])]], ENT_QUOTES, "UTF-8")]]
-            {{ENDIF}}
-          </td>
-        </tr>
+	<!-- Expandable Details Section -->
+	<div class="card mb-4">
+		<div class="card-header bg-dark">
+			<button class="btn btn-link btn-sm text-white text-decoration-none w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target="#agentDetailsCollapse[[agent.getId()]]" aria-expanded="false" aria-controls="agentDetailsCollapse[[agent.getId()]]">
+				<i class="fas fa-chevron-down me-2"></i> Show/Hide Detailed Settings
+			</button>
+		</div>
+		<div id="agentDetailsCollapse[[agent.getId()]]" class="collapse">
+			<div class="card-body">
+				<div class="table-responsive">
+					<table class="table table-sm">
+						<tbody>
+							<!-- Owner -->
+							<tr>
+								<td class="fw-bold" style="width: 200px;">Owner:</td>
+								<td>
+									{{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
+										<form action="agents.php?id=[[agent.getId()]]" method="post" class="row g-2 align-items-center">
+											<input type="hidden" name="action" value="[[$DAgentAction::SET_OWNER]]">
+											<input type="hidden" name="agentId" value="[[agent.getId()]]">
+											<input type="hidden" name="csrf" value="[[csrf]]">
+											<div class="col-auto">
+												<select class="form-select form-select-sm" name="owner" title="Agent Owner">
+													<option value="">--- Select Owner ---</option>
+													{{FOREACH user;[[users]]}}
+														<option value="[[user.getId()]]" {{IF [[user.getId()]] == [[agent.getUserId()]]}}selected{{ENDIF}}>[[htmlentities([[user.getUsername()]], ENT_QUOTES, "UTF-8")]]</option>
+													{{ENDFOREACH}}
+												</select>
+											</div>
+											<div class="col-auto">
+												<button type="submit" class="btn btn-sm btn-primary" title="Save Owner">
+													<i class="fas fa-save"></i>
+												</button>
+											</div>
+										</form>
+									{{ELSE}}
+										[[htmlentities([[Util::getUsernameById([[agent.getUserId()]])]], ENT_QUOTES, "UTF-8")]]
+									{{ENDIF}}
+								</td>
+							</tr>
 
-        <tr>
-          <td><strong>Machine name:</strong></td>
-          <td>
-            {{IF [[agent.getUserId()]] == [[login.getUserId()]] || [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
-              <form class='d-flex gap-2' action="agents.php?id=[[agent.getId()]]" method="post">
-                <input type='hidden' name='action' value='[[$DAgentAction::RENAME_AGENT]]'>
-                <input type="hidden" name="agentId" value="[[agent.getId()]]">
-                <input type="hidden" name="csrf" value="[[csrf]]">
-                <input type="text" name='name' value="[[agent.getAgentName()]]" class='form-control form-control-sm' title="Machine Name" style="max-width: 250px;">
-                <button type="submit" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Set Name">
-                  <i class="fas fa-save"></i>
-                </button>
-              </form>
-            {{ELSE}}
-              [[agent.getAgentName()]]
-            {{ENDIF}}
-          </td>
-        </tr>
+							<!-- Machine Name -->
+							<tr>
+								<td class="fw-bold">Machine Name:</td>
+								<td>
+									{{IF [[agent.getUserId()]] == [[login.getUserId()]] || [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
+										<form action="agents.php?id=[[agent.getId()]]" method="post" class="row g-2 align-items-center">
+											<input type="hidden" name="action" value="[[$DAgentAction::RENAME_AGENT]]">
+											<input type="hidden" name="agentId" value="[[agent.getId()]]">
+											<input type="hidden" name="csrf" value="[[csrf]]">
+											<div class="col-auto">
+												<input type="text" name="name" value="[[agent.getAgentName()]]" class="form-control form-control-sm" title="Machine Name" placeholder="Enter machine name">
+											</div>
+											<div class="col-auto">
+												<button type="submit" class="btn btn-sm btn-primary" title="Save Name">
+													<i class="fas fa-save"></i>
+												</button>
+											</div>
+										</form>
+									{{ELSE}}
+										<code>[[agent.getAgentName()]]</code>
+									{{ENDIF}}
+								</td>
+							</tr>
 
-        <tr>
-          <td><strong>Operating system:</strong></td>
-          <td>[[Util::getStaticArray([[agent.getOs()]], 'os')]]</td>
-        </tr>
+							<!-- Operating System -->
+							<tr>
+								<td class="fw-bold">Operating System:</td>
+								<td><code>[[Util::getStaticArray([[agent.getOs()]], 'os')]]</code></td>
+							</tr>
 
-        <tr>
-          <td><strong>Access token:</strong></td>
-          <td>
-            {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
-              <code>[[agent.getToken()]]</code>
-            {{ELSE}}
-              <code>Hidden</code>
-            {{ENDIF}}
-          </td>
-        </tr>
+							<!-- Access Token -->
+							<tr>
+								<td class="fw-bold">Access Token:</td>
+								<td>
+									{{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
+										<code class="text-danger">[[agent.getToken()]]</code>
+									{{ELSE}}
+										<code class="text-warning">Hidden</code>
+									{{ENDIF}}
+								</td>
+							</tr>
 
-        <tr>
-          <td><strong>Machine ID:</strong></td>
-          <td><code>[[agent.getUid()]]</code></td>
-        </tr>
+							<!-- Machine ID -->
+							<tr>
+								<td class="fw-bold">Machine ID (UID):</td>
+								<td><code>[[agent.getUid()]]</code></td>
+							</tr>
 
-        <tr>
-          <td><strong>CPU only agent:</strong></td>
-          <td>
-            {{IF [[agent.getUserId()]] == [[login.getUserId()]] || [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
-              <form class='d-flex gap-2' action="agents.php?id=[[agent.getId()]]" method="post">
-                <input type='hidden' name='action' value='[[$DAgentAction::SET_CPU]]'>
-                <input type='hidden' name='agentId' value='[[agent.getId()]]'>
-                <input type="hidden" name="csrf" value="[[csrf]]">
-                <select class='form-select form-select-sm' name='cpuOnly' title="cpuOnly" style="max-width: 100px;">
-                  <option value="0"{{IF [[agent.getCpuOnly()]] == 0}} selected{{ENDIF}}>No</option>
-                  <option value="1"{{IF [[agent.getCpuOnly()]] == 1}} selected{{ENDIF}}>Yes</option>
-                </select>
-                <button type="submit" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Set CPU Only">
-                  <i class="fas fa-save"></i>
-                </button>
-              </form>
-            {{ELSE}}
-              {{IF [[agent.getCpuOnly()]] == 0}}No{{ELSE}}Yes{{ENDIF}}
-            {{ENDIF}}
-          </td>
-        </tr>
+							<!-- CPU Only Agent -->
+							<tr>
+								<td class="fw-bold">CPU Only Agent:</td>
+								<td>
+									{{IF [[agent.getUserId()]] == [[login.getUserId()]] || [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
+										<form action="agents.php?id=[[agent.getId()]]" method="post" class="row g-2 align-items-center">
+											<input type="hidden" name="action" value="[[$DAgentAction::SET_CPU]]">
+											<input type="hidden" name="agentId" value="[[agent.getId()]]">
+											<input type="hidden" name="csrf" value="[[csrf]]">
+											<div class="col-auto">
+												<select class="form-select form-select-sm" name="cpuOnly" title="CPU Only Mode" onchange="this.form.submit();">
+													<option value="0" {{IF [[agent.getCpuOnly()]] == 0}}selected{{ENDIF}}>No</option>
+													<option value="1" {{IF [[agent.getCpuOnly()]] == 1}}selected{{ENDIF}}>Yes</option>
+												</select>
+											</div>
+										</form>
+									{{ELSE}}
+										{{IF [[agent.getCpuOnly()]] == 0}}<span class="badge bg-success">No</span>{{ELSE}}<span class="badge bg-warning text-dark">Yes</span>{{ENDIF}}
+									{{ENDIF}}
+								</td>
+							</tr>
 
-        <tr>
-          <td><strong>Graphic cards:</strong></td>
-          <td>[[str_replace("\n","<br>",[[agent.getDevices()]])]]</td>
-        </tr>
+							<!-- Graphic Cards -->
+							<tr>
+								<td class="fw-bold">Graphic Cards:</td>
+								<td>
+									{{IF [[agent.getDevices()]] == ""}}
+										<span class="text-muted">None detected</span>
+									{{ELSE}}
+										<code>[[str_replace("\n","<br>",[[agent.getDevices()]])]]</code>
+									{{ENDIF}}
+								</td>
+							</tr>
 
-        <tr>
-          <td><strong>Member of access groups:</strong></td>
-          <td>
-            {{FOREACH accessGroup;[[accessGroups]]}}
-              <span class="badge bg-info">[[accessGroup.getGroupName()]]</span>
-            {{ENDFOREACH}}
-            {{IF [[sizeof([[accessGroups]])]] == 0}}
-              <span class="text-muted">None</span>
-            {{ENDIF}}
-          </td>
-        </tr>
+							<!-- Access Groups -->
+							<tr>
+								<td class="fw-bold">Member of Groups:</td>
+								<td>
+									{{IF [[sizeof([[accessGroups]])]] == 0}}
+										<span class="text-muted">No access groups assigned</span>
+									{{ELSE}}
+										<div class="d-flex flex-wrap gap-2">
+											{{FOREACH accessGroup;[[accessGroups]]}}
+												<span class="badge bg-info">[[accessGroup.getGroupName()]]</span>
+											{{ENDFOREACH}}
+										</div>
+									{{ENDIF}}
+								</td>
+							</tr>
 
-        <tr>
-          <td><strong>Extra parameters:</strong></td>
-          <td>
-            {{IF [[agent.getUserId()]] == [[login.getUserId()]] || [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
-              <form class='d-flex gap-2' action="agents.php?id=[[agent.getId()]]" method="POST">
-                <input type="hidden" name="agentId" value="[[agent.getId()]]">
-                <input type="hidden" name="action" value="[[$DAgentAction::SET_PARAMETERS]]">
-                <input type="hidden" name="csrf" value="[[csrf]]">
-                <input type="text" class='form-control form-control-sm' name="cmdpars" value="[[agent.getCmdPars()]]" style="max-width: 300px;" title="Command Line Parameters">
-                <button type="submit" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Set Parameters">
-                  <i class="fas fa-save"></i>
-                </button>
-              </form>
-            {{ELSE}}
-              [[agent.getCmdPars()]]
-            {{ENDIF}}
-          </td>
-        </tr>
+							<!-- Extra Parameters -->
+							<tr>
+								<td class="fw-bold">Extra Parameters:</td>
+								<td>
+									{{IF [[agent.getUserId()]] == [[login.getUserId()]] || [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
+										<form action="agents.php?id=[[agent.getId()]]" method="post" class="row g-2 align-items-center">
+											<input type="hidden" name="agentId" value="[[agent.getId()]]">
+											<input type="hidden" name="action" value="[[$DAgentAction::SET_PARAMETERS]]">
+											<input type="hidden" name="csrf" value="[[csrf]]">
+											<div class="col-auto flex-grow-1">
+												<input type="text" class="form-control form-control-sm" name="cmdpars" value="[[agent.getCmdPars()]]" title="Command Line Parameters" placeholder="Enter additional parameters">
+											</div>
+											<div class="col-auto">
+												<button type="submit" class="btn btn-sm btn-primary" title="Save Parameters">
+													<i class="fas fa-save"></i>
+												</button>
+											</div>
+										</form>
+									{{ELSE}}
+										{{IF [[agent.getCmdPars()]] == ""}}
+											<span class="text-muted">No additional parameters</span>
+										{{ELSE}}
+											<code>[[agent.getCmdPars()]]</code>
+										{{ENDIF}}
+									{{ENDIF}}
+								</td>
+							</tr>
 
-        <tr>
-          <td><strong>Cracker errors:</strong><br><small class="text-warning">(Be careful, ignoring errors might lead to endless loops!)</small></td>
-          <td>
-            {{IF [[agent.getUserId()]] == [[login.getUserId()]] || [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
-              <form id="agentignore" action="agents.php?id=[[agent.getId()]]" method="post">
-                <input type='hidden' name='action' value='[[$DAgentAction::SET_IGNORE]]'>
-                <input type="hidden" name="agentId" value="[[agent.getId()]]">
-                <input type="hidden" name="csrf" value="[[csrf]]">
-                <select name="ignore" title="Ignore errors" class="form-select form-select-sm" style="max-width: 350px;" onChange="document.getElementById('agentignore').submit();">
-                  <option value="[[$DAgentIgnoreErrors::NO]]"{{IF [[agent.getIgnoreErrors()]] == [[$DAgentIgnoreErrors::NO]]}} selected{{ENDIF}}>Deactivate agent on error</option>
-                  <option value="[[$DAgentIgnoreErrors::IGNORE_SAVE]]"{{IF [[agent.getIgnoreErrors()]] == [[$DAgentIgnoreErrors::IGNORE_SAVE]]}} selected{{ENDIF}}>Keep agent running, but save errors</option>
-                  <option value="[[$DAgentIgnoreErrors::IGNORE_NOSAVE]]"{{IF [[agent.getIgnoreErrors()]] == [[$DAgentIgnoreErrors::IGNORE_NOSAVE]]}} selected{{ENDIF}}>Keep agent running and discard errors</option>
-                </select>
-              </form>
-            {{ELSE}}
-              <select name="ignore" title="Ignore errors" class="form-select form-select-sm" disabled style="max-width: 350px;">
-                <option value="[[$DAgentIgnoreErrors::NO]]"{{IF [[agent.getIgnoreErrors()]] == [[$DAgentIgnoreErrors::NO]]}} selected{{ENDIF}}>Deactivate agent on error</option>
-                <option value="[[$DAgentIgnoreErrors::IGNORE_SAVE]]"{{IF [[agent.getIgnoreErrors()]] == [[$DAgentIgnoreErrors::IGNORE_SAVE]]}} selected{{ENDIF}}>Keep agent running, but save errors</option>
-                <option value="[[$DAgentIgnoreErrors::IGNORE_NOSAVE]]"{{IF [[agent.getIgnoreErrors()]] == [[$DAgentIgnoreErrors::IGNORE_NOSAVE]]}} selected{{ENDIF}}>Keep agent running and discard errors</option>
-              </select>
-            {{ENDIF}}
-          </td>
-        </tr>
+							<!-- Cracker Error Handling -->
+							<tr>
+								<td class="fw-bold">Error Handling:<br><small class="text-muted">(Ignoring errors may cause endless loops)</small></td>
+								<td>
+									{{IF [[agent.getUserId()]] == [[login.getUserId()]] || [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
+										<form id="agentIgnoreForm[[agent.getId()]]" action="agents.php?id=[[agent.getId()]]" method="post">
+											<input type="hidden" name="action" value="[[$DAgentAction::SET_IGNORE]]">
+											<input type="hidden" name="agentId" value="[[agent.getId()]]">
+											<input type="hidden" name="csrf" value="[[csrf]]">
+											<select name="ignore" title="Error Handling Mode" class="form-select form-select-sm" onchange="document.getElementById('agentIgnoreForm[[agent.getId()]]').submit();">
+												<option value="[[$DAgentIgnoreErrors::NO]]" {{IF [[agent.getIgnoreErrors()]] == [[$DAgentIgnoreErrors::NO]]}}selected{{ENDIF}}>Deactivate agent on error</option>
+												<option value="[[$DAgentIgnoreErrors::IGNORE_SAVE]]" {{IF [[agent.getIgnoreErrors()]] == [[$DAgentIgnoreErrors::IGNORE_SAVE]]}}selected{{ENDIF}}>Keep running, save errors</option>
+												<option value="[[$DAgentIgnoreErrors::IGNORE_NOSAVE]]" {{IF [[agent.getIgnoreErrors()]] == [[$DAgentIgnoreErrors::IGNORE_NOSAVE]]}}selected{{ENDIF}}>Keep running, discard errors</option>
+											</select>
+										</form>
+									{{ELSE}}
+										<select class="form-select form-select-sm" disabled>
+											<option value="[[$DAgentIgnoreErrors::NO]]" {{IF [[agent.getIgnoreErrors()]] == [[$DAgentIgnoreErrors::NO]]}}selected{{ENDIF}}>Deactivate agent on error</option>
+											<option value="[[$DAgentIgnoreErrors::IGNORE_SAVE]]" {{IF [[agent.getIgnoreErrors()]] == [[$DAgentIgnoreErrors::IGNORE_SAVE]]}}selected{{ENDIF}}>Keep running, save errors</option>
+											<option value="[[$DAgentIgnoreErrors::IGNORE_NOSAVE]]" {{IF [[agent.getIgnoreErrors()]] == [[$DAgentIgnoreErrors::IGNORE_NOSAVE]]}}selected{{ENDIF}}>Keep running, discard errors</option>
+										</select>
+									{{ENDIF}}
+								</td>
+							</tr>
 
-        <tr>
-          <td><strong>Trust:</strong></td>
-          <td>
-            {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
-              <form id="agenttrusted" action="agents.php?id=[[agent.getId()]]" method="post">
-                <input type='hidden' name='action' value='[[$DAgentAction::SET_TRUSTED]]'>
-                <input type="hidden" name="agentId" value="[[agent.getId()]]">
-                <input type="hidden" name="csrf" value="[[csrf]]">
-                <div class="form-check">
-                  <input type="checkbox" class="form-check-input" name='trusted' value='1' id="trust[[agent.getId()]]" {{IF [[agent.getIsTrusted()]] == 1}} checked{{ENDIF}} onChange="document.getElementById('agenttrusted').submit();" title="Trust Agent">
-                  <label class="form-check-label" for="trust[[agent.getId()]]">Trust agent with secret data</label>
-                </div>
-              </form>
-            {{ELSE}}
-              <div class="form-check">
-                <input type="checkbox" class="form-check-input" name='trusted' value='1' id="trust[[agent.getId()]]" {{IF [[agent.getIsTrusted()]] == 1}} checked{{ENDIF}} disabled title="Trust Agent">
-                <label class="form-check-label" for="trust[[agent.getId()]]">Trust agent with secret data</label>
-              </div>
-            {{ENDIF}}
-          </td>
-        </tr>
+							<!-- Trust Setting -->
+							<tr>
+								<td class="fw-bold">Trust Status:</td>
+								<td>
+									{{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
+										<form id="agentTrustForm[[agent.getId()]]" action="agents.php?id=[[agent.getId()]]" method="post" class="d-inline">
+											<input type="hidden" name="action" value="[[$DAgentAction::SET_TRUSTED]]">
+											<input type="hidden" name="agentId" value="[[agent.getId()]]">
+											<input type="hidden" name="csrf" value="[[csrf]]">
+											<div class="form-check">
+												<input class="form-check-input" type="checkbox" id="trustToggle[[agent.getId()]]" name="trusted" value="1" {{IF [[agent.getIsTrusted()]] == 1}}checked{{ENDIF}} onchange="document.getElementById('agentTrustForm[[agent.getId()]]').submit();" title="Toggle Trust">
+												<label class="form-check-label" for="trustToggle[[agent.getId()]]">
+													Trust agent with secret data
+												</label>
+											</div>
+										</form>
+									{{ELSE}}
+										<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="trustToggleDisabled[[agent.getId()]]" {{IF [[agent.getIsTrusted()]] == 1}}checked{{ENDIF}} disabled>
+											<label class="form-check-label" for="trustToggleDisabled[[agent.getId()]]">
+												{{IF [[agent.getIsTrusted()]] == 1}}<span class="badge bg-success">Trusted</span>{{ELSE}}<span class="badge bg-secondary">Not Trusted</span>{{ENDIF}}
+											</label>
+										</div>
+									{{ENDIF}}
+								</td>
+							</tr>
 
-        {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
-          <tr>
-            <td><strong>Assignment:</strong></td>
-            <td>
-              <form class='d-flex gap-2' action="agents.php?id=[[agent.getId()]]" method="post">
-                <input type='hidden' name='action' value='[[$DAgentAction::ASSIGN_AGENT]]'>
-                <input type='hidden' name='agentId' value='[[agent.getId()]]'>
-                <input type="hidden" name="csrf" value="[[csrf]]">
-                <select class='form-select form-select-sm' name='task' title="Assignment" style="max-width: 300px;">
-                  <option value="">(unassigned)</option>
-                  {{FOREACH task;[[allTasks]]}}
-                    <option value='[[task.getId()]]'{{IF [[task.getId()]] == [[currentTask]]}} selected{{ENDIF}}>[[task.getTaskName()]]</option>
-                  {{ENDFOREACH}}
-                </select>
-                <button type="submit" class="btn btn-sm btn-outline-secondary">Assign</button>
-              </form>
-            </td>
-          </tr>
-        {{ENDIF}}
+							<!-- Task Assignment (Admin Only) -->
+							{{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
+								<tr>
+									<td class="fw-bold">Current Assignment:</td>
+									<td>
+										<form action="agents.php?id=[[agent.getId()]]" method="post" class="row g-2 align-items-center">
+											<input type="hidden" name="action" value="[[$DAgentAction::ASSIGN_AGENT]]">
+											<input type="hidden" name="agentId" value="[[agent.getId()]]">
+											<input type="hidden" name="csrf" value="[[csrf]]">
+											<div class="col-auto flex-grow-1">
+												<select class="form-select form-select-sm" name="task" title="Task Assignment">
+													<option value="">(unassigned)</option>
+													{{FOREACH task;[[allTasks]]}}
+														<option value="[[task.getId()]]" {{IF [[task.getId()]] == [[currentTask]]}}selected{{ENDIF}}>[[task.getTaskName()]]</option>
+													{{ENDFOREACH}}
+												</select>
+											</div>
+											<div class="col-auto">
+												<button type="submit" class="btn btn-sm btn-primary">
+													<i class="fas fa-link me-1"></i> Assign
+												</button>
+											</div>
+										</form>
+									</td>
+								</tr>
+							{{ENDIF}}
 
-        <tr>
-          <td><strong>Time spent cracking:</strong></td>
-          <td>[[Util::sectotime([[timeSpent]])]]</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+							<!-- Time Spent Cracking -->
+							<tr>
+								<td class="fw-bold">Total Time Cracking:</td>
+								<td><code>[[Util::sectotime([[timeSpent]])]]</code></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
 
-{%TEMPLATE->agents/detail.temperature%}
+	<!-- Temperature Card -->
+	{%TEMPLATE->agents/detail.temperature%}
 
-{{IF [[sizeof([[errors]])]] > 0}}
-  <h3 class="mt-4">Error messages:</h3>
-  {{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
-    <form action="agents.php?id=[[agent.getId()]]" method='post' class='mb-3'>
-      <input type='hidden' name='action' value='[[$DAgentAction::CLEAR_ERRORS]]'>
-      <input type='hidden' name='agentId' value="[[agent.getId()]]">
-      <input type="hidden" name="csrf" value="[[csrf]]">
-      <button type='submit' class='btn btn-danger btn-sm'>
-        <i class="fas fa-trash"></i> Delete All Errors
-      </button>
-    </form>
-  {{ENDIF}}
+	<!-- Error Messages Section -->
+	{{IF [[sizeof([[errors]])]] > 0}}
+		<div class="card mb-4 border-danger">
+			<div class="card-header bg-danger">
+				<div class="d-flex justify-content-between align-items-center">
+					<h5 class="mb-0 text-white">
+						<i class="fas fa-exclamation-circle me-2"></i> Error Messages ([[sizeof([[errors]])]])
+					</h5>
+					{{IF [[accessControl.hasPermission([[$DAccessControl::MANAGE_AGENT_ACCESS]])]]}}
+						<form action="agents.php?id=[[agent.getId()]]" method="post" class="d-inline">
+							<input type="hidden" name="action" value="[[$DAgentAction::CLEAR_ERRORS]]">
+							<input type="hidden" name="agentId" value="[[agent.getId()]]">
+							<input type="hidden" name="csrf" value="[[csrf]]">
+							<button type="submit" class="btn btn-sm btn-light" title="Clear All Errors">
+								<i class="fas fa-trash me-1"></i> Clear All
+							</button>
+						</form>
+					{{ENDIF}}
+				</div>
+			</div>
+			<div class="card-body">
+				<div class="table-responsive">
+					<table class="table table-sm table-striped">
+						<thead class="table-dark">
+							<tr>
+								<th>Time</th>
+								<th>Task ID</th>
+								<th>Chunk ID</th>
+								<th>Error Message</th>
+							</tr>
+						</thead>
+						<tbody>
+							{{FOREACH error;[[errors]]}}
+								<tr>
+									<td><code>[[date([[config.getVal(DConfig::TIME_FORMAT)]], [[error.getTime()]])]]</code></td>
+									<td>
+										{{IF [[error.getTaskId()]] == null}}
+											<span class="text-muted">N/A</span>
+										{{ELSE}}
+											<a href="tasks.php?id=[[error.getTaskId()]]" class="badge bg-info">[[error.getTaskId()]]</a>
+										{{ENDIF}}
+									</td>
+									<td>
+										{{IF [[error.getChunkId()]] == null}}
+											<span class="text-muted">N/A</span>
+										{{ELSE}}
+											<code>[[error.getChunkId()]]</code>
+										{{ENDIF}}
+									</td>
+									<td style="word-break: break-word;">[[error.getError()]]</td>
+								</tr>
+							{{ENDFOREACH}}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	{{ENDIF}}
 
-  <div class="card">
-    <div class="table-responsive">
-      <table class="table table-bordered table-sm">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Task</th>
-            <th>Chunk</th>
-            <th>Message</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{FOREACH error;[[errors]]}}
-            <tr>
-              <td>
-                <small>[[date([[config.getVal(DConfig::TIME_FORMAT)]], [[error.getTime()]])]]</small>
-              </td>
-              <td>
-                {{IF [[error.getTaskId()]] == null}}
-                  <span class="text-muted">N/A</span>
-                {{ELSE}}
-                  <a href="tasks.php?id=[[error.getTaskId()]]">[[error.getTaskId()]]</a>
-                {{ENDIF}}
-              </td>
-              <td>
-                {{IF [[error.getChunkId()]] == null}}
-                  <span class="text-muted">N/A</span>
-                {{ELSE}}
-                  [[error.getChunkId()]]
-                {{ENDIF}}
-              </td>
-              <td style="white-space: normal; word-break: break-word;">
-                <small>[[error.getError()]]</small>
-              </td>
-            </tr>
-          {{ENDFOREACH}}
-        </tbody>
-      </table>
-    </div>
-  </div>
-{{ENDIF}}
-
-<h3 class="mt-4">Dispatched chunks (latest 50):</h3>
-<div class="card">
-  <div class="table-responsive">
-    <table class="table table-bordered table-sm">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Start</th>
-          <th>Length</th>
-          <th>Checkpoint</th>
-          <th>Progress</th>
-          <th>Task</th>
-          <th>Dispatch time</th>
-          <th>Last activity</th>
-          <th>Time spent</th>
-          <th>State</th>
-          <th>Cracked</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{FOREACH chunk;[[chunks]]}}
-          <tr>
-            <td>[[chunk.getId()]]</td>
-            <td class='text-end'><small>[[chunk.getSkip()]]</small></td>
-            <td class='text-end'><small>[[chunk.getLength()]]</small></td>
-            <td class='text-end'>
-              <small>
-                [[chunk.getProgress()]]
-                {{IF [[chunk.getProgress()]] > 0 && [[chunk.getProgress()]] != [[chunk.getLength()]]}}
-                  <br>([[Util::showperc([[chunk.getProgress()]], [[chunk.getLength()]])]]%)
-                {{ENDIF}}
-              </small>
-            </td>
-            <td class='text-end'>
-              <small>
-                {{IF [[chunk.getProgress()]] == null}}
-                  <span class="text-muted">N/A</span>
-                {{ELSE}}
-                  [[Util::showperc([[chunk.getProgress()]], 10000)]]%
-                {{ENDIF}}
-              </small>
-            </td>
-            <td>
-              {{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_TASK_ACCESS]])]]}}
-                <a href='tasks.php?id=[[chunk.getTaskId()]]'>[[chunk.getTaskId()]]</a>
-              {{ELSE}}
-                [[chunk.getTaskId()]]
-              {{ENDIF}}
-            </td>
-            <td>
-              <small>
-                {{IF [[chunk.getDispatchTime()]] == 0}}
-                  <span class="text-muted">(no activity)</span>
-                {{ELSE}}
-                  [[date([[config.getVal(DConfig::TIME_FORMAT)]], [[chunk.getDispatchTime()]])]]
-                {{ENDIF}}
-              </small>
-            </td>
-            <td>
-              <small>
-                {{IF [[chunk.getSolveTime()]] == 0}}
-                  <span class="text-muted">(no activity)</span>
-                {{ELSE}}
-                  [[date([[config.getVal(DConfig::TIME_FORMAT)]], [[chunk.getSolveTime()]])]]
-                {{ENDIF}}
-              </small>
-            </td>
-            <td class='text-end'>
-              <small>
-                {{IF [[chunk.getSolveTime()]] != 0}}
-                  [[Util::sectotime([[chunk.getSolveTime()]] - [[chunk.getDispatchTime()]])]]
-                {{ELSE}}
-                  <span class="text-muted">---</span>
-                {{ENDIF}}
-              </small>
-            </td>
-            <td>
-              <small>[[Util::getStaticArray([[chunk.getState()]], 'states')]]</small>
-            </td>
-            <td class='text-center'>
-              {{IF [[chunk.getCracked()]] > 0 && [[accessControl.hasPermission([[$DAccessControl::VIEW_HASHES_ACCESS]])]]}}
-                <a href="hashes.php?chunk=[[chunk.getId()]]">[[chunk.getCracked()]]</a>
-              {{ELSEIF [[chunk.getCracked()]] > 0}}
-                [[chunk.getCracked()]]
-              {{ELSE}}
-                <span class="text-muted">0</span>
-              {{ENDIF}}
-            </td>
-          </tr>
-        {{ENDFOREACH}}
-      </tbody>
-    </table>
-  </div>
+	<!-- Dispatched Chunks Section -->
+	<div class="card mb-4">
+		<div class="card-header bg-dark">
+			<h5 class="mb-0">
+				<i class="fas fa-cube me-2"></i> Dispatched Chunks (Latest 50)
+			</h5>
+		</div>
+		<div class="card-body">
+			<div class="table-responsive">
+				<table class="table table-sm table-striped" id="chunksTable">
+					<thead class="table-dark">
+						<tr>
+							<th>ID</th>
+							<th class="text-end">Start</th>
+							<th class="text-end">Length</th>
+							<th class="text-end">Checkpoint</th>
+							<th class="text-end">Progress %</th>
+							<th>Task</th>
+							<th>Dispatch Time</th>
+							<th>Last Activity</th>
+							<th class="text-end">Time Spent</th>
+							<th>State</th>
+							<th class="text-end">Cracked</th>
+						</tr>
+					</thead>
+					<tbody>
+						{{FOREACH chunk;[[chunks]]}}
+							<tr>
+								<td><code>[[chunk.getId()]]</code></td>
+								<td class="text-end">[[chunk.getSkip()]]</td>
+								<td class="text-end">[[chunk.getLength()]]</td>
+								<td class="text-end">
+									[[chunk.getProgress()]]
+									{{IF [[chunk.getProgress()]] > 0 && [[chunk.getProgress()]] != [[chunk.getLength()]]}}
+										<small class="text-muted">([[Util::showperc([[chunk.getProgress()]], [[chunk.getLength()]])]]%)</small>
+									{{ENDIF}}
+								</td>
+								<td class="text-end">
+									{{IF [[chunk.getProgress()]] == null}}
+										<span class="text-muted">N/A</span>
+									{{ELSE}}
+										<div class="progress" style="height: 20px;">
+											<div class="progress-bar" role="progressbar" style="width: [[Util::showperc([[chunk.getProgress()]], 10000)]]%;" aria-valuenow="[[Util::showperc([[chunk.getProgress()]], 10000)]]" aria-valuemin="0" aria-valuemax="100">
+												[[Util::showperc([[chunk.getProgress()]], 10000)]]%
+											</div>
+										</div>
+									{{ENDIF}}
+								</td>
+								<td>
+									{{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_TASK_ACCESS]])]]}}
+										<a href="tasks.php?id=[[chunk.getTaskId()]]" class="badge bg-info">[[chunk.getTaskId()]]</a>
+									{{ELSE}}
+										<code>[[chunk.getTaskId()]]</code>
+									{{ENDIF}}
+								</td>
+								<td>
+									{{IF [[chunk.getDispatchTime()]] == 0}}
+										<span class="text-muted">No activity</span>
+									{{ELSE}}
+										<code>[[date([[config.getVal(DConfig::TIME_FORMAT)]], [[chunk.getDispatchTime()]])]]</code>
+									{{ENDIF}}
+								</td>
+								<td>
+									{{IF [[chunk.getSolveTime()]] == 0}}
+										<span class="text-muted">No activity</span>
+									{{ELSE}}
+										<code>[[date([[config.getVal(DConfig::TIME_FORMAT)]], [[chunk.getSolveTime()]])]]</code>
+									{{ENDIF}}
+								</td>
+								<td class="text-end">
+									{{IF [[chunk.getSolveTime()]] == 0}}
+										<span class="text-muted">Pending</span>
+									{{ELSE}}
+										<code>[[Util::sectotime([[chunk.getSolveTime()]] - [[chunk.getDispatchTime()]])]]</code>
+									{{ENDIF}}
+								</td>
+								<td>
+									<span class="badge bg-secondary">[[Util::getStaticArray([[chunk.getState()]], 'states')]]</span>
+								</td>
+								<td class="text-end">
+									{{IF [[chunk.getCracked()]] > 0}}
+										{{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_HASHES_ACCESS]])]]}}
+											<a href="hashes.php?chunk=[[chunk.getId()]]" class="badge bg-success">[[chunk.getCracked()]]</a>
+										{{ELSE}}
+											<span class="badge bg-success">[[chunk.getCracked()]]</span>
+										{{ENDIF}}
+									{{ELSE}}
+										<span class="text-muted">-</span>
+									{{ENDIF}}
+								</td>
+							</tr>
+						{{ENDFOREACH}}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
 </div>
 
 <script type="text/javascript">
-  $(document).ready(function() {
-    checkOnLoading("#showAgentDetails[[agent.getId()]]");
+	document.addEventListener('DOMContentLoaded', function() {
+		// Initialize collapse state
+		const collapseElement = document.getElementById('agentDetailsCollapse[[agent.getId()]]');
+		if (collapseElement) {
+			const bsCollapse = new bootstrap.Collapse(collapseElement, { toggle: false });
+		}
 
-    // Initialize tooltips
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-  });
+		// Initialize DataTable for chunks if DataTables is available
+		if (typeof $ !== 'undefined' && $.fn.DataTable) {
+			$('#chunksTable').DataTable({
+				paging: true,
+				pageLength: 25,
+				order: [[0, 'desc']],
+				columnDefs: [
+					{ orderable: false, targets: [5] }
+				]
+			});
+		}
+	});
 </script>
 
 {%TEMPLATE->struct/foot%}

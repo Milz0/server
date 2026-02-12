@@ -120,6 +120,7 @@ if ($action === 'getInstanceAgentStats') {
                 $agentStats['agentFound'] = true;
                 $agentStats['agentId'] = $agent->getId();
                 $agentStats['agentName'] = $agent->getAgentName();
+                $agentStats['isActive'] = ($agent->getIsActive() == 1);
                 
                 error_log("[vastAPI.php] 📊 Fetching GPU stats...");
                 

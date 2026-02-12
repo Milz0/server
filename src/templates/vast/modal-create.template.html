@@ -1,131 +1,212 @@
 <!-- Create Instance Modal -->
-<div class="modal fade" id="createInstanceModal" tabindex="-1" role="dialog" aria-labelledby="createInstanceModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg" role="document">
-		<div class="modal-content">
-			<div class="modal-header bg-success text-white py-2">
-				<h6 class="modal-title" id="createInstanceModalLabel">
-					<i class="fas fa-plus-circle"></i> Create Instance
-				</h6>
-				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body p-3">
-				
-				<!-- Configuration Form -->
-				<form id="createInstanceForm">
-					<input type="hidden" id="modal-offer-id">
-					
-					<div class="row">
-						<div class="col-md-6">
-							<div class="mb-2">
-								<label for="modal-label" class="form-label" style="font-size: 0.9em;">
-									<strong>Instance Label:</strong> <span class="text-danger">*</span>
-								</label>
-								<input type="text" class="form-control form-control-sm" id="modal-label" 
-									   placeholder="e.g., agent-1" required>
-								<small class="form-text text-muted">Unique name for this instance</small>
-							</div>
-						</div>
-						<div class="col-md-3">
-							<div class="mb-2">
-								<label for="modal-disk" class="form-label" style="font-size: 0.9em;">
-									<strong>Disk (GB):</strong> <span class="text-danger">*</span>
-								</label>
-								<input type="number" class="form-control form-control-sm" id="modal-disk" 
-									   value="25" min="5" max="1000" required>
-								<small class="form-text text-muted">5-1000 GB</small>
-							</div>
-						</div>
-						<div class="col-md-3">
-							<div class="mb-2">
-								<label for="modal-image" class="form-label" style="font-size: 0.9em;">
-									<strong>Image:</strong>
-								</label>
-								<input type="text" class="form-control form-control-sm" id="modal-image" 
-									   value="[[vastImage]]" readonly title="[[vastImage]]">
-								<small class="form-text text-muted">Docker image</small>
-							</div>
-						</div>
-					</div>
-				</form>
+<div class="modal fade" id="createInstanceModal" tabindex="-1" role="dialog" aria-labelledby="createInstanceModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white py-2">
+        <h6 class="modal-title" id="createInstanceModalLabel">
+          <i class="fas fa-plus-circle"></i> Create Instance
+        </h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-3">
 
-				<hr class="my-2">
+        <!-- Configuration Form -->
+        <form id="createInstanceForm">
+          <input type="hidden" id="modal-offer-id">
 
-				<!-- Cost Summary Cards -->
-				<div class="row mb-3">
-					<div class="col-md-4">
-						<div class="card border-info">
-							<div class="card-body py-2 text-center">
-								<small class="text-muted d-block">Hourly Cost</small>
-								<h5 class="mb-0 text-info">$<span id="modal-cost-hourly">0.000</span>/hr</h5>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="card border-warning">
-							<div class="card-body py-2 text-center">
-								<small class="text-muted d-block">Daily Cost</small>
-								<h5 class="mb-0 text-warning">$<span id="modal-cost-daily">0.00</span>/day</h5>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="card border-danger">
-							<div class="card-body py-2 text-center">
-								<small class="text-muted d-block">Monthly Cost</small>
-								<h5 class="mb-0 text-danger">$<span id="modal-cost-monthly">0.00</span>/mo</h5>
-							</div>
-						</div>
-					</div>
-				</div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-2">
+                <label for="modal-label" class="form-label" style="font-size: 0.9em;">
+                  <strong>Instance Label:</strong> <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control form-control-sm" id="modal-label" placeholder="e.g., agent-1"
+                  required>
+                <small class="form-text text-muted">Unique name for this instance</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="mb-2">
+                <label for="modal-disk" class="form-label" style="font-size: 0.9em;">
+                  <strong>Disk (GB):</strong> <span class="text-danger">*</span>
+                </label>
+                <input type="number" class="form-control form-control-sm" id="modal-disk" value="25" min="5" max="1000"
+                  required>
+                <small class="form-text text-muted">5-1000 GB</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="mb-2">
+                <label for="modal-image" class="form-label" style="font-size: 0.9em;">
+                  <strong>Image:</strong>
+                </label>
+                <input type="text" class="form-control form-control-sm" id="modal-image" value="[[vastImage]]" readonly>
+                <small class="form-text text-muted">Docker image</small>
+              </div>
+            </div>
+          </div>
+        </form>
 
-				<!-- Hardware Details -->
-				<h6 class="text-success mb-2">
-					<i class="fas fa-server"></i> <strong>Hardware Specifications:</strong>
-				</h6>
-				<div class="row">
-					<div class="col-md-6">
-						<table class="table table-sm table-borderless mb-2" style="font-size: 0.85rem;">
-							<tr>
-								<td style="width: 90px;" class="text-muted"><i class="fas fa-memory fa-fw"></i> GPU:</td>
-								<td id="modal-gpu-info" class="fw-bold"></td>
-							</tr>
-							<tr>
-								<td class="text-muted"><i class="fas fa-map-marker-alt fa-fw"></i> Location:</td>
-								<td id="modal-location-info"></td>
-							</tr>
-							<tr>
-								<td class="text-muted"><i class="fas fa-star fa-fw"></i> Reliability:</td>
-								<td id="modal-reliability-info"></td>
-							</tr>
-						</table>
-					</div>
-					<div class="col-md-6">
-						<table class="table table-sm table-borderless mb-2" style="font-size: 0.85rem;">
-							<tr>
-								<td style="width: 90px;" class="text-muted"><i class="fas fa-tachometer-alt fa-fw"></i> VRAM:</td>
-								<td id="modal-vram-info"></td>
-							</tr>
-							<tr>
-								<td class="text-muted"><i class="fas fa-cpu fa-fw"></i> vCPU:</td>
-								<td id="modal-cpu-info"></td>
-							</tr>
-							<tr>
-								<td class="text-muted"><i class="fas fa-hdd fa-fw"></i> RAM:</td>
-								<td id="modal-ram-info"></td>
-							</tr>
-						</table>
-					</div>
-				</div>
+        <hr class="my-2">
 
-			</div>
-			<div class="modal-footer py-2">
-				<button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
-					<i class="fas fa-times"></i> Cancel
-				</button>
-				<button type="button" class="btn btn-sm btn-success" id="confirmCreateInstance">
-					<i class="fas fa-rocket"></i> Create Instance
-				</button>
-			</div>
-		</div>
-	</div>
+        <!-- Cost Summary Cards -->
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <div class="card border-info">
+              <div class="card-body py-2 text-center">
+                <small class="text-muted d-block">Hourly Cost</small>
+                <h5 class="mb-0 text-info">$<span id="modal-cost-hourly">0.000</span>/hr</h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-warning">
+              <div class="card-body py-2 text-center">
+                <small class="text-muted d-block">Daily Cost</small>
+                <h5 class="mb-0 text-warning">$<span id="modal-cost-daily">0.00</span>/day</h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-danger">
+              <div class="card-body py-2 text-center">
+                <small class="text-muted d-block">Monthly Cost</small>
+                <h5 class="mb-0 text-danger">$<span id="modal-cost-monthly">0.00</span>/mo</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hardware Details -->
+        <h6 class="text-success mb-3">
+          <i class="fas fa-server"></i> <strong>Hardware Specifications</strong>
+        </h6>
+        <div class="row g-2 mb-2">
+          <!-- GPU Card -->
+          <div class="col-md-6">
+            <div class="card border-0 bg-secondary h-100">
+              <div class="card-body py-3 px-3">
+                <div class="d-flex align-items-center">
+                  <div class="flex-shrink-0">
+                    <div class="rounded-circle bg-info bg-opacity-10 p-3">
+                      <i class="fas fa-memory fa-lg text-info"></i>
+                    </div>
+                  </div>
+                  <div class="flex-grow-1 ms-3">
+                    <small class="text-muted d-block mb-1">GPU</small>
+                    <strong id="modal-gpu-info" class="d-block" style="font-size: 0.95em;"></strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- VRAM Card -->
+          <div class="col-md-6">
+            <div class="card border-0 bg-secondary h-100">
+              <div class="card-body py-3 px-3">
+                <div class="d-flex align-items-center">
+                  <div class="flex-shrink-0">
+                    <div class="rounded-circle bg-info bg-opacity-10 p-3">
+                      <i class="fas fa-tachometer-alt fa-lg text-info"></i>
+                    </div>
+                  </div>
+                  <div class="flex-grow-1 ms-3">
+                    <small class="text-muted d-block mb-1">VRAM</small>
+                    <strong id="modal-vram-info" class="d-block" style="font-size: 0.95em;"></strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CPU Cores Card -->
+          <div class="col-md-6">
+            <div class="card border-0 bg-secondary h-100">
+              <div class="card-body py-3 px-3">
+                <div class="d-flex align-items-center">
+                  <div class="flex-shrink-0">
+                    <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+                      <i class="fas fa-microchip fa-lg text-warning"></i>
+                    </div>
+                  </div>
+                  <div class="flex-grow-1 ms-3">
+                    <small class="text-muted d-block mb-1">vCPU</small>
+                    <strong id="modal-cpu-info" class="d-block" style="font-size: 0.95em;"></strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RAM Card -->
+          <div class="col-md-6">
+            <div class="card border-0 bg-secondary h-100">
+              <div class="card-body py-3 px-3">
+                <div class="d-flex align-items-center">
+                  <div class="flex-shrink-0">
+                    <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                      <i class="fas fa-hdd fa-lg text-success"></i>
+                    </div>
+                  </div>
+                  <div class="flex-grow-1 ms-3">
+                    <small class="text-muted d-block mb-1">RAM</small>
+                    <strong id="modal-ram-info" class="d-block" style="font-size: 0.95em;"></strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Location Card -->
+          <div class="col-md-6">
+            <div class="card border-0 bg-secondary h-100">
+              <div class="card-body py-3 px-3">
+                <div class="d-flex align-items-center">
+                  <div class="flex-shrink-0">
+                    <div class="rounded-circle bg-danger bg-opacity-10 p-3">
+                      <i class="fas fa-map-marker-alt fa-lg text-danger"></i>
+                    </div>
+                  </div>
+                  <div class="flex-grow-1 ms-3">
+                    <small class="text-muted d-block mb-1">Location</small>
+                    <strong id="modal-location-info" class="d-block" style="font-size: 0.95em;"></strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reliability Card -->
+          <div class="col-md-6">
+            <div class="card border-0 bg-secondary h-100">
+              <div class="card-body py-3 px-3">
+                <div class="d-flex align-items-center">
+                  <div class="flex-shrink-0">
+                    <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                      <i class="fas fa-star fa-lg text-success"></i>
+                    </div>
+                  </div>
+                  <div class="flex-grow-1 ms-3">
+                    <small class="text-muted d-block mb-1">Reliability</small>
+                    <strong id="modal-reliability-info" class="d-block" style="font-size: 0.95em;"></strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button type="button" class="btn btn-sm btn-success" id="confirmCreateInstance">
+          <i class="fas fa-rocket"></i> Create Instance
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

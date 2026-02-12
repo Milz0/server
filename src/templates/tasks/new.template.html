@@ -190,17 +190,13 @@
                 <tr>
                   <td><strong>Static chunking:</strong></td>
                   <td>
-                    <div class="row g-2">
-                      <div class="col-auto">
-                        <select name="staticChunking" class="form-select form-select-sm" {{IF ![[accessControl.hasPermission([[$DAccessControl::CREATE_TASK_ACCESS]])]]}} disabled{{ENDIF}}>
-                          <option value="0" {{IF [[copy.getStaticChunks()]] == 0}} selected{{ENDIF}}>Dynamic</option>
-                          <option value="1" {{IF [[copy.getStaticChunks()]] == 1}} selected{{ENDIF}}>Fixed chunk size</option>
-                          <option value="2" {{IF [[copy.getStaticChunks()]] == 2}} selected{{ENDIF}}>Fixed number of chunks</option>
-                        </select>
-                      </div>
-                      <div class="col-auto">
-                        <input type="number" class="form-control form-control-sm" name="chunkSize" title="Chunk size or number" value="[[copy.getChunkSize()]]" min="1" {{IF ![[accessControl.hasPermission([[$DAccessControl::CREATE_TASK_ACCESS]])]]}} readonly{{ENDIF}}>
-                      </div>
+                    <select name="staticChunking" id="staticChunkingSelect" class="form-select form-select-sm" {{IF ![[accessControl.hasPermission([[$DAccessControl::CREATE_TASK_ACCESS]])]]}} disabled{{ENDIF}}>
+                      <option value="0" {{IF [[copy.getStaticChunks()]] == 0}} selected{{ENDIF}}>Dynamic</option>
+                      <option value="1" {{IF [[copy.getStaticChunks()]] == 1}} selected{{ENDIF}}>Fixed chunk size</option>
+                      <option value="2" {{IF [[copy.getStaticChunks()]] == 2}} selected{{ENDIF}}>Fixed number of chunks</option>
+                    </select>
+                    <div id="chunkSizeContainer" style="display: none; margin-top: 0.5rem;">
+                      <input type="number" class="form-control form-control-sm" id="chunkSizeInput" name="chunkSize" title="Chunk size or number" value="[[copy.getChunkSize()]]" min="1" {{IF ![[accessControl.hasPermission([[$DAccessControl::CREATE_TASK_ACCESS]])]]}} readonly{{ENDIF}}>
                     </div>
                   </td>
                 </tr>
@@ -239,7 +235,7 @@
           <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="rules-tab" data-bs-toggle="tab" data-bs-target="#rules" type="button" role="tab" aria-controls="rules" aria-selected="false">
-                <i class="fas fa-scroll"></i> Rules
+                <i class="fas fa-ruler"></i> Rules
               </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -377,7 +373,6 @@
 </form>
 
 <script type="text/javascript">
-  // Binary version dropdown configuration
   const versions = {};
   {{FOREACH version;[[versions]]}}
     if ([[version.getCrackerBinaryTypeId()]] in versions) {
@@ -389,9 +384,7 @@
 
   function configureDropDownLists(ddl1, ddl2) {
     ddl2.options.length = 0;
-    if (ddl1.value.length === 0) {
-      return;
-    }
+    if (ddl1.value.length === 0) return;
     for (let i = 0; i < versions[ddl1.value].length; i++){
       createOption(ddl2, versions[ddl1.value][i][0], versions[ddl1.value][i][1]);
     }
@@ -399,35 +392,65 @@
 
   function createOption(ddl, text, value) {
     const opt = document.createElement('option');
-    if (value === [[copy.getCrackerBinaryId()]]) {
-      opt.selected = true;
-    }
+    if (value === [[copy.getCrackerBinaryId()]]) opt.selected = true;
     opt.value = value;
     opt.text = text;
     ddl.options.add(opt);
   }
 
-  // Initialize on page load
+  function toggleChunkSizeField() {
+    const staticChunkingSelect = document.getElementById('staticChunkingSelect');
+    const chunkSizeContainer = document.getElementById('chunkSizeContainer');
+    const chunkSizeInput = document.getElementById('chunkSizeInput');
+    
+    if (staticChunkingSelect.value === '0') {
+      chunkSizeContainer.style.display = 'none';
+      chunkSizeInput.removeAttribute('required');
+      chunkSizeInput.value = '';
+    } else {
+      chunkSizeContainer.style.display = 'block';
+      chunkSizeInput.setAttribute('required', 'required');
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
     const binaryTypeSelect = document.getElementById('crackerBinaryType');
     const binaryVersionSelect = document.getElementById('crackerBinaryVersion');
+    const staticChunkingSelect = document.getElementById('staticChunkingSelect');
     
-    configureDropDownLists(binaryTypeSelect, binaryVersionSelect);
-    
-    binaryTypeSelect.addEventListener('change', function() {
+    if (binaryTypeSelect && binaryVersionSelect) {
       configureDropDownLists(binaryTypeSelect, binaryVersionSelect);
-    });
+      binaryTypeSelect.addEventListener('change', function() {
+        configureDropDownLists(binaryTypeSelect, binaryVersionSelect);
+      });
+    }
+
+    toggleChunkSizeField();
+    if (staticChunkingSelect) {
+      staticChunkingSelect.addEventListener('change', toggleChunkSizeField);
+    }
+
+    const form = document.querySelector('form');
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        const chunkSizeInput = document.getElementById('chunkSizeInput');
+        if (staticChunkingSelect.value !== '0') {
+          if (!chunkSizeInput.value || isNaN(chunkSizeInput.value) || chunkSizeInput.value <= 0) {
+            e.preventDefault();
+            alert('Chunk size is required and must be a positive number.');
+            chunkSizeInput.focus();
+            return false;
+          }
+        }
+      });
+    }
   });
 
-  // File assignment helper
   function assignFile(cmdLine, addObject, fileName, type) {
-    // Handle .7z files
     if (fileName.indexOf('.7z') !== -1) {
       fileName = fileName.substring(0, fileName.length - 2) + '???';
     }
-    
     const cmdObject = document.getElementById(cmdLine);
-    
     if (addObject === true) {
       if (cmdObject.value.indexOf(fileName) === -1) {
         if (cmdObject.value.length > 0 && cmdObject.value.slice(-1) !== ' ') {
@@ -443,8 +466,6 @@
         cmdObject.value = cmdObject.value.replace('-r ' + fileName, '');
       }
       cmdObject.value = cmdObject.value.replace(fileName, '');
-      
-      // Cleanup extra spaces
       while (cmdObject.value.slice(-1) === ' ') {
         cmdObject.value = cmdObject.value.substring(0, cmdObject.value.length - 1);
       }

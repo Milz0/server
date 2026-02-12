@@ -93,7 +93,7 @@
 								<li><hr class="dropdown-divider"></li>
 								<li>
 									<a class="dropdown-item[[menu.isActive('tasks_super')]]" href="supertasks.php">
-										<i class="fas fa-layer-group me-2"></i> Supertasks
+										<i class="fas fa-object-group me-2"></i> Supertasks
 									</a>
 								</li>
 							{{ENDIF}}
@@ -138,7 +138,7 @@
 								<li><hr class="dropdown-divider"></li>
 								<li>
 									<a class="dropdown-item[[menu.isActive('lists_super')]]" href="superhashlists.php">
-										<i class="fas fa-layer-group me-2"></i> Superhashlists
+										<i class="fas fa-object-group me-2"></i> Superhashlists
 									</a>
 								</li>
 							{{ENDIF}}
@@ -190,7 +190,7 @@
 				{{IF [[accessControl.hasPermission([[$DAccessControl::CRACKER_BINARY_ACCESS]])]]}}
 					<li class="nav-item dropdown[[menu.isActive('crackers', 'classonly')]]">
 						<a href="#" class="nav-link dropdown-toggle" id="navCrackers" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-							<i class="fas fa-hammer me-1"></i> Crackers
+							<i class="fas fa-wrench me-1"></i> Crackers
 						</a>
 						<ul class="dropdown-menu" aria-labelledby="navCrackers">
 							<li>
@@ -247,7 +247,7 @@
 							</li>
 							<li>
 								<a class="dropdown-item[[menu.isActive('config_binaries')]]" href="binaries.php">
-									<i class="fas fa-file-binary me-2"></i> Agent Binaries
+									<i class="fas fa-file me-2"></i> Agent Binaries
 								</a>
 							</li>
 							<li>
@@ -324,3 +324,28 @@
 		</div>
 	</div>
 </nav>
+<style>
+.navbar-nav .nav-link {
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #28a745;
+    transition: width 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #28a745;
+}
+
+.navbar-nav .nav-link:hover::after {
+    width: 100%;
+}
+</style>

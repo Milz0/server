@@ -4,104 +4,111 @@
 {%TEMPLATE->struct/messages%}
 
 {{IF [[newBinary]]}}
-  <form action="binaries.php" method="post" class="mb-4">
-    <input type="hidden" name="action" value="[[$DAgentBinaryAction::NEW_BINARY]]">
-    <input type="hidden" name="csrf" value="[[csrf]]">
-    <div class="card">
-      <div class="card-header">
-        <h5 class="mb-0">Create New Binary</h5>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-bordered mb-0">
-          <tbody>
-            <tr>
-              <th style="width: 25%;">Type</th>
-              <td><input type="text" name="type" class="form-control" value="" title="Type" placeholder="e.g., hashcat"></td>
-            </tr>
-            <tr>
-              <th>Operating Systems</th>
-              <td><input type="text" name="os" class="form-control" value="" title="Operating Systems" placeholder="e.g., Windows, Linux, macOS"></td>
-            </tr>
-            <tr>
-              <th>Filename (placed in 'bin' folder)</th>
-              <td><input type="text" name="filename" class="form-control" value="" title="Filename" placeholder="e.g., hashcat.exe"></td>
-            </tr>
-            <tr>
-              <th>Version</th>
-              <td><input type="text" name="version" class="form-control" value="" title="Version" placeholder="e.g., 6.2.5"></td>
-            </tr>
-            <tr>
-              <th>Update Track</th>
-              <td>
-                <select class="form-select" name="updateTrack" title="Update Track">
-                  <option value="release">Release</option>
-                  <option value="stable" selected>Stable</option>
-                </select>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="2">
-                <button type="submit" class="btn btn-success">
-                  <i class="fas fa-plus" aria-hidden="true"></i> Create
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+<form action="binaries.php" method="post" class="mb-4">
+  <input type="hidden" name="action" value="[[$DAgentBinaryAction::NEW_BINARY]]">
+  <input type="hidden" name="csrf" value="[[csrf]]">
+  <div class="card">
+    <div class="card-header">
+      <h5 class="mb-0">Create New Binary</h5>
     </div>
-  </form>
+    <div class="table-responsive">
+      <table class="table table-bordered mb-0">
+        <tbody>
+          <tr>
+            <th style="width: 25%;">Type</th>
+            <td><input type="text" name="type" class="form-control" value="" title="Type" placeholder="e.g., hashcat">
+            </td>
+          </tr>
+          <tr>
+            <th>Operating Systems</th>
+            <td><input type="text" name="os" class="form-control" value="" title="Operating Systems"
+                placeholder="e.g., Windows, Linux, macOS"></td>
+          </tr>
+          <tr>
+            <th>Filename (placed in 'bin' folder)</th>
+            <td><input type="text" name="filename" class="form-control" value="" title="Filename"
+                placeholder="e.g., hashcat.exe"></td>
+          </tr>
+          <tr>
+            <th>Version</th>
+            <td><input type="text" name="version" class="form-control" value="" title="Version"
+                placeholder="e.g., 6.2.5"></td>
+          </tr>
+          <tr>
+            <th>Update Track</th>
+            <td>
+              <select class="form-select" name="updateTrack" title="Update Track">
+                <option value="release">Release</option>
+                <option value="stable" selected>Stable</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <button type="submit" class="btn btn-success">
+                <i class="fas fa-plus" aria-hidden="true"></i> Create
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>
 {{ENDIF}}
 
 {{IF [[editBinary]]}}
-  <form action="binaries.php" method="post" class="mb-4">
-    <input type="hidden" name="action" value="[[$DAgentBinaryAction::EDIT_BINARY]]">
-    <input type="hidden" name="id" value="[[bin.getId()]]">
-    <input type="hidden" name="csrf" value="[[csrf]]">
-    <div class="card">
-      <div class="card-header">
-        <h5 class="mb-0">Edit Binary</h5>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-bordered mb-0">
-          <tbody>
-            <tr>
-              <th style="width: 25%;">Type</th>
-              <td><input type="text" name="type" class="form-control" value="[[bin.getType()]]" title="Type"></td>
-            </tr>
-            <tr>
-              <th>Operating Systems</th>
-              <td><input type="text" name="os" class="form-control" value="[[bin.getOperatingSystems()]]" title="Operating Systems"></td>
-            </tr>
-            <tr>
-              <th>Filename (placed in 'bin' folder)</th>
-              <td><input type="text" name="filename" class="form-control" value="[[bin.getFilename()]]" title="Filename"></td>
-            </tr>
-            <tr>
-              <th>Current Version (update here if you placed a new binary)</th>
-              <td><input type="text" name="version" class="form-control" value="[[bin.getVersion()]]" title="Current Version"></td>
-            </tr>
-            <tr>
-              <th>Update Track</th>
-              <td>
-                <select class="form-select" name="updateTrack" title="Update Track">
-                  <option value="release"{{IF [[bin.getUpdateTrack()]] == 'release'}} selected{{ENDIF}}>Release</option>
-                  <option value="stable"{{IF [[bin.getUpdateTrack()]] == 'stable'}} selected{{ENDIF}}>Stable</option>
-                </select>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="2">
-                <button type="submit" class="btn btn-success">
-                  <i class="fas fa-save" aria-hidden="true"></i> Save
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+<form action="binaries.php" method="post" class="mb-4">
+  <input type="hidden" name="action" value="[[$DAgentBinaryAction::EDIT_BINARY]]">
+  <input type="hidden" name="id" value="[[bin.getId()]]">
+  <input type="hidden" name="csrf" value="[[csrf]]">
+  <div class="card">
+    <div class="card-header">
+      <h5 class="mb-0">Edit Binary</h5>
     </div>
-  </form>
+    <div class="table-responsive">
+      <table class="table table-bordered mb-0">
+        <tbody>
+          <tr>
+            <th style="width: 25%;">Type</th>
+            <td><input type="text" name="type" class="form-control" value="[[bin.getType()]]" title="Type"></td>
+          </tr>
+          <tr>
+            <th>Operating Systems</th>
+            <td><input type="text" name="os" class="form-control" value="[[bin.getOperatingSystems()]]"
+                title="Operating Systems"></td>
+          </tr>
+          <tr>
+            <th>Filename (placed in 'bin' folder)</th>
+            <td><input type="text" name="filename" class="form-control" value="[[bin.getFilename()]]" title="Filename">
+            </td>
+          </tr>
+          <tr>
+            <th>Current Version (update here if you placed a new binary)</th>
+            <td><input type="text" name="version" class="form-control" value="[[bin.getVersion()]]"
+                title="Current Version"></td>
+          </tr>
+          <tr>
+            <th>Update Track</th>
+            <td>
+              <select class="form-select" name="updateTrack" title="Update Track">
+                <option value="release" {{IF [[bin.getUpdateTrack()]]=='release' }} selected{{ENDIF}}>Release</option>
+                <option value="stable" {{IF [[bin.getUpdateTrack()]]=='stable' }} selected{{ENDIF}}>Stable</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <button type="submit" class="btn btn-success">
+                <i class="fas fa-save" aria-hidden="true"></i> Save
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>
 {{ENDIF}}
 
 <div class="card">
@@ -127,50 +134,57 @@
       </thead>
       <tbody>
         {{FOREACH binary;[[binaries]]}}
-          <tr>
-            <td>[[binary.getId()]]</td>
-            <td>[[binary.getType()]]</td>
-            <td>[[binary.getOperatingSystems()]]</td>
-            <td><code>[[binary.getFilename()]]</code></td>
-            <td>[[binary.getVersion()]]</td>
-            <td><code>[[binary.getUpdateTrack()]]</code></td>
-            <td>
-              <div class="btn-group btn-group-sm" role="group" aria-label="Binary actions">
-                <a href="binaries.php?edit=[[binary.getId()]]" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                  <i class="fas fa-edit" aria-hidden="true"></i>
-                </a>
-                
-                <form action="binaries.php" method="POST" style="display: inline;" onSubmit="if (!confirm('Are you sure you want to check for updates?')) return false;">
-                  <input type='hidden' name='action' value='[[$DAgentBinaryAction::CHECK_UPDATE]]'>
-                  <input type="hidden" name="binaryId" value="[[binary.getId()]]">
-                  <input type="hidden" name="csrf" value="[[csrf]]">
-                  <button type="submit" class='btn btn-warning' data-bs-toggle="tooltip" data-bs-placement="top" title="Check for Update">
-                    <i class="fas fa-sync" aria-hidden="true"></i>
-                  </button>
-                </form>
+        <tr>
+          <td>[[binary.getId()]]</td>
+          <td>[[binary.getType()]]</td>
+          <td>[[binary.getOperatingSystems()]]</td>
+          <td><code>[[binary.getFilename()]]</code></td>
+          <td>[[binary.getVersion()]]</td>
+          <td><code>[[binary.getUpdateTrack()]]</code></td>
+          <td>
+            <div class="d-flex gap-2" role="group" aria-label="Binary actions">
+              <a href="binaries.php?edit=[[binary.getId()]]" class="btn btn-primary btn-sm" data-bs-toggle="tooltip"
+                data-bs-placement="top" title="Edit">
+                <i class="fas fa-edit" aria-hidden="true"></i>
+              </a>
 
-                {{IF [[binary.getUpdateAvailable()]]}}
-                  <form action="binaries.php" method="POST" style="display: inline;" onSubmit="if (!confirm('Are you sure you want to update to version [[binary.getUpdateAvailable()]]?')) return false;">
-                    <input type='hidden' name='action' value='[[$DAgentBinaryAction::UPGRADE_BINARY]]'>
-                    <input type="hidden" name="binaryId" value="[[binary.getId()]]">
-                    <input type="hidden" name="csrf" value="[[csrf]]">
-                    <button type="submit" class='btn btn-success' data-bs-toggle="tooltip" data-bs-placement="top" title="Upgrade to [[binary.getUpdateAvailable()]]">
-                      <i class="fas fa-cloud-download-alt" aria-hidden="true"></i>
-                    </button>
-                  </form>
-                {{ENDIF}}
+              <form action="binaries.php" method="POST" class="d-inline"
+                onSubmit="if (!confirm('Are you sure you want to check for updates?')) return false;">
+                <input type='hidden' name='action' value='[[$DAgentBinaryAction::CHECK_UPDATE]]'>
+                <input type="hidden" name="binaryId" value="[[binary.getId()]]">
+                <input type="hidden" name="csrf" value="[[csrf]]">
+                <button type="submit" class='btn btn-warning btn-sm' data-bs-toggle="tooltip" data-bs-placement="top"
+                  title="Check for Update">
+                  <i class="fas fa-sync" aria-hidden="true"></i>
+                </button>
+              </form>
 
-                <form action="binaries.php" method="POST" style="display: inline;" onSubmit="if (!confirm('Really delete binary [[binary.getId()]]?')) return false;">
-                  <input type='hidden' name='action' value='[[$DAgentBinaryAction::DELETE_BINARY]]'>
-                  <input type="hidden" name="id" value="[[binary.getId()]]">
-                  <input type="hidden" name="csrf" value="[[csrf]]">
-                  <button type="submit" class='btn btn-danger' data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                    <i class="fas fa-trash" aria-hidden="true"></i>
-                  </button>
-                </form>
-              </div>
-            </td>
-          </tr>
+              {{IF [[binary.getUpdateAvailable()]]}}
+              <form action="binaries.php" method="POST" class="d-inline"
+                onSubmit="if (!confirm('Are you sure you want to update to version [[binary.getUpdateAvailable()]]?')) return false;">
+                <input type='hidden' name='action' value='[[$DAgentBinaryAction::UPGRADE_BINARY]]'>
+                <input type="hidden" name="binaryId" value="[[binary.getId()]]">
+                <input type="hidden" name="csrf" value="[[csrf]]">
+                <button type="submit" class='btn btn-success btn-sm' data-bs-toggle="tooltip" data-bs-placement="top"
+                  title="Upgrade to [[binary.getUpdateAvailable()]]">
+                  <i class="fas fa-cloud-download-alt" aria-hidden="true"></i>
+                </button>
+              </form>
+              {{ENDIF}}
+
+              <form action="binaries.php" method="POST" class="d-inline"
+                onSubmit="if (!confirm('Really delete binary [[binary.getId()]]?')) return false;">
+                <input type='hidden' name='action' value='[[$DAgentBinaryAction::DELETE_BINARY]]'>
+                <input type="hidden" name="id" value="[[binary.getId()]]">
+                <input type="hidden" name="csrf" value="[[csrf]]">
+                <button type="submit" class='btn btn-danger btn-sm' data-bs-toggle="tooltip" data-bs-placement="top"
+                  title="Delete">
+                  <i class="fas fa-trash" aria-hidden="true"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
         {{ENDFOREACH}}
       </tbody>
     </table>
