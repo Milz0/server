@@ -149,6 +149,102 @@ class VastHandler implements Handler
           ]);
           break;
 
+
+        case DVastAction::GET_INSTANCE_AGENT_STATS:
+          AccessControl::getInstance()->checkPermission(DVastAction::GET_INSTANCE_AGENT_STATS_PERM);
+          if (!$this->isAjaxRequest()) {
+            throw new HTException("This action requires AJAX request.");
+          }
+
+          $instances = isset($_POST['instances']) ? $_POST['instances'] : [];
+          if (is_string($instances)) {
+            $decoded = json_decode($instances, true);
+            if (is_array($decoded)) {
+              $instances = $decoded;
+            }
+          }
+
+          $result = [];
+          $now = time();
+
+          foreach ($instances as $instanceData) {
+            $instanceId = 0;
+            if (is_array($instanceData) && isset($instanceData['id'])) {
+              $instanceId = intval($instanceData['id']);
+            } else if (is_numeric($instanceData)) {
+              $instanceId = intval($instanceData);
+            }
+
+            if ($instanceId <= 0) {
+              continue;
+            }
+
+            $agentStats = [
+              'instanceId' => $instanceId,
+              'agentFound' => false,
+              'gpuUtil' => null,
+              'gpuUtilRaw' => null,
+              'gpuTemp' => null,
+              'gpuTempRaw' => null,
+              'color' => null
+            ];
+
+            // Look up agent via RegVoucher
+            $agent = null;
+            $qF = new DBA\QueryFilter(DBA\RegVoucher::VAST_INSTANCE_ID, $instanceId, "=");
+            $regVoucher = DBA\Factory::getRegVoucherFactory()->filter([DBA\Factory::FILTER => $qF], true);
+
+            if ($regVoucher && $regVoucher->getAgentId()) {
+              $agent = DBA\Factory::getAgentFactory()->get($regVoucher->getAgentId());
+            }
+
+            if ($agent) {
+              $agentStats['agentFound'] = true;
+              $agentStats['agentId'] = $agent->getId();
+              $agentStats['agentName'] = $agent->getAgentName();
+              $agentStats['isActive'] = ($agent->getIsActive() == 1);
+
+              // Get GPU utilization (last 60 seconds)
+              $qF1 = new DBA\QueryFilter(DBA\AgentStat::AGENT_ID, $agent->getId(), "=");
+              $qF2 = new DBA\QueryFilter(DBA\AgentStat::STAT_TYPE, DAgentStatsType::GPU_UTIL, "=");
+              $qF3 = new DBA\QueryFilter(DBA\AgentStat::TIME, $now - 60, ">");
+              $oF = new DBA\OrderFilter(DBA\AgentStat::TIME, "DESC");
+
+              $gpuUtilStat = DBA\Factory::getAgentStatFactory()->filter([
+                DBA\Factory::FILTER => [$qF1, $qF2, $qF3],
+                DBA\Factory::ORDER => $oF
+              ], true);
+
+              if ($gpuUtilStat) {
+                $agentStats['gpuUtil'] = AgentUtils::getDeviceUtilStatusValue($gpuUtilStat);
+                $agentStats['gpuUtilRaw'] = $gpuUtilStat->getValue();
+                $agentStats['color'] = AgentUtils::getDeviceUtilStatusColor($gpuUtilStat, $agent);
+                $agentStats['lastUpdate'] = $gpuUtilStat->getTime();
+                $utilValues = explode(",", $gpuUtilStat->getValue());
+                $agentStats['gpuUtilPerDevice'] = array_map('intval', $utilValues);
+              }
+
+              // Get GPU temperature (last 60 seconds)
+              $qF2t = new DBA\QueryFilter(DBA\AgentStat::STAT_TYPE, DAgentStatsType::GPU_TEMP, "=");
+              $gpuTempStat = DBA\Factory::getAgentStatFactory()->filter([
+                DBA\Factory::FILTER => [$qF1, $qF2t, $qF3],
+                DBA\Factory::ORDER => $oF
+              ], true);
+
+              if ($gpuTempStat) {
+                $agentStats['gpuTemp'] = AgentUtils::getDeviceTempStatusValue($gpuTempStat);
+                $agentStats['gpuTempRaw'] = $gpuTempStat->getValue();
+                $tempValues = explode(",", $gpuTempStat->getValue());
+                $agentStats['gpuTempPerDevice'] = array_map('intval', $tempValues);
+              }
+            }
+
+            $result[] = $agentStats;
+          }
+
+          $this->sendJsonAndExit(['success' => true, 'data' => $result]);
+          break;
+
         case DVastAction::DESTROY_INSTANCE:
           AccessControl::getInstance()->checkPermission(DVastAction::DESTROY_INSTANCE_PERM);
           if (!$this->isAjaxRequest()) {
