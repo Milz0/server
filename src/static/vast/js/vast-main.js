@@ -10,7 +10,6 @@
         accountBalance: null,
         currentHourlyCost: 0,
 
-        // Auto-refresh state (single source of truth)
         autoRefreshEnabled: false,
         autoRefreshInterval: null,
         autoRefreshDelay: 15000, // 15 seconds
