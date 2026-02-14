@@ -21,7 +21,7 @@
 							<i class="fas fa-server me-1"></i> Agents
 						</a>
 						<ul class="dropdown-menu" aria-labelledby="navAgents">
-							{{IF [[accessControl.hasPermission([[$DAccessControl::VIEW_AGENT_ACCESS]])]]}}
+							{{IF [[accessControl.hasPermission([[$DAccessControl::SERVER_CONFIG_ACCESS]])]]}}
 								<li>
 									<a class="dropdown-item[[menu.isActive('config_vast')]]" href="vast.php">
 										<i class="fas fa-cloud me-2"></i> Rent Agents
