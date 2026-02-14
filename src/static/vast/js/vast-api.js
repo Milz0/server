@@ -168,7 +168,7 @@
 
         fetchAgentStats: function (instances) {
             return $.ajax({
-                url: 'vastAPI.php',
+                url: 'vast.php',
                 method: 'POST',
                 data: {
                     action: 'getInstanceAgentStats',
