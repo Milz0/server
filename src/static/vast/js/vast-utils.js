@@ -167,6 +167,9 @@
         getOfferBadges: function (offer) {
             let badges = '';
 
+            // -----------------------------
+            // Verification badge
+            // -----------------------------
             const verification = offer.verification;
 
             if (verification === 'verified') {
@@ -183,24 +186,58 @@
                 badges += '</span>';
             }
 
-            if (offer.hosting_type === 1) {
+            // -----------------------------
+            // Datacenter badge
+            // -----------------------------
+            if (offer.hosting_type === 1 || offer.hosting_type === '1') {
                 badges += '<span class="badge bg-primary rounded-pill me-1" title="Datacenter">';
                 badges += '<i class="fas fa-building"></i> DC';
                 badges += '</span>';
             }
 
-            if (offer.reliability2 !== undefined && offer.reliability2 !== null) {
-                const reliabilityPct = (offer.reliability2 * 100).toFixed(0);
+            // -----------------------------
+            // Truthful reliability badge
+            // -----------------------------
+            let r = null;
+
+            if (offer.reliability !== undefined && offer.reliability !== null) {
+                r = Number(offer.reliability);
+            } else if (offer.reliability2 !== undefined && offer.reliability2 !== null) {
+                r = Number(offer.reliability2);
+            }
+
+            if (Number.isFinite(r)) {
+
+                if (r > 1.0) r = r / 100.0;
+
+                // Clamp
+                if (r < 0) r = 0;
+                if (r > 1) r = 1;
+
+                const pct = r * 100;
+
+                let reliabilityText;
+
+                if (pct === 100) {
+                    reliabilityText = '100%';
+                } else {
+                    let formatted = pct.toFixed(2);
+                    formatted = formatted.replace(/\.00$/, '');        // 99.00 -> 99
+                    formatted = formatted.replace(/(\.\d)0$/, '$1');   // 99.90 -> 99.9
+                    reliabilityText = formatted + '%';
+                }
+
+
                 let reliabilityClass = 'secondary';
                 let reliabilityIcon = 'fa-question';
 
-                if (reliabilityPct >= 99) {
+                if (pct >= 99) {
                     reliabilityClass = 'success';
                     reliabilityIcon = 'fa-star';
-                } else if (reliabilityPct >= 95) {
+                } else if (pct >= 95) {
                     reliabilityClass = 'info';
                     reliabilityIcon = 'fa-star-half-alt';
-                } else if (reliabilityPct >= 90) {
+                } else if (pct >= 90) {
                     reliabilityClass = 'warning';
                     reliabilityIcon = 'fa-exclamation-triangle';
                 } else {
@@ -208,26 +245,12 @@
                     reliabilityIcon = 'fa-times-circle';
                 }
 
-                badges += '<span class="badge bg-' + reliabilityClass + ' rounded-pill me-1" title="Reliability: ' + reliabilityPct + '%">';
-                badges += '<i class="fas ' + reliabilityIcon + '"></i> ' + reliabilityPct + '%';
+                badges += '<span class="badge bg-' + reliabilityClass + ' rounded-pill me-1" title="Reliability: ' + reliabilityText + '">';
+                badges += '<i class="fas ' + reliabilityIcon + '"></i> ' + reliabilityText;
                 badges += '</span>';
             }
 
             return badges;
-        },
-
-        getInstanceTypeBadge: function (instance) {
-            if (instance.intended_status === 'running') {
-                return '<span class="badge bg-success rounded-pill" title="On-Demand Instance"><i class="fas fa-server"></i> On-Demand</span>';
-            } else if (instance.intended_status === 'stopped') {
-                return '<span class="badge bg-warning rounded-pill" title="Bid Instance"><i class="fas fa-gavel"></i> Bid</span>';
-            } else {
-                return '<span class="badge bg-secondary rounded-pill" title="Unknown Type"><i class="fas fa-question"></i> Unknown</span>';
-            }
-        },
-
-        isBidInstance: function (instance) {
-            return instance && instance.max_bid_price !== undefined && instance.max_bid_price !== null;
         },
 
         formatUptime: function (seconds) {
@@ -279,7 +302,7 @@
                 textarea.style.opacity = '0';
                 document.body.appendChild(textarea);
                 textarea.select();
-                
+
                 try {
                     document.execCommand('copy');
                     if (showNotification && window.VastNotifications) {
