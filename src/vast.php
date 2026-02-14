@@ -21,6 +21,7 @@ if (isset($_POST['action']) || isset($_GET['action'])) {
     DVastAction::LIST_OFFERS => "listOffers",
     DVastAction::CREATE_INSTANCE => "createInstance",
     DVastAction::LIST_INSTANCES => "listInstances",
+    DVastAction::GET_INSTANCE_AGENT_STATS => "getInstanceAgentStats",
     DVastAction::DESTROY_INSTANCE => "destroyInstance",
     DVastAction::GET_USER_INFO => "getUserInfo",
     DVastAction::AUTO_DESTROY_CHECK => "autoDestroyCheck",
