@@ -45,14 +45,18 @@
                 }
             };
 
-            const statusInfo = statusMap[status] || {
+            const key = (status || '').toString().toLowerCase();
+            const statusInfo = statusMap[key] || {
                 class: 'secondary',
                 icon: 'fa-question-circle',
                 text: status || 'Unknown'
             };
 
+            // Ensure the visible text is safe
+            const safeText = VastUtils.escapeHtml(String(statusInfo.text).toUpperCase());
+
             return {
-                html: '<i class="fas ' + statusInfo.icon + '"></i> ' + statusInfo.text.toUpperCase(),
+                html: '<i class="fas ' + statusInfo.icon + '"></i> ' + safeText,
                 class: statusInfo.class
             };
         },
@@ -102,7 +106,8 @@
         getGpuUtilDisplay: function (instance) {
             if (instance.agentStats && instance.agentStats.gpuUtil) {
                 const stats = instance.agentStats;
-                const avgUtil = parseFloat(stats.gpuUtil.replace('%', ''));
+                const gpuUtilRaw = String(stats.gpuUtil);
+                const avgUtil = parseFloat(gpuUtilRaw.replace('%', ''));
 
                 let icon = '📊';
                 let colorClass = '';
@@ -127,8 +132,11 @@
                     ageText = Math.floor(age / 60) + 'm';
                 }
 
-                return '<small class="' + colorClass + '" title="Average GPU Utilization (updated ' + ageText + ' ago)">' +
-                    icon + ' ' + stats.gpuUtil + ' (' + ageText + ')</small>';
+                const safeGpuUtil = VastUtils.escapeHtml(gpuUtilRaw);
+                const safeAgeText = VastUtils.escapeHtml(ageText);
+
+                return '<small class="' + colorClass + '" title="Average GPU Utilization (updated ' + safeAgeText + ' ago)">' +
+                    icon + ' ' + safeGpuUtil + ' (' + safeAgeText + ')</small>';
             }
 
             if (instance.actual_status === 'running') {
@@ -144,7 +152,6 @@
             this.currentInstances = instances || [];
 
             const instanceCount = instances ? instances.length : 0;
-
             this.lastInstanceCount = instanceCount;
 
             this.updateInstanceCountBadge(instanceCount);
@@ -195,15 +202,19 @@
             const self = this;
             instances.forEach(function (instance) {
                 const actualStatus = instance.actual_status || 'starting';
-
                 const statusBadge = self.getStatusBadge(actualStatus, instance);
 
                 const uptime = instance.start_date && instance.start_date > 0
                     ? VastUtils.formatUptime(Math.floor(Date.now() / 1000 - instance.start_date))
                     : (instance.actual_status === 'running' ? 'Running' : 'Starting...');
 
-                const statusMessage = instance.status_msg ||
-                    '<em class="text-muted"><i class="fas fa-spinner fa-pulse"></i> Initializing...</em>';
+                // Status message: escape any remote text, keep your local initializing HTML only as fallback.
+                let statusMessageHtml;
+                if (instance.status_msg && String(instance.status_msg).trim() !== '') {
+                    statusMessageHtml = VastUtils.escapeHtml(String(instance.status_msg));
+                } else {
+                    statusMessageHtml = '<em class="text-muted"><i class="fas fa-spinner fa-pulse"></i> Initializing...</em>';
+                }
 
                 const costInfo = self.getCostDisplay(instance);
                 let costHtml = '<span class="fw-bold">' + costInfo.hourly + '</span>';
@@ -214,17 +225,22 @@
                     costHtml += '<br><small class="text-muted">(' + costInfo.daily + '/day)</small>';
                 }
 
-                let gpuDisplay = (instance.num_gpus || 0) + 'x ' + (instance.gpu_name || 'N/A');
-                const gpuUtilDisplay = self.getGpuUtilDisplay(instance);
+                const safeGpuName = VastUtils.escapeHtml(String(instance.gpu_name || 'N/A'));
+                const safeGpuCount = VastUtils.escapeHtml(String(instance.num_gpus || 0));
+                let gpuDisplay = safeGpuCount + 'x ' + safeGpuName;
 
+                const gpuUtilDisplay = self.getGpuUtilDisplay(instance);
                 if (gpuUtilDisplay) {
                     gpuDisplay += '<br>' + gpuUtilDisplay;
                 }
 
-                html += '<tr class="instance-row" data-instance-id="' + instance.id + '" data-instance=\'' + JSON.stringify(instance) + '\'>';
-                html += '<td class="text-center align-middle" onclick="event.stopPropagation();"><input type="checkbox" class="instance-checkbox" data-instance-id="' + instance.id + '"></td>';
-                html += '<td class="align-middle"><strong>' + instance.id + '</strong></td>';
-                html += '<td class="align-middle"><small>' + statusMessage + '</small></td>';
+                const safeCountry = VastUtils.escapeHtml(VastUtils.getCountryName(instance.geolocation));
+                const safeInstanceId = VastUtils.escapeHtml(String(instance.id));
+
+                html += '<tr class="instance-row" data-instance-id="' + safeInstanceId + '">';
+                html += '<td class="text-center align-middle" onclick="event.stopPropagation();"><input type="checkbox" class="instance-checkbox" data-instance-id="' + safeInstanceId + '"></td>';
+                html += '<td class="align-middle"><strong>' + safeInstanceId + '</strong></td>';
+                html += '<td class="align-middle"><small>' + statusMessageHtml + '</small></td>';
                 html += '<td class="align-middle">' + gpuDisplay + '</td>';
 
                 html += '<td class="text-center align-middle">';
@@ -236,15 +252,17 @@
                 html += '<td class="text-center align-middle ' + costInfo.priceClass + '">' + costHtml + '</td>';
 
                 html += '<td class="align-middle">';
-                html += '<small><i class="fas fa-globe me-1 text-muted"></i>' + VastUtils.getCountryName(instance.geolocation) + '</small>';
+                html += '<small><i class="fas fa-globe me-1 text-muted"></i>' + safeCountry + '</small>';
                 html += '</td>';
-                html += '<td class="text-center align-middle"><small>' + uptime + '</small></td>';
-                html += '<td class="text-center align-middle" onclick="event.stopPropagation();">';
 
-                html += '<button class="btn btn-sm btn-danger destroy-btn" data-instance-id="' + instance.id + '" title="Destroy Instance #' + instance.id + '">';
+                html += '<td class="text-center align-middle"><small>' + VastUtils.escapeHtml(String(uptime)) + '</small></td>';
+
+                html += '<td class="text-center align-middle" onclick="event.stopPropagation();">';
+                html += '<button class="btn btn-sm btn-danger destroy-btn" data-instance-id="' + safeInstanceId + '" title="Destroy Instance #' + safeInstanceId + '">';
                 html += '<i class="fas fa-trash-alt"></i>';
                 html += '</button>';
                 html += '</td>';
+
                 html += '</tr>';
             });
 
@@ -381,7 +399,8 @@
             });
 
             $('.instance-row').off('click').on('click', function () {
-                const instanceData = JSON.parse($(this).attr('data-instance'));
+                const instanceId = parseInt($(this).attr('data-instance-id'));
+                const instanceData = VastInstances.currentInstances.find(i => i.id === instanceId);
                 VastModals.showInstanceDetails(instanceData);
             });
         },
