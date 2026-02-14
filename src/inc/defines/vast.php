@@ -10,6 +10,9 @@ class DVastAction {
   const LIST_INSTANCES      = "listInstances";
   const LIST_INSTANCES_PERM = DAccessControl::SERVER_CONFIG_ACCESS;
 
+  const GET_INSTANCE_AGENT_STATS      = "getInstanceAgentStats";
+  const GET_INSTANCE_AGENT_STATS_PERM = DAccessControl::SERVER_CONFIG_ACCESS;
+
   const DESTROY_INSTANCE      = "destroyInstance";
   const DESTROY_INSTANCE_PERM = DAccessControl::SERVER_CONFIG_ACCESS;
 
